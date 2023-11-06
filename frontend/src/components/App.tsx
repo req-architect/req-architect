@@ -1,8 +1,10 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 function App() {
     const [text, setText] = useState('')
-    fetch(import.meta.env.VITE_APP_API_URL + '/hello').then(res => res.text()).then(setText)
+    useEffect(() => {
+        fetch(import.meta.env.VITE_APP_API_URL + '/hello').then(res => res.text()).then(setText)
+    }, []);
     return (
     <p>
         {text}
