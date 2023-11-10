@@ -1,0 +1,4 @@
+django
+django-cors-headers
+python-decouple
+psycopg2-binary
