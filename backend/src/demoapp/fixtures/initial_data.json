@@ -1,0 +1,10 @@
+[
+  {
+    "model": "demoapp.example",
+    "pk": 1,
+    "fields": {
+      "name": "Hello World",
+      "age": 15
+    }
+  }
+]
