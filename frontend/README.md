@@ -14,7 +14,7 @@ npm install
 
 ## Ustawienie środowiska
 
-Należy utworzyć plik `.env` w aktualnym katalogu i ustawić w nim zmienne środowiskowe.    
+Należy utworzyć plik `.env` w aktualnym katalogu i ustawić w nim zmienne środowiskowe.  
 Przykładowy plik `.env`:
 
 ```text

@@ -24,9 +24,6 @@ W katalogu głównym projektu należy utworzyć plik `.env` i ustawić w nim zmi
 Przykładowy plik `.env`:
 
 ```text
-POSTGRES_DB="postgres"
-POSTGRES_USER="postgres"
-POSTGRES_PASSWORD="pass"
 APP_ADDRESS="http://localhost"
 ```
 
@@ -60,15 +57,6 @@ Zatrzymanie:
 docker-compose down
 ```
 
-### Zmiany w kodzie podczas działania aplikacji 
+### Zmiany w kodzie podczas działania aplikacji
 
 Wszystkie zmiany w katalogach `frontend/src` i `backend/src` są automatycznie wykrywane i aplikowane w kontenerach.
-
-### Zarządzanie bazą danych
-
-W razie potrzeby można wykonać skrypty:
-
-- `migrate.sh` - w przypadku zmian modelu bazy danych
-- `init_db.sh` - w przypadku zmian domyślnych danych (nadpisuje dane o tych samych kluczach głównych i potencjalnie dodaje nowe)
-
-W innym wypadku zmiany zostaną naniesione dopiero przy następnych uruchomieniu aplikacji.
