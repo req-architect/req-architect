@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    command: python src/manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      CORS_ALLOWED_ORIGINS: ${APP_ADDRESS}:3000
+    volumes:
+      - ./backend/src:/app/src
+  frontend:
+    build: ./frontend
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      VITE_APP_API_URL: ${APP_ADDRESS}:8000
+    volumes:
+      - ./frontend/src:/app/src
