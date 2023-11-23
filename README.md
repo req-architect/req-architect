@@ -1,7 +1,7 @@
 # PZSP2-KUKIWAKO
 
 Projekt z przedmiotu PZSP2 w semestrze 23Z.  
-Zespół nr 10 - KUKIWAKO  
+Zespół nr 7 - KUKIWAKO  
 
 Skład:
 
