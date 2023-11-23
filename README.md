@@ -11,7 +11,7 @@ Skład:
 - Mateusz Kiełbus
 
 ## Cel projektu
-Celem naszego projektu jest stworzenie serwisu internetowego umożlwiającego zarządzanie wymaganiami w projektach informatycznych z pomocą nakładki graficznej na narzędzie „doorstop”. Aplikacja będzie skierowana dla osób nietechnicznych, aby nie musiały wykonywać poszczególnych komend z poziomu konsoli. Przedstawi im strukturę wymagań w postaci czytelnego diagramu UML. Pozwoli na integrację z wybranym zdalnym repozytorium git.
+Celem naszego projektu jest stworzenie serwisu internetowego umożlwiającego zarządzanie wymaganiami w projektach informatycznych z pomocą nakładki graficznej na narzędzie „doorstop”. Aplikacja będzie skierowana dla osób nietechnicznych, aby nie musiały wykonywać poszczególnych komend z poziomu konsoli. Pozwoli na tworzenie diagramów UML i integrację z wybranym zdalnym repozytorium git.
 
 ## Instalacja i uruchamianie w trybie deweloperskim
 
