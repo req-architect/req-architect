@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'demoapp.apps.DemoappConfig',
     'rest_framework',
     'doorstop',
-    'gitpython',
+    'git',
     'corsheaders',
 ]
 
