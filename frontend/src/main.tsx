@@ -3,10 +3,15 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import MainPage from "./pages/MainPage.tsx";
+import ChoosingRepoPage from "./pages/ChoosingRepoPage.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <ChoosingRepoPage />,
+  },
+  {
+    path: "/main",
     element: <MainPage />,
   },
 ]);
