@@ -4,5 +4,6 @@ from . import views
 
 
 urlpatterns = [
-    path('hello/', views.sey_hello)
+    path('hello/', views.sey_hello),
+    path('docs/', views.getDocuments)
 ]
