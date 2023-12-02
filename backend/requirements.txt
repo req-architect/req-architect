@@ -4,3 +4,4 @@ djangorestframework
 python-decouple
 psycopg2-binary
 doorstop
+gitpython
