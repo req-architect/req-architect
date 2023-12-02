@@ -1,9 +1,9 @@
-export type Document = {
+export type ReqDocument = {
     prefix: string
 }
 
-export type DocumentWithChildren = Document & {
-    children?: DocumentWithChildren[]
+export type ReqDocumentWithChildren = ReqDocument & {
+    children?: ReqDocumentWithChildren[]
 }
 
 export type Requirement = {
