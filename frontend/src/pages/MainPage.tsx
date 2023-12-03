@@ -39,8 +39,7 @@ export default function MainPage() {
               flexDirection: "column",
             }}
           >
-            {/* <DocumentList updateDocument={updateDocument} /> */}
-            <DocumentList />
+            <DocumentList updateDocument={updateDocument} />
             <AddRequirement />
           </Grid>
 

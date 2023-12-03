@@ -19,12 +19,35 @@ import StarBorder from '@mui/icons-material/StarBorder';
 import ListItem from '@mui/material/ListItem';
 import Button from '@mui/material/Button';
 
-export default function DocumentList() {
-  const [open, setOpen] = React.useState(true);
+export default function DocumentList({
+  updateDocument,
+}: {
+  updateDocument: (document: ReqDocument) => void;
+}) {
+  const [text, setText] = useState("");
+  useEffect(() => {
+    // fetch(import.meta.env.VITE_APP_API_URL + '/demoapp/hello').then(res => res.text()).then(setText)
+    setText("TEST");
+  }, []);
 
-  const handleClick = () => {
-    setOpen(!open);
+  const [openStates, setOpenStates] = useState([false, false]);
+
+  const handleClick = (index: number) => {
+    setOpenStates((prev) =>
+      prev.map((value, i) => (i === index ? !value : value))
+    );
   };
+
+  const handleDelete = (itemName: string) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${itemName}?`
+    );
+    if (confirmDelete) {
+      alert(`Deleted ${itemName}`);
+      // Perform deletion logic if needed
+    }
+  };
+
 
   return (
     <List
@@ -32,20 +55,21 @@ export default function DocumentList() {
       component="nav"
     >
       <ListItem>
-        <ListItemButton onClick={handleClick}>
+        <ListItemButton onClick={() => handleClick(0)}>
           <ListItemIcon>
             <FolderIcon />
           </ListItemIcon>
           <ListItemText primary="Document 1" />
-          {open ? <ExpandLess /> : <ExpandMore />}
+          {openStates[0] ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
         <IconButton
           edge="end"
-          aria-label="delete">
+          aria-label="delete"
+          onClick={() => handleDelete("Document 1")}>
           <DeleteIcon/>
         </IconButton>
       </ListItem>
-      <Collapse in={open} timeout="auto" unmountOnExit>
+      <Collapse in={openStates[0]} timeout="auto" unmountOnExit>
         <List sx={{ pl: 2 }}>
           <ListItem>
             <ListItemButton>
@@ -56,25 +80,60 @@ export default function DocumentList() {
             </ListItemButton>
             <IconButton
                 edge="end"
-                aria-label="delete">
+                aria-label="delete"
+                onClick={() => handleDelete("Document 1.1")}>
+                <DeleteIcon/>
+            </IconButton>
+          </ListItem>
+        </List>
+      </Collapse>
+      <ListItem>
+        <ListItemButton onClick={() => handleClick(1)}>
+          <ListItemIcon>
+            <FolderIcon />
+          </ListItemIcon>
+          <ListItemText primary="Document 2" />
+          {openStates[0] ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <IconButton
+          edge="end"
+          aria-label="delete"
+          onClick={() => handleDelete("Document 2")}>
+          <DeleteIcon/>
+        </IconButton>
+      </ListItem>
+      <Collapse in={openStates[1]} timeout="auto" unmountOnExit>
+        <List sx={{ pl: 2 }}>
+          <ListItem>
+            <ListItemButton>
+              <ListItemIcon>
+                <FolderIcon />
+              </ListItemIcon>
+              <ListItemText primary="Document 2.1" />
+            </ListItemButton>
+            <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => handleDelete("Document 2.1")}>
+                <DeleteIcon/>
+              </IconButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton>
+              <ListItemIcon>
+                <FolderIcon />
+              </ListItemIcon>
+              <ListItemText primary="Document 2.2" />
+            </ListItemButton>
+            <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => handleDelete("Document 2.2")}>
                 <DeleteIcon/>
               </IconButton>
           </ListItem>
         </List>
       </Collapse>
-      <ListItem>
-        <ListItemButton onClick={handleClick}>
-          <ListItemIcon>
-            <FolderIcon />
-          </ListItemIcon>
-          <ListItemText primary="Document 2" />
-        </ListItemButton>
-        <IconButton
-          edge="end"
-          aria-label="delete">
-          <DeleteIcon/>
-        </IconButton>
-      </ListItem>
     </List>
   );
 }
