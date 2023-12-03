@@ -79,6 +79,8 @@ def DeleteChildren(children: list[doorstop.Document], userFolder: str):
         docTree = doorstop.build()
         doc = docTree.find_document(child)
         grandChildren = doc.children
+        for req in doc.items:
+            RemoveLinksToReq(str(req.uid), docTree.documents, userFolder)
         for grandChild in grandChildren:
             DeleteChildren(grandChild.children)
         doc.delete()
@@ -91,6 +93,8 @@ def deleteUserDocument(docId: str, userFolder: str) -> bool:
         docTree = doorstop.build()
         doc = docTree.find_document(docId)
         DeleteChildren(doc.children, userFolder)
+        for req in doc.items:
+            RemoveLinksToReq(str(req.uid), docTree.documents, userFolder)
         doc.delete()
         return True
     except doorstop.DoorstopError:
