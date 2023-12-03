@@ -160,7 +160,7 @@ def getDocuments(request):
             "/app/serverInfo.log")
         if serverInfo:
             documents = demoapp.restHandlersHelpers.getDocuments(
-                serverInfo["rootFolder"])
+                serverInfo["rootFolder"] + "/user")
             if not documents:
                 return JsonResponse([], safe=False)
             serialized = demoapp.restHandlersHelpers.serializeDocuments(
