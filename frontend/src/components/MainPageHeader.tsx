@@ -5,7 +5,7 @@ export default function MainPageHeader() {
   return (
     <AppBar
       position="static"
-      sx={{ backgroundColor: '#EEEEEE', border: '1px solid green', boxShadow: 'none'}}>
+      sx={{ backgroundColor: '#EEEEEE', border: '1px solid green', boxShadow: 'none', justifyContent: "center"}}>
       <Toolbar>
         <Typography
           variant="h5"

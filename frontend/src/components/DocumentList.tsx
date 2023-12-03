@@ -93,7 +93,7 @@ export default function DocumentList({
             <FolderIcon />
           </ListItemIcon>
           <ListItemText primary="Document 2" />
-          {openStates[0] ? <ExpandLess /> : <ExpandMore />}
+          {openStates[1] ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
         <IconButton
           edge="end"
