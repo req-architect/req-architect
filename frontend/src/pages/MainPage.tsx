@@ -7,6 +7,8 @@ import { ReqDocument, Requirement } from "../types.ts";
 import Grid from "@mui/material/Grid";
 import AddRequirement from "../components/AddRequirement.tsx";
 import Metadata from "../components/Metadata.tsx";
+import { Box } from "@mui/material";
+import Paper from '@mui/material/Paper';
 
 export default function MainPage() {
   const [selectedDocReq, setSelectedDocReq] = useState<
@@ -17,16 +19,15 @@ export default function MainPage() {
   }
   function updateRequirement(requirement: Requirement) {
     setSelectedDocReq((prev) => [prev[0], requirement]);
-  }
+  }"100%"
   return (
-    <>
+    <div style={{ height: '100vh'}}>
       <MainPageHeader />
-      <Grid container visibility={"hidden"} m={0}>
+      <Grid display="flex" height="100%" flexDirection="column">
         <Grid
           container
           sx={{
-            height: "90vh",
-            minWidth: 1025,
+            height: "100%",
             visibility: "visible",
             justifyContent: "space-between",
           }}
@@ -34,7 +35,7 @@ export default function MainPage() {
           <Grid
             sx={{
               borderRight: "1px solid green",
-              width: "25%",
+              minWidth: "fill-content",
               display: "flex",
               flexDirection: "column",
             }}
@@ -58,6 +59,47 @@ export default function MainPage() {
           <Metadata />
         </Grid>
       </Grid>
-    </>
+    </div>
   );
 }
+
+{/* <>
+      <MainPageHeader />
+      <Grid container visibility={"hidden"} m={0}>
+        <Grid
+          container
+          sx={{
+            height: "90vh",
+            minWidth: 1025,
+            visibility: "visible",
+            justifyContent: "space-between",
+          }}
+        >
+          <Grid
+            sx={{
+              borderRight: "1px solid green",
+              minWidth: "fill-content",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <DocumentList updateDocument={updateDocument} />
+            <AddRequirement />
+          </Grid>
+
+          <Grid
+            container
+            direction={"column"}
+            sx={{ p: 0, width: "50%", allignContent: "center" }}
+          >
+            <RequirementList
+              document={selectedDocReq[0]}
+              updateRequirement={updateRequirement}
+            />
+            <RequirementDetails requirement={selectedDocReq[1]} />
+          </Grid>
+
+          <Metadata />
+        </Grid>
+      </Grid>
+    </> */}
