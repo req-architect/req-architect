@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ReqDocument } from "../types.ts";
+import { ReqDocument } from "../../types.ts";
 import { useEffect, useState } from "react";
 import ListSubheader from "@mui/material/ListSubheader";
 import List from "@mui/material/List";

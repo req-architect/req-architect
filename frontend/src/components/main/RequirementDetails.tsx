@@ -1,4 +1,4 @@
-import {Requirement} from "../types.ts";
+import {Requirement} from "../../types.ts";
 
 export default function RequirementDetails({requirement}: {requirement: Requirement | null}) {
     return (

@@ -1,12 +1,12 @@
-import MainPageHeader from "../components/MainPageHeader.tsx";
-import DocumentList from "../components/DocumentList.tsx";
-import RequirementList from "../components/RequirementList.tsx";
-import RequirementDetails from "../components/RequirementDetails.tsx";
+import MainPageHeader from "../components/main/MainPageHeader.tsx";
+import DocumentList from "../components/main/DocumentList.tsx";
+import RequirementList from "../components/main/RequirementList.tsx";
+import RequirementDetails from "../components/main/RequirementDetails.tsx";
 import { useState } from "react";
 import { ReqDocument, Requirement } from "../types.ts";
 import Grid from "@mui/material/Grid";
-import AddRequirement from "../components/AddRequirement.tsx";
-import Metadata from "../components/Metadata.tsx";
+import AddRequirement from "../components/main/AddRequirement.tsx";
+import Metadata from "../components/main/Metadata.tsx";
 import { Box } from "@mui/material";
 import Paper from '@mui/material/Paper';
 
