@@ -35,18 +35,53 @@ def setWorkingDirectory(userFolder: str) -> bool:
         return False
     else:
         os.chdir(userFolder)
+        return True
 
 
-def addUserDocument(docId: str, userFolder: str) -> bool:
+# def setDocumentAsParent(doc1Id: str, doc2Id: str, userFolder: str) -> bool:
+#     if not setWorkingDirectory(userFolder):
+#         return False
+#     try:
+#         docTree = doorstop.build()
+#         doc1 = docTree.find_document(doc1Id)
+#         doc1.parent = doc2Id
+#         return True
+#     except doorstop.DoorstopError:
+#         return False
+
+
+# def setDocumentParentToNull(doc1Id: str, userFolder: str) -> bool:
+#     if not setWorkingDirectory(userFolder):
+#         return False
+#     try:
+#         docTree = doorstop.build()
+#         doc1 = docTree.find_document(doc1Id)
+#         doc1.parent = None
+#         return True
+#     except doorstop.DoorstopError:
+#         return False
+
+
+def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
     if not setWorkingDirectory(userFolder):
         if not initRepoFolder(userFolder):
             return False
     try:
         docTree = doorstop.build()
-        docTree.create_document(userFolder + docId, docId)
+        docTree.create_document(userFolder + docId, docId, parent=parentId)
         return True
     except doorstop.DoorstopError:
         return False
+
+
+def DeleteChildren(children: list[doorstop.Document], userFolder: str):
+    for child in children:
+        docTree = doorstop.build()
+        doc = docTree.find_document(child)
+        grandChildren = doc.children
+        for grandChild in grandChildren:
+            DeleteChildren(grandChild.children)
+        doc.delete()
 
 
 def deleteUserDocument(docId: str, userFolder: str) -> bool:
@@ -55,13 +90,14 @@ def deleteUserDocument(docId: str, userFolder: str) -> bool:
     try:
         docTree = doorstop.build()
         doc = docTree.find_document(docId)
+        DeleteChildren(doc.children, userFolder)
         doc.delete()
         return True
     except doorstop.DoorstopError:
         return False
 
 
-def addUserRequirement(docId: str, reqNumberId: str, reqText: str, userFolder: str) -> bool:
+def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: str) -> bool:
     if not setWorkingDirectory(userFolder):
         return False
     try:
@@ -73,6 +109,16 @@ def addUserRequirement(docId: str, reqNumberId: str, reqText: str, userFolder: s
         return True
     except doorstop.DoorstopError:
         return False
+    except TypeError:
+        return False
+
+
+def RemoveLinksToReq(reqId: str, documents: list[doorstop.Document], userFolder: str):
+    for doc in documents:
+        reqs = doc.items
+        for req in reqs:
+            if str(req.uid) != reqId:
+                deleteUserLink(str(req.uid), reqId, userFolder)
 
 
 def deleteUserRequirement(docId: str, reqUID: str, userFolder: str) -> bool:
@@ -82,6 +128,7 @@ def deleteUserRequirement(docId: str, reqUID: str, userFolder: str) -> bool:
         docTree = doorstop.build()
         doc = docTree.find_document(docId)
         req = doc.find_item(reqUID)
+        RemoveLinksToReq(reqUID, docTree.documents, userFolder)
         req.delete()
         return True
     except doorstop.DoorstopError:
@@ -123,15 +170,19 @@ def deleteUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
         return False
 
 
-def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or None:
+def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list or None:
     if not setWorkingDirectory(userFolder):
         return None
-    docTree = doorstop.build()
-    doc = docTree.find_document(docId)
-    return doc.items
+    try:
+        docTree = doorstop.build()
+        doc = docTree.find_document(docId)
+        reqs = doc.items
+    except doorstop.DoorstopError:
+        return None
+    return reqs
 
 
-def getDocuments(userFolder: str) -> list[doorstop.Document] or None:
+def getDocuments(userFolder: str) -> list[doorstop.Document] or list or None:
     if not setWorkingDirectory(userFolder):
         return None
     docTree = doorstop.build()
