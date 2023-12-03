@@ -19,11 +19,6 @@ def buildDicts(document):
 def serializeDocuments(documents):
     data = []
     for document in documents:
-        data.append({})
-        data[-1]["prefix"] = str(document.prefix)
-        data[-1]["children"] = []
-        for child in document.children:
-            doc = doorstop.find_document(str(child))
-            data[-1]["children"].append(
-                buildDicts(doc))
+        if not document.parent:
+            data.append(buildDicts(document))
     return data
