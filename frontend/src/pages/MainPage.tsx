@@ -34,12 +34,13 @@ export default function MainPage() {
           <Grid
             sx={{
               borderRight: "1px solid green",
-              width: "25%",
+              minWidth: "fill-content",
               display: "flex",
               flexDirection: "column",
             }}
           >
-            <DocumentList updateDocument={updateDocument} />
+            {/* <DocumentList updateDocument={updateDocument} /> */}
+            <DocumentList />
             <AddRequirement />
           </Grid>
 

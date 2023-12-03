@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { ReqDocument } from "../types.ts";
 import { useEffect, useState } from "react";
 import ListSubheader from "@mui/material/ListSubheader";
@@ -9,41 +10,76 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import DescriptionIcon from "@mui/icons-material/Description";
-import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import Grid from "@mui/material/Grid";
+import FolderIcon from '@mui/icons-material/Folder';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SendIcon from '@mui/icons-material/Send';
+import StarBorder from '@mui/icons-material/StarBorder';
+import ListItem from '@mui/material/ListItem';
+import Button from '@mui/material/Button';
 
-export default function DocumentList({
-  updateDocument,
-}: {
-  updateDocument: (document: ReqDocument) => void;
-}) {
-  const [text, setText] = useState("");
-  useEffect(() => {
-    // fetch(import.meta.env.VITE_APP_API_URL + '/demoapp/hello').then(res => res.text()).then(setText)
-    setText("TEST");
-  }, []);
+export default function DocumentList() {
+  const [open, setOpen] = React.useState(true);
 
-  const [openStates, setOpenStates] = useState([false, false]);
-
-  const handleIsOpen = (index: number) => {
-    setOpenStates((prev) =>
-      prev.map((value, i) => (i === index ? !value : value))
-    );
-  };
-
-  const handleDelete = (itemName: string) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete ${itemName}?`
-    );
-    if (confirmDelete) {
-      alert(`Deleted ${itemName}`);
-      // Perform deletion logic if needed
-    }
+  const handleClick = () => {
+    setOpen(!open);
   };
 
   return (
-    <Grid
+    <List
+      sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+      component="nav"
+    >
+      <ListItem>
+        <ListItemButton onClick={handleClick}>
+          <ListItemIcon>
+            <FolderIcon />
+          </ListItemIcon>
+          <ListItemText primary="Document 1" />
+          {open ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <IconButton
+          edge="end"
+          aria-label="delete">
+          <DeleteIcon/>
+        </IconButton>
+      </ListItem>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List sx={{ pl: 2 }}>
+          <ListItem>
+            <ListItemButton>
+              <ListItemIcon>
+                <FolderIcon />
+              </ListItemIcon>
+              <ListItemText primary="Document 1.1" />
+            </ListItemButton>
+            <IconButton
+                edge="end"
+                aria-label="delete">
+                <DeleteIcon/>
+              </IconButton>
+          </ListItem>
+        </List>
+      </Collapse>
+      <ListItem>
+        <ListItemButton onClick={handleClick}>
+          <ListItemIcon>
+            <FolderIcon />
+          </ListItemIcon>
+          <ListItemText primary="Document 2" />
+        </ListItemButton>
+        <IconButton
+          edge="end"
+          aria-label="delete">
+          <DeleteIcon/>
+        </IconButton>
+      </ListItem>
+    </List>
+  );
+}
+
+{/* <Grid
       sx={{
         height: "90%",
       }}
@@ -120,6 +156,4 @@ export default function DocumentList({
           </List>
         </Collapse>
       </List>
-    </Grid>
-  );
-}
+    </Grid> */}
