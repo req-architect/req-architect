@@ -1,25 +1,51 @@
-import MainPageHeader from "../components/MainPageHeader.tsx";
-import DocumentList from "../components/DocumentList.tsx";
-import RequirementList from "../components/RequirementList.tsx";
-import RequirementDetails from "../components/RequirementDetails.tsx";
-import { useState } from "react";
-import { ReqDocument, Requirement } from "../types.ts";
+import MainPageHeader from "../components/main/MainPageHeader.tsx";
+import DocumentList from "../components/main/DocumentList.tsx";
+import RequirementList from "../components/main/RequirementList.tsx";
+import RequirementDetails from "../components/main/RequirementDetails.tsx";
+import {useState} from "react";
+import {ReqDocument, Requirement} from "../types.ts";
 import Grid from "@mui/material/Grid";
-import AddRequirement from "../components/AddRequirement.tsx";
-import Metadata from "../components/Metadata.tsx";
+import AddRequirement from "../components/main/AddRequirement.tsx";
+import Metadata from "../components/main/Metadata.tsx";
+import TextField from '@mui/material/TextField';
+import { Box, Container } from "@mui/material";
+import {Typography} from "@mui/material";
 
 export default function MainPage() {
-  const [selectedDocReq, setSelectedDocReq] = useState<
-    [ReqDocument | null, Requirement | null]
-  >([null, null]);
-  function updateDocument(document: ReqDocument) {
-    setSelectedDocReq([document, null]);
-  }
-  function updateRequirement(requirement: Requirement) {
-    setSelectedDocReq((prev) => [prev[0], requirement]);
-  }
-  return (
-    <>
+    const [selectedDocReq, setSelectedDocReq] = useState<
+        [ReqDocument | null, Requirement | null]
+    >([null, null]);
+
+    function updateDocument(document: ReqDocument) {
+        setSelectedDocReq([document, null]);
+    }
+
+    function updateRequirement(requirement: Requirement) {
+        setSelectedDocReq((prev) => [prev[0], requirement]);
+    }
+
+    // "100%"
+    return (
+        <div style={{height: '100vh'}}>
+            <MainPageHeader/>
+            <Grid container spacing={10}>
+              <Grid item xs={3} display={"flex"} flexDirection={"column"}>
+                <DocumentList updateDocument={updateDocument}/>
+                <AddRequirement />
+              </Grid>
+              <Grid item xs={6}>
+                <RequirementList/>
+              </Grid>
+              <Grid item xs={1}/>
+              <Grid item xs={2}>
+                <Metadata/>
+              </Grid>
+            </Grid>
+        </div>
+    );
+}
+
+{/* <>
       <MainPageHeader />
       <Grid container visibility={"hidden"} m={0}>
         <Grid
@@ -34,7 +60,7 @@ export default function MainPage() {
           <Grid
             sx={{
               borderRight: "1px solid green",
-              width: "25%",
+              minWidth: "fill-content",
               display: "flex",
               flexDirection: "column",
             }}
@@ -58,6 +84,5 @@ export default function MainPage() {
           <Metadata />
         </Grid>
       </Grid>
-    </>
-  );
+    </> */
 }
