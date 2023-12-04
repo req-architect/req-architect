@@ -2,10 +2,14 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from doorstop import settings
 
 
 def main():
     """Run administrative tasks."""
+    settings.ADDREMOVE_FILES = False
+    settings.CACHE_DOCUMENTS = False
+    settings.CACHE_ITEMS = False
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.settings')
     try:
         from django.core.management import execute_from_command_line

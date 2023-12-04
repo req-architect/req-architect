@@ -17,11 +17,9 @@ def sey_hello(request) -> HttpResponse:
 def add_Document(request):
     serverInfo = demoapp.restHandlersHelpers.readServerInfo(
         "/app/serverInfo.log")
-    with open("/app/addTest", "w") as filehandle:
-        filehandle.writelines(request.data.get("docId"))
     if not serverInfo:
         return Response({'message': 'Unable to add document. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-    if not demoapp.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), serverInfo["usersFolder"] + "user/"):
+    if not demoapp.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), serverInfo["usersFolder"] + "/user"):
         return Response({'message': 'Unable to add document. Could not build documents tree or root document exists and you need to specify the parent document.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
@@ -32,7 +30,7 @@ def add_Requirement(request):
         "/app/serverInfo.log")
     if not serverInfo:
         return Response({'message': 'Unable to add requirement. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-    if not demoapp.restHandlersHelpers.addUserRequirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), serverInfo["usersFolder"] + "user/"):
+    if not demoapp.restHandlersHelpers.addUserRequirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), serverInfo["usersFolder"] + "/user"):
         return Response({'message': 'Unable to add requirement. Invalid document uid or invalid req number or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
@@ -43,7 +41,7 @@ def delete_Document(request):
         "/app/serverInfo.log")
     if not serverInfo:
         return Response({'message': 'Unable to delete document. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-    if not demoapp.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), serverInfo["usersFolder"] + "user/"):
+    if not demoapp.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), serverInfo["usersFolder"] + "/user"):
         return Response({'message': 'Unable to delete document. Specified document does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
@@ -53,9 +51,9 @@ def delete_Requirement(request):
     serverInfo = demoapp.restHandlersHelpers.readServerInfo(
         "/app/serverInfo.log")
     if not serverInfo:
-        return Response({'message': 'Unable to add requirement. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-    if not demoapp.restHandlersHelpers.deleteUserRequirement(request.data.get("docId"), request.data.get("reqId"), serverInfo["usersFolder"] + "user/"):
-        return Response({'message': 'Unable to add requirement. Specified requirement does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response({'message': 'Unable to delete requirement. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    if not demoapp.restHandlersHelpers.deleteUserRequirement(request.data.get("docId"), request.data.get("reqId"), serverInfo["usersFolder"] + "/user"):
+        return Response({'message': 'Unable to delete requirement. Specified requirement does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -65,7 +63,7 @@ def edit_Requirement(request):
         "/app/serverInfo.log")
     if not serverInfo:
         return Response({'message': 'Unable to modify requirement. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-    if not demoapp.restHandlersHelpers.editUserRequirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), serverInfo["usersFolder"] + "user/"):
+    if not demoapp.restHandlersHelpers.editUserRequirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), serverInfo["usersFolder"] + "/user"):
         return Response({'message': 'Unable to modify requirement. At least one of specified uids is invalid or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
@@ -76,7 +74,7 @@ def link_Requirements(request):
         "/app/serverInfo.log")
     if not serverInfo:
         return Response({'message': 'Unable to link requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-    if not demoapp.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), serverInfo["usersFolder"] + "user/"):
+    if not demoapp.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), serverInfo["usersFolder"] + "/user"):
         return Response({'message': 'Unable to link requirements. At least one of the given requirements does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
@@ -87,7 +85,7 @@ def unlink_Requirements(request):
         "/app/serverInfo.log")
     if not serverInfo:
         return Response({'message': 'Unable to unlink requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-    if not demoapp.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), serverInfo["usersFolder"] + "user/"):
+    if not demoapp.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), serverInfo["usersFolder"] + "/user"):
         return Response({'message': 'Unable to unlink requirements. At least one of the given requirements does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
@@ -99,7 +97,7 @@ def getReqs(request):
     if not serverInfo:
         return Response({'message': 'Unable to get requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     reqs = demoapp.restHandlersHelpers.getDocReqs(
-        request.data.get("docId"), serverInfo["usersFolder"] + "user/")
+        request.data.get("docId"), serverInfo["usersFolder"] + "/user")
     if not reqs:
         return JsonResponse([], safe=False)
     serialized = demoapp.restHandlersHelpers.serializeDocReqs(reqs)
@@ -113,11 +111,11 @@ def getDocuments(request):
     if not serverInfo:
         return Response({'message': 'Unable to get documents. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     documents = demoapp.restHandlersHelpers.getDocuments(
-        serverInfo["usersFolder"] + "user/")
+        serverInfo["usersFolder"] + "/user")
     if not documents:
         return JsonResponse([], safe=False)
     serialized = demoapp.restHandlersHelpers.serializeDocuments(
-        documents)
+        documents, serverInfo["usersFolder"] + "/user")
     return JsonResponse(serialized, safe=False)
 
 
