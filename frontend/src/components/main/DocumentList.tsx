@@ -8,34 +8,6 @@ import { TreeView } from '@mui/x-tree-view/TreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 
 
-
-const documents = [
-    {
-        number: 1,
-        subdocuments: [1, 2, 3]
-    },
-    {
-        number: 2,
-        subdocuments: [1, 2]
-    },
-    {
-        number: 3,
-        subdocuments: [1, 2]
-    },
-    {
-        number: 4,
-        subdocuments: [1, 2, 3]
-    },
-    {
-        number: 5,
-        subdocuments: [1]
-    },
-    {
-        number: 6,
-        subdocuments: [1]
-    }
-];
-
 interface RenderTree {
     id: string;
     name: string;
@@ -84,16 +56,6 @@ const data: RenderTree = {
   };
 
 export default function DocumentList({updateDocument}: {updateDocument: (document: ReqDocument) => void; }) {
-    const [openStates, setOpenStates] = useState(Array(documents.length + 1).fill(false));
-    useEffect(() => {
-        updateDocument({prefix: "Document 1"})
-    }, [updateDocument]);
-    const handleClick = (index: number) => {
-        setOpenStates((prev) =>
-            prev.map((value, i) => (i === index ? !value : value))
-        );
-    };
-
     const handleDelete = (itemName: string) => {
         const confirmDelete = window.confirm(
             `Are you sure you want to delete ${itemName}?`
