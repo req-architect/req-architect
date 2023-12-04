@@ -13,11 +13,36 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ListItem from '@mui/material/ListItem';
 
 
-const documents = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const documents = [
+    {
+        number: 1,
+        subdocuments: [1, 2, 3]
+    },
+    {
+        number: 2,
+        subdocuments: [1, 2]
+    },
+    {
+        number: 3,
+        subdocuments: [1, 2]
+    },
+    {
+        number: 4,
+        subdocuments: [1, 2, 3]
+    },
+    {
+        number: 5,
+        subdocuments: [1]
+    },
+    {
+        number: 6,
+        subdocuments: [1]
+    }
+];
 
 
 export default function DocumentList({updateDocument}: {updateDocument: (document: ReqDocument) => void; }) {
-    const [openStates, setOpenStates] = useState(Array(documents.length).fill(false));
+    const [openStates, setOpenStates] = useState(Array(documents.length + 1).fill(false));
     useEffect(() => {
         updateDocument({prefix: "Document 1"})
     }, [updateDocument]);
@@ -42,104 +67,45 @@ export default function DocumentList({updateDocument}: {updateDocument: (documen
             sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}
             component="nav"
         >
-            {documents.map((doc_nr) => (
+        {documents.map((doc) => (
+            <>
                 <ListItem>
-                <ListItemButton onClick={() => handleClick(doc_nr)}>
-                    <ListItemIcon>
-                        <FolderIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary= {"Document " + doc_nr}/>
-                    {openStates[doc_nr] ? <ExpandLess/> : <ExpandMore/>}
-                </ListItemButton>
-                <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => handleDelete("Document " + doc_nr)}>
-                    <DeleteIcon/>
-                </IconButton>
-            </ListItem>
-            ))}
+                    <ListItemButton onClick={() => handleClick(doc.number)}>
+                        <ListItemIcon>
+                            <FolderIcon/>
+                        </ListItemIcon>
+                        <ListItemText primary= {"Document " + doc.number}/>
+                        {openStates[doc.number] ? <ExpandLess/> : <ExpandMore/>}
+                    </ListItemButton>
+                    <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleDelete("Document " + doc.number)}>
+                        <DeleteIcon/>
+                    </IconButton>
+                </ListItem>
+                {doc.subdocuments.map((subdoc)=> (
+                    <Collapse in={openStates[doc.number]} timeout="auto" unmountOnExit>
+                    <List sx={{pl: 2}}>
+                        <ListItem>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <FolderIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary={"Document " + doc.number + "." + subdoc}/>
+                            </ListItemButton>
+                            <IconButton
+                                edge="end"
+                                aria-label="delete"
+                                onClick={() => handleDelete("Document " + doc.number + "." + subdoc)}>
+                                <DeleteIcon/>
+                            </IconButton>
+                        </ListItem>
+                    </List>
+                </Collapse>
+                ))}
+            </>
+        ))}
         </List>
     );
 }
-
-{/* <ListItem>
-                <ListItemButton onClick={() => handleClick(0)}>
-                    <ListItemIcon>
-                        <FolderIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary="Document 1"/>
-                    {openStates[0] ? <ExpandLess/> : <ExpandMore/>}
-                </ListItemButton>
-                <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => handleDelete("Document 1")}>
-                    <DeleteIcon/>
-                </IconButton>
-            </ListItem>
-            <Collapse in={openStates[0]} timeout="auto" unmountOnExit>
-                <List sx={{pl: 2}}>
-                    <ListItem>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <FolderIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Document 1.1"/>
-                        </ListItemButton>
-                        <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            onClick={() => handleDelete("Document 1.1")}>
-                            <DeleteIcon/>
-                        </IconButton>
-                    </ListItem>
-                </List>
-            </Collapse>
-            <ListItem>
-                <ListItemButton onClick={() => handleClick(1)}>
-                    <ListItemIcon>
-                        <FolderIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary="Document 2"/>
-                    {openStates[1] ? <ExpandLess/> : <ExpandMore/>}
-                </ListItemButton>
-                <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => handleDelete("Document 2")}>
-                    <DeleteIcon/>
-                </IconButton>
-            </ListItem>
-            <Collapse in={openStates[1]} timeout="auto" unmountOnExit>
-                <List sx={{pl: 2}}>
-                    <ListItem>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <FolderIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Document 2.1"/>
-                        </ListItemButton>
-                        <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            onClick={() => handleDelete("Document 2.1")}>
-                            <DeleteIcon/>
-                        </IconButton>
-                    </ListItem>
-                    <ListItem>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <FolderIcon/>
-                            </ListItemIcon>
-                            <ListItemText primary="Document 2.2"/>
-                        </ListItemButton>
-                        <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            onClick={() => handleDelete("Document 2.2")}>
-                            <DeleteIcon/>
-                        </IconButton>
-                    </ListItem>
-                </List>
-            </Collapse> */}
