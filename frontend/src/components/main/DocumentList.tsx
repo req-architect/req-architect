@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {ReqDocument} from "../../types.ts";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -14,7 +14,9 @@ import ListItem from '@mui/material/ListItem';
 
 export default function DocumentList({updateDocument}: {updateDocument: (document: ReqDocument) => void; }) {
     const [openStates, setOpenStates] = useState([false, false]);
-    updateDocument({prefix: "Document 1"})
+    useEffect(() => {
+        updateDocument({prefix: "Document 1"})
+    }, [updateDocument]);
     const handleClick = (index: number) => {
         setOpenStates((prev) =>
             prev.map((value, i) => (i === index ? !value : value))
