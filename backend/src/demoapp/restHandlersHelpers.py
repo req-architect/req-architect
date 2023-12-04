@@ -105,7 +105,7 @@ def deleteUserDocument(docId: str, userFolder: str) -> bool:
     except doorstop.DoorstopError:
         return False
     except FileNotFoundError:
-        return None
+        return False
 
 
 def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: str) -> bool:
@@ -120,8 +120,6 @@ def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: s
         return False
     except TypeError:
         return False
-    except FileNotFoundError:
-        return None
 
 
 def RemoveLinksToReq(reqId: str, documents: list[doorstop.Document], userFolder: str):
@@ -144,7 +142,7 @@ def deleteUserRequirement(docId: str, reqUID: str, userFolder: str) -> bool:
     except doorstop.DoorstopError:
         return False
     except FileNotFoundError:
-        return None
+        return False
 
 
 def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str) -> bool:
@@ -156,8 +154,6 @@ def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str) 
         return True
     except doorstop.DoorstopError:
         return False
-    except FileNotFoundError:
-        return None
 
 
 def addUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
@@ -167,8 +163,6 @@ def addUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
         return True
     except doorstop.DoorstopError:
         return False
-    except FileNotFoundError:
-        return None
 
 
 def deleteUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
