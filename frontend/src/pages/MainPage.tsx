@@ -8,7 +8,7 @@ import Grid from "@mui/material/Grid";
 import AddRequirement from "../components/main/AddRequirement.tsx";
 import Metadata from "../components/main/Metadata.tsx";
 import TextField from '@mui/material/TextField';
-import { Box } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import {Typography} from "@mui/material";
 
 export default function MainPage() {
@@ -28,36 +28,18 @@ export default function MainPage() {
     return (
         <div style={{height: '100vh'}}>
             <MainPageHeader/>
-            <Grid display="flex" height="100%" flexDirection="column">
-                <Grid
-                    container
-                    sx={{
-                        height: "100%",
-                        visibility: "visible",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <Grid
-                        sx={{
-                            borderRight: "1px solid green",
-                            minWidth: "fill-content",
-                            display: "flex",
-                            flexDirection: "column",
-                        }}
-                    >
-                        <DocumentList updateDocument={updateDocument}/>
-                        <AddRequirement/>
-                    </Grid>
-
-                    <Grid
-                        container
-                        direction={"column"}
-                        sx={{p: 0, width: "50%", allignContent: "center"}}
-                    >
-                      <RequirementList/>
-                    </Grid>
-                    <Metadata/>
-                </Grid>
+            <Grid container spacing={10}>
+              <Grid item xs={3} display={"flex"} flexDirection={"column"}>
+                <DocumentList updateDocument={updateDocument}/>
+                <AddRequirement />
+              </Grid>
+              <Grid item xs={6}>
+                <RequirementList/>
+              </Grid>
+              <Grid item xs={1}/>
+              <Grid item xs={2}>
+                <Metadata/>
+              </Grid>
             </Grid>
         </div>
     );

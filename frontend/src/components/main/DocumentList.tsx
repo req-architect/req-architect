@@ -64,12 +64,12 @@ export default function DocumentList({updateDocument}: {updateDocument: (documen
 
     return (
         <List
-            sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}
+            sx={{width: '100%', maxWidth: 360, overflow: "auto", maxHeight: "80%", bgcolor: 'background.paper'}}
             component="nav"
         >
         {documents.map((doc) => (
             <>
-                <ListItem>
+                <ListItem sx={{minWidth: 300}}>
                     <ListItemButton onClick={() => handleClick(doc.number)}>
                         <ListItemIcon>
                             <FolderIcon/>
@@ -87,7 +87,7 @@ export default function DocumentList({updateDocument}: {updateDocument: (documen
                 {doc.subdocuments.map((subdoc)=> (
                     <Collapse in={openStates[doc.number]} timeout="auto" unmountOnExit>
                     <List sx={{pl: 2}}>
-                        <ListItem>
+                        <ListItem sx={{minWidth: 300}}>
                             <ListItemButton>
                                 <ListItemIcon>
                                     <FolderIcon/>
