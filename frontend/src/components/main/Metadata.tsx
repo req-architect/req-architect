@@ -5,7 +5,12 @@ export default function Metadata() {
         <Grid
             container
             borderLeft="1px solid green"
-            sx={{p: 0, width: "15%", justifyContent: "center"}}
+            sx={{
+                p: 0,
+                justifyContent: "center",
+                // width: "15%",
+                height: "100%",
+            }}
         >
             METADATA
         </Grid>
