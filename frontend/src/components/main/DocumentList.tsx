@@ -12,8 +12,12 @@ import FolderIcon from '@mui/icons-material/Folder';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ListItem from '@mui/material/ListItem';
 
+
+const documents = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+
 export default function DocumentList({updateDocument}: {updateDocument: (document: ReqDocument) => void; }) {
-    const [openStates, setOpenStates] = useState([false, false]);
+    const [openStates, setOpenStates] = useState(Array(documents.length).fill(false));
     useEffect(() => {
         updateDocument({prefix: "Document 1"})
     }, [updateDocument]);
@@ -33,13 +37,33 @@ export default function DocumentList({updateDocument}: {updateDocument: (documen
         }
     };
 
-
     return (
         <List
             sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}
             component="nav"
         >
-            <ListItem>
+            {documents.map((doc_nr) => (
+                <ListItem>
+                <ListItemButton onClick={() => handleClick(doc_nr)}>
+                    <ListItemIcon>
+                        <FolderIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary= {"Document " + doc_nr}/>
+                    {openStates[doc_nr] ? <ExpandLess/> : <ExpandMore/>}
+                </ListItemButton>
+                <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => handleDelete("Document " + doc_nr)}>
+                    <DeleteIcon/>
+                </IconButton>
+            </ListItem>
+            ))}
+        </List>
+    );
+}
+
+{/* <ListItem>
                 <ListItemButton onClick={() => handleClick(0)}>
                     <ListItemIcon>
                         <FolderIcon/>
@@ -118,7 +142,4 @@ export default function DocumentList({updateDocument}: {updateDocument: (documen
                         </IconButton>
                     </ListItem>
                 </List>
-            </Collapse>
-        </List>
-    );
-}
+            </Collapse> */}
