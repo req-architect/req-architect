@@ -28,7 +28,6 @@ export default function MainPageHeader() {
                         sx={{width: "50%", mr: 2, bgcolor: "white"}}>
                     </TextField>
                     <Button
-                        size="large"
                         sx={{background: 'green', color: 'white', minWidth: "80px", height: "40px", mr: 2}}>
                         SAVE
                     </Button>

@@ -7,6 +7,9 @@ import {ReqDocument, Requirement} from "../types.ts";
 import Grid from "@mui/material/Grid";
 import AddRequirement from "../components/main/AddRequirement.tsx";
 import Metadata from "../components/main/Metadata.tsx";
+import TextField from '@mui/material/TextField';
+import { Box } from "@mui/material";
+import {Typography} from "@mui/material";
 
 export default function MainPage() {
     const [selectedDocReq, setSelectedDocReq] = useState<
@@ -51,13 +54,8 @@ export default function MainPage() {
                         direction={"column"}
                         sx={{p: 0, width: "50%", allignContent: "center"}}
                     >
-                        <RequirementList
-                            document={selectedDocReq[0]}
-                            updateRequirement={updateRequirement}
-                        />
-                        <RequirementDetails requirement={selectedDocReq[1]}/>
+                      <RequirementList/>
                     </Grid>
-
                     <Metadata/>
                 </Grid>
             </Grid>
