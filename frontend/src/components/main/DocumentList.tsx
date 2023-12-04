@@ -1,16 +1,12 @@
 import {useEffect, useState} from 'react';
 import {ReqDocument} from "../../types.ts";
-import List from "@mui/material/List";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Collapse from "@mui/material/Collapse";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import IconButton from "@mui/material/IconButton";
-import FolderIcon from '@mui/icons-material/Folder';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ListItem from '@mui/material/ListItem';
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { TreeView } from '@mui/x-tree-view/TreeView';
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
+
 
 
 const documents = [
@@ -40,6 +36,52 @@ const documents = [
     }
 ];
 
+interface RenderTree {
+    id: string;
+    name: string;
+    children?: readonly RenderTree[];
+}
+
+const data: RenderTree = {
+    id: 'root',
+    name: 'Documents',
+    children: [
+      {
+        id: '1',
+        name: 'Document 1',
+      },
+      {
+        id: '2',
+        name: 'Document 2',
+        children: [
+            {
+                id: '2.1',
+                name: 'Document 2.1',
+            },
+            {
+                id: '2.2',
+                name: 'Document 2.2',
+                children: [
+                    {
+                        id: "2.2.1",
+                        name: "Document 2.2.1"
+                    }
+                ]
+            }
+        ]
+      },
+      {
+        id: '3',
+        name: 'Document 3',
+        children: [
+            {
+                id: "3.1",
+                name: "Document 3.1"
+            }
+        ]
+      },
+    ]
+  };
 
 export default function DocumentList({updateDocument}: {updateDocument: (document: ReqDocument) => void; }) {
     const [openStates, setOpenStates] = useState(Array(documents.length + 1).fill(false));
@@ -62,50 +104,22 @@ export default function DocumentList({updateDocument}: {updateDocument: (documen
         }
     };
 
+    const renderTree = (nodes: RenderTree) => (
+        <TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
+          {Array.isArray(nodes.children)
+            ? nodes.children.map((node) => renderTree(node))
+            : null}
+        </TreeItem>
+      );
+
     return (
-        <List
-            sx={{width: '100%', maxWidth: 360, overflow: "auto", maxHeight: "80%", bgcolor: 'background.paper'}}
-            component="nav"
-        >
-        {documents.map((doc) => (
-            <>
-                <ListItem sx={{minWidth: 300}}>
-                    <ListItemButton onClick={() => handleClick(doc.number)}>
-                        <ListItemIcon>
-                            <FolderIcon/>
-                        </ListItemIcon>
-                        <ListItemText primary= {"Document " + doc.number}/>
-                        {openStates[doc.number] ? <ExpandLess/> : <ExpandMore/>}
-                    </ListItemButton>
-                    <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleDelete("Document " + doc.number)}>
-                        <DeleteIcon/>
-                    </IconButton>
-                </ListItem>
-                {doc.subdocuments.map((subdoc)=> (
-                    <Collapse in={openStates[doc.number]} timeout="auto" unmountOnExit>
-                    <List sx={{pl: 2}}>
-                        <ListItem sx={{minWidth: 300}}>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <FolderIcon/>
-                                </ListItemIcon>
-                                <ListItemText primary={"Document " + doc.number + "." + subdoc}/>
-                            </ListItemButton>
-                            <IconButton
-                                edge="end"
-                                aria-label="delete"
-                                onClick={() => handleDelete("Document " + doc.number + "." + subdoc)}>
-                                <DeleteIcon/>
-                            </IconButton>
-                        </ListItem>
-                    </List>
-                </Collapse>
-                ))}
-            </>
-        ))}
-        </List>
+    <Box sx={{ minHeight: 180, flexGrow: 1, maxWidth: 300 }}>
+      <TreeView
+        defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultExpandIcon={<ChevronRightIcon />}
+      >
+        {renderTree(data)}
+      </TreeView>
+    </Box>
     );
 }
