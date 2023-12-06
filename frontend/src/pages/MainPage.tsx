@@ -26,22 +26,29 @@ export default function MainPage() {
 
     // "100%"
     return (
-        <div style={{ height: "100vh", width: "100%" }}>
+        <div
+            style={{
+                width: "100%",
+                minWidth: "120vh",
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+            }}
+        >
             <MainPageHeader />
             <Grid
                 container
-                width={"100%"}
-                justifyContent={"space-evenly"}
-                sx={{ borderBottom: "0.5px solid green" }}
+                justifyContent={"space-between"}
+                sx={{ borderBottom: "0.5px solid green", overflow: "hidden" }}
             >
                 <Grid item xs={3} display={"flex"} flexDirection={"column"}>
                     <DocumentList updateDocument={updateDocument} />
                     <AddRequirement />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={6} sx={{ height: "100%", overflow: "auto" }}>
                     <RequirementList />
                 </Grid>
-                <Grid item xs={1} />
+                <Grid item xs={0} />
                 <Grid item xs={2}>
                     <Metadata />
                 </Grid>

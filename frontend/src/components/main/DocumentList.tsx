@@ -1,4 +1,3 @@
-import { ReqDocument } from "../../types.ts";
 import Box from "@mui/material/Box";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -6,53 +5,35 @@ import { TreeView } from "@mui/x-tree-view/TreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
+import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
 
-interface RenderTree {
-    id: string;
-    name: string;
-    children?: readonly RenderTree[];
-}
+const isReqDocumentWithChildren = (
+    node: ReqDocumentWithChildren | ReqDocument
+): node is ReqDocumentWithChildren => "children" in node;
+type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
 
-const data: RenderTree = {
-    id: "root",
-    name: "Documents",
-    children: [
-        {
-            id: "1",
-            name: "Document 1",
-        },
-        {
-            id: "2",
-            name: "Document 2",
-            children: [
-                {
-                    id: "2.1",
-                    name: "Document 2.1",
-                },
-                {
-                    id: "2.2",
-                    name: "Document 2.2",
-                    children: [
-                        {
-                            id: "2.2.1",
-                            name: "Document 2.2.1",
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            id: "3",
-            name: "Document 3",
-            children: [
-                {
-                    id: "3.1",
-                    name: "Document 3.1",
-                },
-            ],
-        },
-    ],
-};
+const data: RenderTree = [
+    {
+        prefix: "root",
+        children: [
+            { prefix: "1" },
+            {
+                prefix: "2",
+                children: [
+                    { prefix: "2.1" },
+                    {
+                        prefix: "2.2",
+                        children: [{ prefix: "2.2.1" }],
+                    },
+                ],
+            },
+            {
+                prefix: "3",
+                children: [{ prefix: "3.1" }],
+            },
+        ],
+    },
+];
 
 export default function DocumentList({
     updateDocument,
@@ -77,27 +58,36 @@ export default function DocumentList({
         },
     };
 
-    const renderTree = (nodes: RenderTree) => (
-        <TreeItem
-            key={nodes.id}
-            nodeId={nodes.id}
-            label={
-                <div>
-                    {nodes.name}
-                    <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={(event) => handleDelete(event, nodes.name)}
-                    >
-                        <DeleteIcon sx={IconButtonStyles} />
-                    </IconButton>
-                </div>
-            }
-        >
-            {Array.isArray(nodes.children)
-                ? nodes.children.map((node) => renderTree(node))
-                : null}
-        </TreeItem>
+    const renderTree = (nodes: ReqDocumentWithChildren[] | ReqDocument[]) => (
+        <>
+            {nodes.map((node) => (
+                <TreeItem
+                    key={node.prefix}
+                    nodeId={node.prefix}
+                    label={
+                        <div>
+                            Document: {node.prefix}
+                            {isReqDocumentWithChildren(node) &&
+                                node.children && (
+                                    <IconButton
+                                        edge="end"
+                                        aria-label="delete"
+                                        onClick={(event) =>
+                                            handleDelete(event, node.prefix)
+                                        }
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                )}
+                        </div>
+                    }
+                >
+                    {isReqDocumentWithChildren(node) &&
+                        node.children &&
+                        renderTree(node.children)}
+                </TreeItem>
+            ))}
+        </>
     );
 
     return (

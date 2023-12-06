@@ -15,7 +15,7 @@ const ButtonStyle = {
 
 export default function RequirementList() {
     return (
-        <List sx={{ overflow: "auto", maxHeight: "91vh" }}>
+        <List>
             <Box>
                 <Typography variant="h6" color="black" sx={{ mt: 10 }}>
                     Requirement 1
