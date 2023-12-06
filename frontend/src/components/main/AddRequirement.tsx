@@ -8,7 +8,7 @@ export default function AddRequirement() {
                 size="small"
                 color="success"
                 aria-label="add"
-                sx={{ mt: 2, ml: "auto", mr: 2, mb: 2 }}
+                sx={{ mt: 2, ml: "auto", mr: 8, mb: 2 }}
             >
                 <AddIcon />
             </Fab>
