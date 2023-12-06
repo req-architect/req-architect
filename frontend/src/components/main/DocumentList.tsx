@@ -76,7 +76,7 @@ export default function DocumentList({
                                             handleDelete(event, node.prefix)
                                         }
                                     >
-                                        <DeleteIcon />
+                                        <DeleteIcon sx={IconButtonStyles} />
                                     </IconButton>
                                 )}
                         </div>
@@ -91,7 +91,14 @@ export default function DocumentList({
     );
 
     return (
-        <Box sx={{ minHeight: 180, flexGrow: 1, maxWidth: 300 }}>
+        <Box
+            sx={{
+                minHeight: 180,
+                flexGrow: 1,
+                maxWidth: 300,
+                overflowY: "auto",
+            }}
+        >
             <TreeView
                 defaultCollapseIcon={<ExpandMoreIcon />}
                 defaultExpandIcon={<ChevronRightIcon />}
