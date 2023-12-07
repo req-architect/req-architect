@@ -8,15 +8,12 @@ import {
     TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { ReqDocument } from "../../types";
 import { useState } from "react";
 
 export default function AddDocument({
-    addDocument,
     mode,
     setMode,
 }: {
-    addDocument: (document: ReqDocument) => void;
     mode: string;
     setMode: (mode: string) => void;
 }) {
@@ -120,7 +117,7 @@ export default function AddDocument({
                                         </Paper>
                                     )}
                                     options={options.sort(
-                                        (a, b) => -b[0].localeCompare(a[0])
+                                        (a, b) => -b[0].localeCompare(a[0]),
                                     )}
                                 />
                             </FormControl>

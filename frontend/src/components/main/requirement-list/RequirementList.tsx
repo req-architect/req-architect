@@ -1,6 +1,6 @@
-import { ReqDocument, Requirement } from "../../../types.ts";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { List, Box, TextField, Typography, Button } from "@mui/material";
+import { MainContext } from "../../../pages/MainPage.tsx";
 
 const ButtonStyle = {
     background: "green",
@@ -13,15 +13,19 @@ const ButtonStyle = {
     },
 };
 
-export default function RequirementList({document, updateRequirement}: {document: ReqDocument | null, updateRequirement: (requirement: Requirement) => void}) {
+export default function RequirementList() {
+    const contextTools = useContext(MainContext);
     useEffect(() => {
-        updateRequirement({id: '1', reviewed: true, text: 'test'})
-    }, [updateRequirement]);
+        contextTools?.updateSelectedRequirement({
+            id: "1",
+            reviewed: true,
+            text: "test",
+        });
+    }, [contextTools]);
+    const document = contextTools?.data.selectedDocument;
     return (
         <List>
-            <Box>
-                Document {document?.prefix}
-            </Box>
+            <Box>Document {document?.prefix}</Box>
             <Box>
                 <Typography variant="h6" color="black" sx={{ mt: 10 }}>
                     Requirement 1
