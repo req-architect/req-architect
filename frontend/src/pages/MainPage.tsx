@@ -5,16 +5,16 @@ import RequirementDetails from "../components/main/RequirementDetails.tsx";
 import { useState } from "react";
 import { ReqDocument, Requirement } from "../types.ts";
 import Grid from "@mui/material/Grid";
-import AddRequirement from "../components/main/AddRequirement.tsx";
+import AddDocument from "../components/main/AddDocument.tsx";
 import Metadata from "../components/main/Metadata.tsx";
-import TextField from "@mui/material/TextField";
-import { Box, Container } from "@mui/material";
-import { Typography } from "@mui/material";
+import { Container } from "@mui/material";
 
 export default function MainPage() {
     const [selectedDocReq, setSelectedDocReq] = useState<
         [ReqDocument | null, Requirement | null]
     >([null, null]);
+
+    const [mode, setMode] = useState("add");
 
     function updateDocument(document: ReqDocument) {
         setSelectedDocReq([document, null]);
@@ -24,13 +24,17 @@ export default function MainPage() {
         setSelectedDocReq((prev) => [prev[0], requirement]);
     }
 
-    // "100%"
+    function addDocument(document: ReqDocument) {
+        setSelectedDocReq([document, null]);
+    }
+
     return (
         <div
             style={{
                 width: "100%",
-                minWidth: "120vh",
+                minWidth: 1025,
                 height: "100vh",
+                minHeight: 700,
                 display: "flex",
                 flexDirection: "column",
             }}
@@ -39,11 +43,26 @@ export default function MainPage() {
             <Grid
                 container
                 justifyContent={"space-between"}
-                sx={{ borderBottom: "0.5px solid green", overflow: "hidden" }}
+                sx={{
+                    borderBottom: "0.5px solid green",
+                    overflow: "hidden",
+                    minHeight: "30vh",
+                }}
             >
                 <Grid item xs={3} display={"flex"} flexDirection={"column"}>
-                    <DocumentList updateDocument={updateDocument} />
-                    <AddRequirement />
+                    <Container
+                        sx={{
+                            maxHeight: mode === "add" ? "74vh" : "53vh",
+                            overflowY: "auto",
+                        }}
+                    >
+                        <DocumentList updateDocument={updateDocument} />
+                    </Container>
+                    <AddDocument
+                        addDocument={addDocument}
+                        mode={mode}
+                        setMode={setMode}
+                    />
                 </Grid>
                 <Grid item xs={6} sx={{ height: "100%", overflow: "auto" }}>
                     <RequirementList />
@@ -55,47 +74,4 @@ export default function MainPage() {
             </Grid>
         </div>
     );
-}
-
-{
-    /* <>
-      <MainPageHeader />
-      <Grid container visibility={"hidden"} m={0}>
-        <Grid
-          container
-          sx={{
-            height: "90vh",
-            minWidth: 1025,
-            visibility: "visible",
-            justifyContent: "space-between",
-          }}
-        >
-          <Grid
-            sx={{
-              borderRight: "1px solid green",
-              minWidth: "fill-content",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <DocumentList updateDocument={updateDocument} />
-            <AddRequirement />
-          </Grid>
-
-          <Grid
-            container
-            direction={"column"}
-            sx={{ p: 0, width: "50%", allignContent: "center" }}
-          >
-            <RequirementList
-              document={selectedDocReq[0]}
-              updateRequirement={updateRequirement}
-            />
-            <RequirementDetails requirement={selectedDocReq[1]} />
-          </Grid>
-
-          <Metadata />
-        </Grid>
-      </Grid>
-    </> */
 }
