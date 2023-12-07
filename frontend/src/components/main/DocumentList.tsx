@@ -1,4 +1,4 @@
-import Box from "@mui/material/Box";
+import { Box } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { TreeView } from "@mui/x-tree-view/TreeView";
@@ -6,8 +6,6 @@ import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
-import { useContext, useEffect } from "react";
-import { MainContext } from "../../pages/MainPage.tsx";
 
 const isReqDocumentWithChildren = (
     node: ReqDocumentWithChildren | ReqDocument,
@@ -38,10 +36,6 @@ const data: RenderTree = [
 ];
 
 export default function DocumentList() {
-    const contextTools = useContext(MainContext);
-    useEffect(() => {
-        contextTools?.updateSelectedDocument({ prefix: "Document 1" });
-    }, [contextTools]);
     const handleDelete = (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
         const confirmDelete = window.confirm(

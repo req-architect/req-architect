@@ -11,11 +11,12 @@ export type MainContextTools = {
     data: MainContextData;
     updateSelectedDocument: (document: ReqDocument) => void;
     updateSelectedRequirement: (requirement: Requirement) => void;
+    updateEditMode: (editMode: boolean) => void;
     isSelected: (requirement: Requirement) => boolean;
 };
 export default function useMainContext() {
     const [mainContext, setMainContext] = useState<MainContextData>({
-        selectedDocument: null,
+        selectedDocument: { prefix: "REQ" },
         selectedRequirement: null,
         requirementEditMode: false,
     });
@@ -36,7 +37,7 @@ export default function useMainContext() {
             ...prev,
             selectedDocument: document,
             selectedRequirement: null,
-            editedRequirement: null,
+            requirementEditMode: false,
         }));
     }
     function updateSelectedRequirement(requirement: Requirement) {
@@ -55,7 +56,13 @@ export default function useMainContext() {
         setMainContext((prev) => ({
             ...prev,
             selectedRequirement: requirement,
-            editedRequirement: null,
+            requirementEditMode: false,
+        }));
+    }
+    function updateEditMode(editMode: boolean) {
+        setMainContext((prev) => ({
+            ...prev,
+            requirementEditMode: editMode,
         }));
     }
     function isSelected(requirement: Requirement) {
@@ -65,6 +72,7 @@ export default function useMainContext() {
         data: mainContext,
         updateSelectedDocument,
         updateSelectedRequirement,
+        updateEditMode,
         isSelected,
     } as MainContextTools;
 }

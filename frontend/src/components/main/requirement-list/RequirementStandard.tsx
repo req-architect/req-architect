@@ -14,10 +14,13 @@ export default function RequirementStandard({
     return (
         <>
             <Typography variant="h6" color="black" sx={{ mt: 10 }}>
-                Requirement {requirement.id}
+                {requirement.id}
             </Typography>
             {contextTools?.isSelected(requirement) && (
-                <IconButton aria-label="edit">
+                <IconButton
+                    aria-label="edit"
+                    onClick={() => contextTools?.updateEditMode(true)}
+                >
                     <EditIcon />
                 </IconButton>
             )}
