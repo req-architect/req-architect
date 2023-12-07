@@ -1,87 +1,28 @@
-import { useContext, useEffect } from "react";
-import { List, Box, TextField, Typography, Button } from "@mui/material";
+import { useContext, useEffect, useState } from "react";
+import { List, Box } from "@mui/material";
 import { MainContext } from "../../../pages/MainPage.tsx";
-
-const ButtonStyle = {
-    background: "green",
-    color: "white",
-    minWidth: "80px",
-    height: "40px",
-    mt: 2,
-    "&:hover": {
-        background: "#689F38",
-    },
-};
+import { Requirement } from "../../../types.ts";
+import RequirementComponent from "./RequirementComponent.tsx";
 
 export default function RequirementList() {
+    const [requirements, setRequirements] = useState<Requirement[]>([
+        { id: "1", reviewed: true, text: "test text" },
+    ]);
     const contextTools = useContext(MainContext);
     useEffect(() => {
         contextTools?.updateSelectedRequirement({
             id: "1",
             reviewed: true,
-            text: "test",
+            text: "test text",
         });
     }, [contextTools]);
     const document = contextTools?.data.selectedDocument;
     return (
         <List>
             <Box>Document {document?.prefix}</Box>
-            <Box>
-                <Typography variant="h6" color="black" sx={{ mt: 10 }}>
-                    Requirement 1
-                </Typography>
-                <TextField
-                    multiline
-                    rows={4}
-                    defaultValue="Lorem ipsum ipsum lorem"
-                    sx={{ width: "100%", mt: 2 }}
-                />
-                <Button size="large" sx={ButtonStyle}>
-                    Ok
-                </Button>
-            </Box>
-            <Box>
-                <Typography variant="h6" color="black" sx={{ mt: 10 }}>
-                    Requirement 2
-                </Typography>
-                <TextField
-                    multiline
-                    rows={4}
-                    defaultValue="Lorem ipsum ipsum lorem"
-                    sx={{ width: "100%", mt: 2 }}
-                />
-                <Button size="large" sx={ButtonStyle}>
-                    Ok
-                </Button>
-            </Box>
-            <Box>
-                <Typography variant="h6" color="black" sx={{ mt: 10 }}>
-                    Requirement 3
-                </Typography>
-                <TextField
-                    multiline
-                    rows={4}
-                    defaultValue="Lorem ipsum ipsum lorem"
-                    sx={{ width: "100%", mt: 2 }}
-                />
-                <Button size="large" sx={ButtonStyle}>
-                    Ok
-                </Button>
-            </Box>
-            <Box>
-                <Typography variant="h6" color="black" sx={{ mt: 10 }}>
-                    Requirement 4
-                </Typography>
-                <TextField
-                    multiline
-                    rows={4}
-                    defaultValue="Lorem ipsum ipsum lorem"
-                    sx={{ width: "100%", mt: 2 }}
-                />
-                <Button size="large" sx={ButtonStyle}>
-                    Ok
-                </Button>
-            </Box>
+            {requirements.map((requirement) => (
+                <RequirementComponent requirement={requirement} />
+            ))}
         </List>
     );
 }

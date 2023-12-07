@@ -4,23 +4,24 @@ import { ReqDocument, Requirement } from "../types.ts";
 type MainContextData = {
     selectedDocument: ReqDocument | null;
     selectedRequirement: Requirement | null;
-    editedRequirement: Requirement | null;
+    requirementEditMode: boolean;
 };
 
 export type MainContextTools = {
     data: MainContextData;
     updateSelectedDocument: (document: ReqDocument) => void;
     updateSelectedRequirement: (requirement: Requirement) => void;
+    isSelected: (requirement: Requirement) => boolean;
 };
 export default function useMainContext() {
     const [mainContext, setMainContext] = useState<MainContextData>({
         selectedDocument: null,
         selectedRequirement: null,
-        editedRequirement: null,
+        requirementEditMode: false,
     });
     function updateSelectedDocument(document: ReqDocument) {
         if (
-            mainContext.editedRequirement !== null &&
+            mainContext.requirementEditMode &&
             mainContext.selectedDocument !== document
         ) {
             if (
@@ -40,7 +41,7 @@ export default function useMainContext() {
     }
     function updateSelectedRequirement(requirement: Requirement) {
         if (
-            mainContext.editedRequirement !== null &&
+            mainContext.requirementEditMode &&
             mainContext.selectedRequirement !== requirement
         ) {
             if (
@@ -57,9 +58,13 @@ export default function useMainContext() {
             editedRequirement: null,
         }));
     }
+    function isSelected(requirement: Requirement) {
+        return mainContext.selectedRequirement === requirement;
+    }
     return {
         data: mainContext,
         updateSelectedDocument,
         updateSelectedRequirement,
+        isSelected,
     } as MainContextTools;
 }
