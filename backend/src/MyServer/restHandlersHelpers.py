@@ -136,8 +136,8 @@ def deleteUserRequirement(docId: str, reqUID: str, userFolder: str) -> bool:
         doc = docTree.find_document(docId)
         req = doc.find_item(reqUID)
         RemoveLinksToReq(reqUID, docTree.documents, userFolder)
-        # req.delete()
-        os.remove(req.path)
+        req.delete()
+        # os.remove(req.path)
         return True
     except doorstop.DoorstopError:
         return False
