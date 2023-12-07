@@ -5,7 +5,6 @@ import MyServer.restHandlersHelpers
 from rest_framework.views import APIView
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
 
 # Create your views here.
 # Views - they are really request handlers, byt Django has weird naming style
@@ -99,37 +98,58 @@ class DocView(APIView):
     def _getDocuments(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to get documents. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        documents = MyServer.restHandlersHelpers.getDocuments(
-            self._serverInfo["usersFolder"] + "/user")
-        if not documents:
-            return JsonResponse([], safe=False)
         serialized = MyServer.restHandlersHelpers.serializeDocuments(
-            documents, self._serverInfo["usersFolder"] + "/user")
+            self._serverInfo["usersFolder"] + "/user")
         return JsonResponse(serialized, safe=False)
+
+
+class LinkView(APIView):
+    def __init__(self):
+        self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
+            "/app/serverInfo.log")
+
+    def put(self, request, *args, **kwargs):
+        return self._addLink(request)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(LinkView, self).dispatch(*args, **kwargs)
+
+    def _addLink(self, request):
+        if not self._serverInfo:
+            return Response({'message': 'Unable to link requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        if not MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + "/user"):
+            return Response({'message': 'Unable to link requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
+
+    def _removeLink(self, request):
+        if not self._serverInfo:
+            return Response({'message': 'Unable to unlink requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        if not MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + "/user"):
+            return Response({'message': 'Unable to unlink requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
+
+
+class UnlinkView(APIView):
+    def __init__(self):
+        self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
+            "/app/serverInfo.log")
+
+    def put(self, request, *args, **kwargs):
+        return self._removeLink(request)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(LinkView, self).dispatch(*args, **kwargs)
+
+    def _removeLink(self, request):
+        if not self._serverInfo:
+            return Response({'message': 'Unable to unlink requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        if not MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + "/user"):
+            return Response({'message': 'Unable to unlink requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
 def seyHello(request) -> HttpResponse:
     """A simple hello world function to check if connection between the app and the server is correctly established"""
     return HttpResponse('Hello from backend')
-
-
-# @api_view(["PUT"])
-# def setDocumentParent(request):
-#     serverInfo = MyServer.restHandlersHelpers.readServerInfo(
-#         "/app/serverInfo.log")
-#     if not serverInfo:
-#         return Response({'message': 'Unable to set relation. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-#     if not MyServer.restHandlersHelpers.setDocumentAsParent(request.data.get("doc1Id"), request.data.get("doc2Id"), serverInfo["usersFolder"] + "user/"):
-#         return Response({'message': 'Unable to set realtion. At least one invalid document uid or could not build documents tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-#     return Response({'message': 'OK'}, status=status.HTTP_200_OK)
-
-
-# @api_view(["PUT"])
-# def setDocumentParentToNull(request):
-#     serverInfo = MyServer.restHandlersHelpers.readServerInfo(
-#         "/app/serverInfo.log")
-#     if not serverInfo:
-#         return Response({'message': 'Unable to remove parent. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-#     if not MyServer.restHandlersHelpers.setDocumentParentToNull(request.data.get("doc1Id"), serverInfo["usersFolder"] + "user/"):
-#         return Response({'message': 'Unable to remove parent. Invalid document uid or could not build documents tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-#     return Response({'message': 'OK'}, status=status.HTTP_200_OK)
