@@ -1,12 +1,11 @@
 import MainPageHeader from "../components/main/MainPageHeader.tsx";
 import DocumentList from "../components/main/DocumentList.tsx";
-import RequirementList from "../components/main/RequirementList.tsx";
+import RequirementList from "../components/main/requirement-list/RequirementList.tsx";
 import RequirementDetails from "../components/main/RequirementDetails.tsx";
 import { useState } from "react";
 import { ReqDocument, Requirement } from "../types.ts";
 import Grid from "@mui/material/Grid";
 import AddDocument from "../components/main/AddDocument.tsx";
-import Metadata from "../components/main/Metadata.tsx";
 import { Container } from "@mui/material";
 
 export default function MainPage() {
@@ -65,11 +64,11 @@ export default function MainPage() {
                     />
                 </Grid>
                 <Grid item xs={6} sx={{ height: "100%", overflow: "auto" }}>
-                    <RequirementList />
+                    <RequirementList document={selectedDocReq[0]} updateRequirement={updateRequirement}/>
                 </Grid>
                 <Grid item xs={0} />
                 <Grid item xs={2}>
-                    <Metadata />
+                    <RequirementDetails requirement={selectedDocReq[1]}/>
                 </Grid>
             </Grid>
         </div>

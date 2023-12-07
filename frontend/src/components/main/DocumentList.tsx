@@ -6,9 +6,10 @@ import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
+import { useEffect } from "react";
 
 const isReqDocumentWithChildren = (
-    node: ReqDocumentWithChildren | ReqDocument
+    node: ReqDocumentWithChildren | ReqDocument,
 ): node is ReqDocumentWithChildren => "children" in node;
 type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
 
@@ -40,10 +41,13 @@ export default function DocumentList({
 }: {
     updateDocument: (document: ReqDocument) => void;
 }) {
+    useEffect(() => {
+        updateDocument({ prefix: "Document 1" });
+    }, [updateDocument]);
     const handleDelete = (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
         const confirmDelete = window.confirm(
-            `Are you sure you want to delete ${itemName}?`
+            `Are you sure you want to delete ${itemName}?`,
         );
         if (confirmDelete) {
             console.log(`Deleted ${itemName}`);

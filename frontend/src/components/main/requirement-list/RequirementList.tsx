@@ -1,4 +1,4 @@
-import { ReqDocument, Requirement } from "../../types.ts";
+import { ReqDocument, Requirement } from "../../../types.ts";
 import { useEffect } from "react";
 import { List, Box, TextField, Typography, Button } from "@mui/material";
 
@@ -13,9 +13,15 @@ const ButtonStyle = {
     },
 };
 
-export default function RequirementList() {
+export default function RequirementList({document, updateRequirement}: {document: ReqDocument | null, updateRequirement: (requirement: Requirement) => void}) {
+    useEffect(() => {
+        updateRequirement({id: '1', reviewed: true, text: 'test'})
+    }, [updateRequirement]);
     return (
         <List>
+            <Box>
+                Document {document?.prefix}
+            </Box>
             <Box>
                 <Typography variant="h6" color="black" sx={{ mt: 10 }}>
                     Requirement 1
