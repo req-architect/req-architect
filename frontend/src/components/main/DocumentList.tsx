@@ -1,4 +1,4 @@
-import Box from "@mui/material/Box";
+import { Box } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { TreeView } from "@mui/x-tree-view/TreeView";
@@ -8,7 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
 
 const isReqDocumentWithChildren = (
-    node: ReqDocumentWithChildren | ReqDocument
+    node: ReqDocumentWithChildren | ReqDocument,
 ): node is ReqDocumentWithChildren => "children" in node;
 type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
 
@@ -35,15 +35,11 @@ const data: RenderTree = [
     },
 ];
 
-export default function DocumentList({
-    updateDocument,
-}: {
-    updateDocument: (document: ReqDocument) => void;
-}) {
+export default function DocumentList() {
     const handleDelete = (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
         const confirmDelete = window.confirm(
-            `Are you sure you want to delete ${itemName}?`
+            `Are you sure you want to delete ${itemName}?`,
         );
         if (confirmDelete) {
             console.log(`Deleted ${itemName}`);
