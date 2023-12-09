@@ -55,8 +55,12 @@ class ReqView(APIView):
     def _getReqs(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to get requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        doc_id = request.GET.get('docId', '')  # Get docId from query parameters
+        if not doc_id:
+            return Response({'message': 'Missing docId parameter in the request'}, status=status.HTTP_400_BAD_REQUEST)
+
         reqs = MyServer.restHandlersHelpers.getDocReqs(
-            request.data.get("docId"), self._serverInfo["usersFolder"] + "/user")
+            doc_id, self._serverInfo["usersFolder"] + "/user")
         if not reqs:
             return JsonResponse([], safe=False)
         serialized = MyServer.restHandlersHelpers.serializeDocReqs(reqs)

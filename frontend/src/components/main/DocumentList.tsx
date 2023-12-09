@@ -8,13 +8,15 @@ import IconButton from "@mui/material/IconButton";
 import FolderIcon from '@mui/icons-material/Folder';
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
 import { DeleteDocument } from "../../hooks/MainFunctions.ts";
+import { useEffect } from "react";
 
 const isReqDocumentWithChildren = (
     node: ReqDocumentWithChildren | ReqDocument,
 ): node is ReqDocumentWithChildren => "children" in node;
 export type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
 
-export default function DocumentList({ documents, onDeleteDocument }: {documents: RenderTree; onDeleteDocument: () => void;}) {
+export default function DocumentList({ documents, onDeleteDocument, selectedDocument, setSelectedDocument, onClickDocument }: 
+    {documents: RenderTree; onDeleteDocument: () => void; selectedDocument: String; setSelectedDocument: (selectedDocument: string) => void; onClickDocument: () => void}) {
     
     const handleDelete = async (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
@@ -38,26 +40,23 @@ export default function DocumentList({ documents, onDeleteDocument }: {documents
 
     const renderTree = (nodes: ReqDocumentWithChildren[] | ReqDocument[]) => (
         <>
-            {nodes.map((node) => (
+        {nodes.map((node) => (
+            <div key={node.prefix} onClick={(event) => handleTreeItemClick(event, node)}>
                 <TreeItem
-                    key={node.prefix}
                     nodeId={node.prefix}
                     label={
                         <Box sx={{display: "flex", alignItems: "center"}}>
                             <FolderIcon sx={{color: IconButtonStyles.color}}/>
                             Document: {node.prefix}
-                            {/* {isReqDocumentWithChildren(node) &&
-                                node.children && ( */}
-                                    <IconButton
-                                        edge="end"
-                                        aria-label="delete"
-                                        onClick={(event) =>
-                                            handleDelete(event, node.prefix)
-                                        }
-                                    >
-                                        <DeleteIcon sx={IconButtonStyles} />
-                                    </IconButton>
-                                {/* )} */}
+                            <IconButton
+                                edge="end"
+                                aria-label="delete"
+                                onClick={(event) =>
+                                    handleDelete(event, node.prefix)
+                                }
+                            >
+                                <DeleteIcon sx={IconButtonStyles} />
+                            </IconButton>
                         </Box>
                     }
                 >
@@ -65,9 +64,21 @@ export default function DocumentList({ documents, onDeleteDocument }: {documents
                         node.children &&
                         renderTree(node.children)}
                 </TreeItem>
-            ))}
-        </>
+            </div>
+        ))}
+    </>
     );
+    
+    const handleTreeItemClick = (event: React.MouseEvent, node: ReqDocumentWithChildren | ReqDocument) => {
+        event.stopPropagation(); 
+        setSelectedDocument(node.prefix);
+        
+    };
+    
+    useEffect(() => {
+        console.log("Selected document:", selectedDocument);
+        onClickDocument();
+    }, [selectedDocument]);
 
     return (
         <Box
