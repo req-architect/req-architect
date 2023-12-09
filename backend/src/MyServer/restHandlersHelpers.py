@@ -45,7 +45,7 @@ def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
     except doorstop.DoorstopError:
         return False
     except FileNotFoundError:
-        return None
+        return False
 
 
 def removeDocTree(tree: doorstop.Tree, docId: str, userFolder: str, rootTree: doorstop.Tree):
