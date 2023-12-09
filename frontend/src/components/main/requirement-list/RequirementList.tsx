@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Requirement } from "../../../types.ts";
 import RequirementComponent from "./RequirementComponent.tsx";
 import { List } from "@mui/material";
+import Divider from '@mui/material/Divider';
 
 export default function RequirementList() {
     const [requirements, setRequirements] = useState<Requirement[]>([
@@ -16,7 +17,10 @@ export default function RequirementList() {
     return (
         <List>
             {requirements.map((requirement) => (
-                <RequirementComponent requirement={requirement} />
+                <>
+                    <RequirementComponent requirement={requirement} />
+                    <Divider/>
+                </>
             ))}
         </List>
     );

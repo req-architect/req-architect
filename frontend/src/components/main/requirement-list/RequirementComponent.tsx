@@ -20,8 +20,8 @@ export default function RequirementComponent({
         <Box
             sx={
                 contextTools?.isSelected(requirement)
-                    ? { border: "1px solid green" }
-                    : {}
+                    ? { border: "2px solid green", marginBottom: 4 }
+                    : { marginBottom: 4}
             }
         >
             {/*Temporary button for testing*/}
