@@ -10,6 +10,7 @@ import RequirementDetails from "../components/main/RequirementDetails.tsx";
 import { RenderTree } from "../components/main/DocumentList.tsx";
 import { fetchDocuments, fetchRequirements } from "../hooks/MainFunctions.ts";
 import { get } from "http";
+import { Requirement } from "../types.ts";
 
 export const MainContext = createContext<MainContextTools | null>(null);
 
@@ -19,6 +20,7 @@ export default function MainPage() {
     const [fetchedDocuments, setFetchedDocuments] = useState<RenderTree>([]);
     const [fetchedPrefixes, setFetchedPrefixes] = useState<string[]>([]);
     const [selectedDocument, setSelectedDocument] = useState<string>("");
+    const [requirements, setRequirements] = useState<Requirement[]>([]);
     
     
     const extractPrefixes = (document: { prefix: string; children?: any[] }) => {
@@ -60,6 +62,7 @@ export default function MainPage() {
         else {
             const data = await fetchRequirements(docPrefix);
             console.log("Fetched requirements:", data);
+            setRequirements(data);
         }
     }
       
@@ -112,7 +115,7 @@ export default function MainPage() {
                         <AddDocument mode={mode} setMode={setMode} prefixes={fetchedPrefixes} onAddDocument={handleAddDocument} />
                     </Grid>
                     <Grid item xs={8} sx={{ height: "100%", overflow: "auto", paddingRight: 8 , paddingLeft: 8}}>
-                        <RequirementList />
+                        <RequirementList requirements={requirements}/>
                     </Grid>
                     {/* <Grid item xs={1} /> */}
                     <Grid item xs={2}>
