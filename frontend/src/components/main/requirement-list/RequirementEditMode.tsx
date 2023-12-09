@@ -4,7 +4,9 @@ import { IconButton, TextField, Typography, Box } from "@mui/material";
 import RenderedRequirementText from "./RenderedRequirementText.tsx";
 import UndoIcon from "@mui/icons-material/Undo";
 import DoneIcon from "@mui/icons-material/Done";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { MainContext } from "../../../pages/MainPage.tsx";
+import {IconButtonStyles} from "../../main/DocumentList.tsx";
 
 export default function RequirementEditMode({
     requirement,
@@ -43,11 +45,14 @@ export default function RequirementEditMode({
                 }}
                 sx={{ width: "100%", mt: 2 }}
             />
+            <IconButton aria-label="save" color="success" onClick={handleSave}>
+                <DoneIcon />
+            </IconButton>
             <IconButton aria-label="abort" color="error" onClick={handleAbort}>
                 <UndoIcon />
             </IconButton>
-            <IconButton aria-label="save" color="success" onClick={handleSave}>
-                <DoneIcon />
+            <IconButton>
+                <DeleteIcon sx={IconButtonStyles} />
             </IconButton>
         </Box>
     );

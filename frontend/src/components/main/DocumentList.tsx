@@ -15,9 +15,16 @@ const isReqDocumentWithChildren = (
 ): node is ReqDocumentWithChildren => "children" in node;
 export type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
 
+export const IconButtonStyles = {
+    color: "#666666",
+    "&:hover": {
+        color: "darkred",
+    },
+};
+
 export default function DocumentList({ documents, onDeleteDocument, selectedDocument, setSelectedDocument, onClickDocument }: 
     {documents: RenderTree; onDeleteDocument: () => void; selectedDocument: String; setSelectedDocument: (selectedDocument: string) => void; onClickDocument: () => void}) {
-    
+
     const handleDelete = async (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
         const confirmDelete = window.confirm(
@@ -29,14 +36,6 @@ export default function DocumentList({ documents, onDeleteDocument, selectedDocu
         }
         onDeleteDocument();
     };
-
-    const IconButtonStyles = {
-        color: "#666666",
-        "&:hover": {
-            color: "darkred",
-        },
-    };
-    
 
     const renderTree = (nodes: ReqDocumentWithChildren[] | ReqDocument[]) => (
         <>
