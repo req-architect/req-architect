@@ -108,14 +108,7 @@ export default function MainPage() {
                     }}
                 >
                     <Grid item xs={2} display={"flex"} flexDirection={"column"} borderRight={"1px solid green"}>
-                        <Container
-                            sx={{
-                                maxHeight: mode === "add" ? "74vh" : "53vh",
-                                overflowY: "auto",
-                            }}
-                        >
-                            <DocumentList documents={fetchedDocuments} onDeleteDocument={handleDeleteDocument}/>
-                        </Container>
+                        <DocumentList documents={fetchedDocuments} onDeleteDocument={handleDeleteDocument}/>
                         <AddDocument mode={mode} setMode={setMode} prefixes={fetchedPrefixes} onAddDocument={handleAddDocument} />
                     </Grid>
                     <Grid item xs={8} sx={{ height: "100%", overflow: "auto", paddingRight: 8 , paddingLeft: 8}}>
