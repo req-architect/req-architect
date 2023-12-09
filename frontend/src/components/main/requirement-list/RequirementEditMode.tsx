@@ -26,6 +26,7 @@ export default function RequirementEditMode({
     function handleSave() {
         // TODO: update requirement in database and reload
         contextTools?.updateEditMode(false);
+        contextTools?.updateSelectedRequirement(null);
     }
     return (
         <Box sx={{m: 2}}>

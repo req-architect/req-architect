@@ -33,7 +33,7 @@ export default function MainPage() {
                     sx={{
                         borderBottom: "0.5px solid green",
                         overflow: "hidden",
-                        minHeight: "30vh",
+                        height: "95vh",
                     }}
                 >
                     <Grid item xs={3} display={"flex"} flexDirection={"column"}>
