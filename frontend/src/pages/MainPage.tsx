@@ -30,9 +30,9 @@ export default function MainPage() {
         return prefixes;
     };
     
-    useEffect(() => {
+    const fetchDocuments = async () => {
         // Fetch documents from Django backend
-        fetch("http://localhost:8000/MyServer/doc/", {
+         await fetch("http://localhost:8000/MyServer/doc/", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -59,7 +59,19 @@ export default function MainPage() {
             setFetchedDocuments([]);
             setFetchedPrefixes([""]);
           });
+      };
+      
+      useEffect(() => {
+        fetchDocuments();
       }, []);
+      
+      const handleDeleteDocument = async () => {
+        await fetchDocuments();
+      };
+      
+      const handleAddDocument = async () => {
+        await fetchDocuments();
+      }
 
 
     return (
@@ -91,9 +103,9 @@ export default function MainPage() {
                                 overflowY: "auto",
                             }}
                         >
-                            <DocumentList documents={fetchedDocuments}/>
+                            <DocumentList documents={fetchedDocuments} onDeleteDocument={handleDeleteDocument}/>
                         </Container>
-                        <AddDocument mode={mode} setMode={setMode} prefixes={fetchedPrefixes} />
+                        <AddDocument mode={mode} setMode={setMode} prefixes={fetchedPrefixes} onAddDocument={handleAddDocument} />
                     </Grid>
                     <Grid item xs={6} sx={{ height: "100%", overflow: "auto" }}>
                         <RequirementList />

@@ -15,10 +15,12 @@ export default function AddDocument({
     mode,
     setMode,
     prefixes,
+    onAddDocument
 }: {
     mode: string;
     setMode: (mode: string) => void;
     prefixes: string[];
+    onAddDocument: () => void;
 }) {
     const uniqueOptions = Array.from(new Set(prefixes)).sort((a, b) => a.localeCompare(b));
     
@@ -41,7 +43,7 @@ export default function AddDocument({
         setMode("select");
     };
     
-    const handleAddDocument = (event: { preventDefault: () => void }) => {
+    const handleAddDocument = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); //prevent: localhost/:1 Form submission canceled because the form is not connected
         if (!formData.text) {
             alert("Please enter a document prefix");
@@ -49,12 +51,13 @@ export default function AddDocument({
         }
         if (formData.selectedOption === "") {
             console.log("No parent prefix selected");
-            PostDocument(formData.text);
+            await PostDocument(formData.text);
         }
         else{
             console.log("Parent prefix selected:", formData.selectedOption);
-        PostDocument(formData.text, formData.selectedOption);}
+        await PostDocument(formData.text, formData.selectedOption);}
         setMode("add");
+        onAddDocument();
     };
     
 

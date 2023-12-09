@@ -6,27 +6,25 @@ import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
+import { DeleteDocument } from "../../hooks/MainFunctions.ts";
 
 const isReqDocumentWithChildren = (
     node: ReqDocumentWithChildren | ReqDocument,
 ): node is ReqDocumentWithChildren => "children" in node;
 export type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
 
-interface DocumentListProps {
-    documents: RenderTree; // Pass the documents as a prop
-}
-
-export default function DocumentList({ documents }: DocumentListProps) {
+export default function DocumentList({ documents, onDeleteDocument }: {documents: RenderTree; onDeleteDocument: () => void;}) {
     
-    const handleDelete = (event: React.MouseEvent, itemName: string) => {
+    const handleDelete = async (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
         const confirmDelete = window.confirm(
             `Are you sure you want to delete ${itemName}?`,
         );
         if (confirmDelete) {
             console.log(`Deleted ${itemName}`);
-            // Perform deletion logic if needed
+            await DeleteDocument(itemName);
         }
+        onDeleteDocument();
     };
 
     const IconButtonStyles = {
