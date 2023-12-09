@@ -10,7 +10,7 @@ type MainContextData = {
 export type MainContextTools = {
     data: MainContextData;
     updateSelectedDocument: (document: ReqDocument) => void;
-    updateSelectedRequirement: (requirement: Requirement) => void;
+    updateSelectedRequirement: (requirement: Requirement | null) => void;
     updateEditMode: (editMode: boolean) => void;
     isSelected: (requirement: Requirement) => boolean;
 };
@@ -40,10 +40,11 @@ export default function useMainContext() {
             requirementEditMode: false,
         }));
     }
-    function updateSelectedRequirement(requirement: Requirement) {
+    function updateSelectedRequirement(requirement: Requirement | null) {
         if (
             mainContext.requirementEditMode &&
-            mainContext.selectedRequirement !== requirement
+            mainContext.selectedRequirement !== requirement &&
+            requirement !== null
         ) {
             if (
                 !confirm(

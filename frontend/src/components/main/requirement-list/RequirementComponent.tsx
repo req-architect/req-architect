@@ -25,7 +25,6 @@ export default function RequirementComponent({
             }
         >
             {/*Temporary button for testing*/}
-            <Button onClick={handleSelect}>SELECT</Button>
             {contextTools?.isSelected(requirement) &&
             contextTools?.data.requirementEditMode ? (
                 <RequirementEditMode requirement={requirement} />
