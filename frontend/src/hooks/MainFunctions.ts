@@ -36,7 +36,6 @@ export async function DeleteDocument (prefix: String) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-
             docId: prefix,
         }),
     })
@@ -53,18 +52,6 @@ export async function DeleteDocument (prefix: String) {
         console.error("Error deleting document:", error);
     });
 };
-
-const extractPrefixes = (document: { prefix: string; children?: any[] }) => {
-    let prefixes: string[] = [document.prefix];
-
-    if (document.children && document.children.length > 0) {
-        document.children.forEach((child) => {
-            prefixes = [...prefixes, ...extractPrefixes(child)];
-        });
-    }
-    return prefixes;
-};
-
   
 export async function  fetchDocuments() {
 {
@@ -91,3 +78,31 @@ export async function  fetchDocuments() {
             return [];
         }
 }}
+
+
+export async function fetchRequirements(docPrefix: String) {
+    {
+            try {
+                const response = await fetch(`http://localhost:8000/MyServer/req/?docId=${docPrefix}`, {
+                    method: "GET",
+                    headers: {
+                        Accept: 'application/json',
+                        "Content-Type": "application/json",
+                    },
+                });
+                const data = await response.json();
+        
+                console.log("Fetched requirements:", data);
+                return data;
+            } catch (error: any) {
+                if (error.message.includes("Internal Server Error")) {
+                    console.log("Couldn't fetch requirements:", error.message);
+                } else if (error.message.includes("Unexpected token '<'")) {
+                    console.log("Empty document list");
+                } else {
+                    console.error("Error fetching requirements:", error);
+                }
+        
+                return [];
+            }
+    }}

@@ -8,7 +8,9 @@ import AddDocument from "../components/main/AddDocument.tsx";
 import RequirementList from "../components/main/requirement-list/RequirementList.tsx";
 import RequirementDetails from "../components/main/RequirementDetails.tsx";
 import { RenderTree } from "../components/main/DocumentList.tsx";
-import { fetchDocuments } from "../hooks/MainFunctions.ts";
+import { fetchDocuments, fetchRequirements } from "../hooks/MainFunctions.ts";
+import { get } from "http";
+import { Requirement } from "../types.ts";
 
 export const MainContext = createContext<MainContextTools | null>(null);
 
@@ -17,6 +19,8 @@ export default function MainPage() {
     const [mode, setMode] = useState("add");
     const [fetchedDocuments, setFetchedDocuments] = useState<RenderTree>([]);
     const [fetchedPrefixes, setFetchedPrefixes] = useState<string[]>([]);
+    const [selectedDocument, setSelectedDocument] = useState<string>("");
+    const [requirements, setRequirements] = useState<Requirement[]>([]);
     
     
     const extractPrefixes = (document: { prefix: string; children?: any[] }) => {
@@ -43,14 +47,28 @@ export default function MainPage() {
         console.log("Fetched documents:", data);
         setFetchedPrefixes([]);
         setFetchedDocuments(data);
-        data.forEach((document: { prefix: string; children?: any[] | undefined; }) => {
+        data.forEach(async (document: { prefix: string; children?: any[] | undefined; }) => {
         const documentPrefixes = extractPrefixes(document);
         setFetchedPrefixes((prevPrefixes) => [...prevPrefixes, ...documentPrefixes]);
     });
     };
+    
+    async function getRequirements (docPrefix : string) {
+        // Fetch requirements from Django backend
+        if (docPrefix === "") {
+            console.log("No document selected");
+            return;
+        }
+        else {
+            const data = await fetchRequirements(docPrefix);
+            console.log("Fetched requirements:", data);
+            setRequirements(data);
+        }
+    }
       
       useEffect(() => {
         getDocuments();
+        getRequirements(selectedDocument);
       }, []);
       
       const handleDeleteDocument = async () => {
@@ -59,6 +77,10 @@ export default function MainPage() {
       
       const handleAddDocument = async () => {
         await getDocuments();
+      }
+      
+      const handleClickDocument = async () => {
+        await getRequirements(selectedDocument);
       }
       
       useEffect(() => {
@@ -89,11 +111,11 @@ export default function MainPage() {
                     }}
                 >
                     <Grid item xs={2} display={"flex"} flexDirection={"column"} borderRight={"1px solid green"}>
-                        <DocumentList documents={fetchedDocuments} onDeleteDocument={handleDeleteDocument}/>
+                        <DocumentList documents={fetchedDocuments} onDeleteDocument={handleDeleteDocument} selectedDocument={selectedDocument} setSelectedDocument={setSelectedDocument} onClickDocument={handleClickDocument}/>
                         <AddDocument mode={mode} setMode={setMode} prefixes={fetchedPrefixes} onAddDocument={handleAddDocument} />
                     </Grid>
                     <Grid item xs={8} sx={{ height: "100%", overflow: "auto", paddingRight: 8 , paddingLeft: 8}}>
-                        <RequirementList />
+                        <RequirementList requirements={requirements}/>
                     </Grid>
                     {/* <Grid item xs={1} /> */}
                     <Grid item xs={2}>
