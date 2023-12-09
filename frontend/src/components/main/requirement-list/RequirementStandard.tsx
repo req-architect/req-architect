@@ -33,15 +33,15 @@ export default function RequirementStandard({
                 sx={{
                     background: "green",
                     color: "white",
-                    minWidth: "80px",
-                    height: "40px",
+                    width: "60px",
+                    height: "30px",
                     mt: 2,
                     "&:hover": {
                         background: "#689F38",
                     },
                     textTransform: "none",
                 }}
-                >EDIT
+                >Edit
             </Button>
         </Box>
     );

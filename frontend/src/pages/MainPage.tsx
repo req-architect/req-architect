@@ -36,7 +36,7 @@ export default function MainPage() {
                         height: "95vh",
                     }}
                 >
-                    <Grid item xs={3} display={"flex"} flexDirection={"column"}>
+                    <Grid item xs={3} display={"flex"} flexDirection={"column"} borderRight={"1px solid green"}>
                         <Container
                             sx={{
                                 maxHeight: mode === "add" ? "74vh" : "53vh",
