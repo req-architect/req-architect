@@ -3,6 +3,7 @@ import { Requirement } from "../../../types.ts";
 import RequirementComponent from "./RequirementComponent.tsx";
 import { List } from "@mui/material";
 import Divider from '@mui/material/Divider';
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function RequirementList() {
     const [requirements, setRequirements] = useState<Requirement[]>([
