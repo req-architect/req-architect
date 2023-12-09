@@ -7,45 +7,25 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import FolderIcon from '@mui/icons-material/Folder';
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
+import { DeleteDocument } from "../../hooks/MainFunctions.ts";
 
 const isReqDocumentWithChildren = (
     node: ReqDocumentWithChildren | ReqDocument,
 ): node is ReqDocumentWithChildren => "children" in node;
-type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
+export type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
 
-const data: RenderTree = [
-    {
-        prefix: "root",
-        children: [
-            { prefix: "1" },
-            {
-                prefix: "2",
-                children: [
-                    { prefix: "2.1" },
-                    {
-                        prefix: "2.2",
-                        children: [{ prefix: "2.2.1" }],
-                    },
-                ],
-            },
-            {
-                prefix: "3",
-                children: [{ prefix: "3.1" }],
-            },
-        ],
-    },
-];
-
-export default function DocumentList() {
-    const handleDelete = (event: React.MouseEvent, itemName: string) => {
+export default function DocumentList({ documents, onDeleteDocument }: {documents: RenderTree; onDeleteDocument: () => void;}) {
+    
+    const handleDelete = async (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
         const confirmDelete = window.confirm(
             `Are you sure you want to delete ${itemName}?`,
         );
         if (confirmDelete) {
             console.log(`Deleted ${itemName}`);
-            // Perform deletion logic if needed
+            await DeleteDocument(itemName);
         }
+        onDeleteDocument();
     };
 
     const IconButtonStyles = {
@@ -54,6 +34,7 @@ export default function DocumentList() {
             color: "darkred",
         },
     };
+    
 
     const renderTree = (nodes: ReqDocumentWithChildren[] | ReqDocument[]) => (
         <>
@@ -101,7 +82,7 @@ export default function DocumentList() {
                 defaultCollapseIcon={<ExpandMoreIcon />}
                 defaultExpandIcon={<ChevronRightIcon />}
             >
-                {renderTree(data)}
+                {renderTree(documents)}
             </TreeView>
         </Box>
     );

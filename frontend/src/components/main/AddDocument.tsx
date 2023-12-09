@@ -8,32 +8,57 @@ import {
     TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {PostDocument} from "../../hooks/MainFunctions.ts"
 
 export default function AddDocument({
     mode,
     setMode,
+    prefixes,
+    onAddDocument
 }: {
     mode: string;
     setMode: (mode: string) => void;
+    prefixes: string[];
+    onAddDocument: () => void;
 }) {
+    
     const [formData, setFormData] = useState({
         text: "",
         selectedOption: "",
     });
+    
+    useEffect(() => {
+        if (formData.selectedOption === "" && prefixes.length > 0) {
+            setFormData((prev) => ({
+                ...prev,
+                selectedOption: prefixes[0],
+            }));
+        }
+    }, [formData.selectedOption, prefixes]);
+    
 
     const handleClick = () => {
         setMode("select");
     };
-
-    const handleAddDocument = (event: { preventDefault: () => void }) => {
+    
+    const handleAddDocument = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); //prevent: localhost/:1 Form submission canceled because the form is not connected
-        //logika dodawania dokumentu
-        console.log("Sending data:", formData);
+        if (!formData.text) {
+            alert("Please enter a document prefix");
+            return;
+        }
+        if (formData.selectedOption === "") {
+            console.log("No parent prefix selected");
+            await PostDocument(formData.text);
+        }
+        else{
+            console.log("Parent prefix selected:", formData.selectedOption);
+        await PostDocument(formData.text, formData.selectedOption);}
         setMode("add");
+        onAddDocument();
     };
-
-    const options = ["Option 1", "Option 2", "Option 3", "root", "1", "srd"];
+    
 
     return (
         <Grid
@@ -116,9 +141,7 @@ export default function AddDocument({
                                             {children}
                                         </Paper>
                                     )}
-                                    options={options.sort(
-                                        (a, b) => -b[0].localeCompare(a[0]),
-                                    )}
+                                    options={prefixes}
                                 />
                             </FormControl>
                         </Grid>
