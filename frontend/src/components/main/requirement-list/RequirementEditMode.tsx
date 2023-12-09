@@ -6,7 +6,7 @@ import UndoIcon from "@mui/icons-material/Undo";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { MainContext } from "../../../pages/MainPage.tsx";
-import {IconButtonStyles} from "../../main/DocumentList.tsx";
+import { IconButtonStyles } from "../DocumentList.tsx";
 
 export default function RequirementEditMode({
     requirement,
@@ -31,8 +31,8 @@ export default function RequirementEditMode({
         contextTools?.updateSelectedRequirement(null);
     }
     return (
-        <Box sx={{m: 2}}>
-            <Typography variant="h6" color="black" sx={{  }}>
+        <Box sx={{ m: 2 }}>
+            <Typography variant="h6" color="black" sx={{}}>
                 Req {requirement.id}
             </Typography>
             <RenderedRequirementText text={editedText} />

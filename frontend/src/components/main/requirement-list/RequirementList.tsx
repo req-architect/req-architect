@@ -1,11 +1,13 @@
-import { useState } from "react";
 import { Requirement } from "../../../types.ts";
 import RequirementComponent from "./RequirementComponent.tsx";
 import { List } from "@mui/material";
-import Divider from '@mui/material/Divider';
-import DeleteIcon from "@mui/icons-material/Delete";
+import Divider from "@mui/material/Divider";
 
-export default function RequirementList({requirements}: {requirements: Requirement[]}) {
+export default function RequirementList({
+    requirements,
+}: {
+    requirements: Requirement[];
+}) {
     // const [requirements, setRequirements] = useState<Requirement[]>([
     //     { id: "1", reviewed: true, text: "System shall provide feature 1" },
     //     { id: "2", reviewed: false, text: "System shall provide feature 2" },
@@ -20,7 +22,7 @@ export default function RequirementList({requirements}: {requirements: Requireme
             {requirements.map((requirement) => (
                 <>
                     <RequirementComponent requirement={requirement} />
-                    <Divider/>
+                    <Divider />
                 </>
             ))}
         </List>

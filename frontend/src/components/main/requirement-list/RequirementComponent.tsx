@@ -1,5 +1,5 @@
 import { Requirement } from "../../../types";
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import RequirementEditMode from "./RequirementEditMode.tsx";
 import { useContext } from "react";
 import { MainContext } from "../../../pages/MainPage.tsx";
@@ -21,7 +21,7 @@ export default function RequirementComponent({
             sx={
                 contextTools?.isSelected(requirement)
                     ? { border: "2px solid green", marginBottom: 4 }
-                    : { marginBottom: 4}
+                    : { marginBottom: 4 }
             }
         >
             {/*Temporary button for testing*/}
