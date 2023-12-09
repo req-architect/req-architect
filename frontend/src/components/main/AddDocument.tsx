@@ -10,12 +10,6 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import {PostDocument} from "../../hooks/MainFunctions.ts"
-import { RenderTree } from "./DocumentList.tsx";
-
-
-interface DocumentListProps {
-    documents: RenderTree; // Pass the documents as a prop
-}
 
 export default function AddDocument({
     mode,

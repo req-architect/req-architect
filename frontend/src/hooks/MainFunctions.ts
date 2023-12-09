@@ -1,5 +1,3 @@
-import { ReqDocument, ReqDocumentWithChildren } from "../types";
-
 
 export function PostDocument (prefix: String, parent?: String) {
     console.log("Sending data:", prefix, parent);
