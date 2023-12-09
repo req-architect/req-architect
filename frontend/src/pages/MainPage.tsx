@@ -8,6 +8,7 @@ import AddDocument from "../components/main/AddDocument.tsx";
 import RequirementList from "../components/main/requirement-list/RequirementList.tsx";
 import RequirementDetails from "../components/main/RequirementDetails.tsx";
 import { RenderTree } from "../components/main/DocumentList.tsx";
+import { fetchDocuments } from "../hooks/MainFunctions.ts";
 
 export const MainContext = createContext<MainContextTools | null>(null);
 
@@ -36,48 +37,28 @@ export default function MainPage() {
           }
     };
     
-    const fetchDocuments = async () => {
+    async function getDocuments  () {
         // Fetch documents from Django backend
-         await fetch("http://localhost:8000/MyServer/doc/", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) =>  response.json())
-          .then((data) => {
-            // Set the fetched documents in state
-            console.log("Fetched documents:", data);
-            setFetchedPrefixes([]);
-            setFetchedDocuments(data);
-            data.forEach((document: { prefix: string; children?: any[] | undefined; }) => {
-                const documentPrefixes = extractPrefixes(document);
-                setFetchedPrefixes((fetchedPrefixes) => [...fetchedPrefixes, ...documentPrefixes])});
-          })
-          .catch((error) => {
-            if (error.message.includes("Internal Server Error")){
-                console.log("Couldn't fetch documents:", error.message);
-            }
-            else if (error.message.includes("Unexpected token '<'")) {
-                console.log("Empty document list");
-            } 
-            else {
-            console.error("Error fetching documents:", error);}
-            setFetchedDocuments([]);
-            setFetchedPrefixes([""]);
-          });
-      };
+        const data = await fetchDocuments();
+        console.log("Fetched documents:", data);
+        setFetchedPrefixes([]);
+        setFetchedDocuments(data);
+        data.forEach((document: { prefix: string; children?: any[] | undefined; }) => {
+        const documentPrefixes = extractPrefixes(document);
+        setFetchedPrefixes((prevPrefixes) => [...prevPrefixes, ...documentPrefixes]);
+    });
+    };
       
       useEffect(() => {
-        fetchDocuments();
+        getDocuments();
       }, []);
       
       const handleDeleteDocument = async () => {
-        await fetchDocuments();
+        await getDocuments();
       };
       
       const handleAddDocument = async () => {
-        await fetchDocuments();
+        await getDocuments();
       }
       
       useEffect(() => {
