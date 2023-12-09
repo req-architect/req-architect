@@ -33,10 +33,10 @@ export default function MainPage() {
                     sx={{
                         borderBottom: "0.5px solid green",
                         overflow: "hidden",
-                        minHeight: "30vh",
+                        height: "95vh",
                     }}
                 >
-                    <Grid item xs={3} display={"flex"} flexDirection={"column"}>
+                    <Grid item xs={2} display={"flex"} flexDirection={"column"} borderRight={"1px solid green"}>
                         <Container
                             sx={{
                                 maxHeight: mode === "add" ? "74vh" : "53vh",
@@ -47,10 +47,10 @@ export default function MainPage() {
                         </Container>
                         <AddDocument mode={mode} setMode={setMode} />
                     </Grid>
-                    <Grid item xs={6} sx={{ height: "100%", overflow: "auto" }}>
+                    <Grid item xs={8} sx={{ height: "100%", overflow: "auto", paddingRight: 8 , paddingLeft: 8}}>
                         <RequirementList />
                     </Grid>
-                    <Grid item xs={0} />
+                    {/* <Grid item xs={1} /> */}
                     <Grid item xs={2}>
                         <RequirementDetails />
                     </Grid>

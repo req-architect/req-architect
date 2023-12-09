@@ -5,6 +5,7 @@ import { TreeView } from "@mui/x-tree-view/TreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
+import FolderIcon from '@mui/icons-material/Folder';
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
 
 const isReqDocumentWithChildren = (
@@ -61,10 +62,11 @@ export default function DocumentList() {
                     key={node.prefix}
                     nodeId={node.prefix}
                     label={
-                        <div>
+                        <Box sx={{display: "flex", alignItems: "center"}}>
+                            <FolderIcon sx={{color: IconButtonStyles.color}}/>
                             Document: {node.prefix}
-                            {isReqDocumentWithChildren(node) &&
-                                node.children && (
+                            {/* {isReqDocumentWithChildren(node) &&
+                                node.children && ( */}
                                     <IconButton
                                         edge="end"
                                         aria-label="delete"
@@ -74,8 +76,8 @@ export default function DocumentList() {
                                     >
                                         <DeleteIcon sx={IconButtonStyles} />
                                     </IconButton>
-                                )}
-                        </div>
+                                {/* )} */}
+                        </Box>
                     }
                 >
                     {isReqDocumentWithChildren(node) &&
@@ -104,3 +106,4 @@ export default function DocumentList() {
         </Box>
     );
 }
+
