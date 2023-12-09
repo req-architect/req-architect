@@ -6,36 +6,19 @@ import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
+import { useEffect, useState } from "react";
 
 const isReqDocumentWithChildren = (
     node: ReqDocumentWithChildren | ReqDocument,
 ): node is ReqDocumentWithChildren => "children" in node;
-type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
+export type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
 
-const data: RenderTree = [
-    {
-        prefix: "root",
-        children: [
-            { prefix: "1" },
-            {
-                prefix: "2",
-                children: [
-                    { prefix: "2.1" },
-                    {
-                        prefix: "2.2",
-                        children: [{ prefix: "2.2.1" }],
-                    },
-                ],
-            },
-            {
-                prefix: "3",
-                children: [{ prefix: "3.1" }],
-            },
-        ],
-    },
-];
+interface DocumentListProps {
+    documents: RenderTree; // Pass the documents as a prop
+}
 
-export default function DocumentList() {
+export default function DocumentList({ documents }: DocumentListProps) {
+    
     const handleDelete = (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
         const confirmDelete = window.confirm(
@@ -53,6 +36,7 @@ export default function DocumentList() {
             color: "darkred",
         },
     };
+    
 
     const renderTree = (nodes: ReqDocumentWithChildren[] | ReqDocument[]) => (
         <>
@@ -99,7 +83,7 @@ export default function DocumentList() {
                 defaultCollapseIcon={<ExpandMoreIcon />}
                 defaultExpandIcon={<ChevronRightIcon />}
             >
-                {renderTree(data)}
+                {renderTree(documents)}
             </TreeView>
         </Box>
     );
