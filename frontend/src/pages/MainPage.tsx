@@ -26,8 +26,14 @@ export default function MainPage() {
                 prefixes = [...prefixes, ...extractPrefixes(child)];
             });
         }
-    
         return prefixes;
+    };
+    
+    const updatePrefixes = () => {
+        if (fetchedPrefixes.length > 1) {
+            const uniqueOptions = Array.from(new Set(fetchedPrefixes)).sort((a, b) => a.localeCompare(b));
+            setFetchedPrefixes(uniqueOptions);
+          }
     };
     
     const fetchDocuments = async () => {
@@ -42,6 +48,7 @@ export default function MainPage() {
           .then((data) => {
             // Set the fetched documents in state
             console.log("Fetched documents:", data);
+            setFetchedPrefixes([]);
             setFetchedDocuments(data);
             data.forEach((document: { prefix: string; children?: any[] | undefined; }) => {
                 const documentPrefixes = extractPrefixes(document);
@@ -72,6 +79,10 @@ export default function MainPage() {
       const handleAddDocument = async () => {
         await fetchDocuments();
       }
+      
+      useEffect(() => {
+        updatePrefixes();
+    }, [fetchedDocuments]);
 
 
     return (

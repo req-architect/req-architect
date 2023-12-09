@@ -22,7 +22,6 @@ export default function AddDocument({
     prefixes: string[];
     onAddDocument: () => void;
 }) {
-    const uniqueOptions = Array.from(new Set(prefixes)).sort((a, b) => a.localeCompare(b));
     
     const [formData, setFormData] = useState({
         text: "",
@@ -30,13 +29,13 @@ export default function AddDocument({
     });
     
     useEffect(() => {
-        if (formData.selectedOption === "" && uniqueOptions.length > 0) {
+        if (formData.selectedOption === "" && prefixes.length > 0) {
             setFormData((prev) => ({
                 ...prev,
-                selectedOption: uniqueOptions[0],
+                selectedOption: prefixes[0],
             }));
         }
-    }, [formData.selectedOption, uniqueOptions]);
+    }, [formData.selectedOption, prefixes]);
     
 
     const handleClick = () => {
@@ -142,7 +141,7 @@ export default function AddDocument({
                                             {children}
                                         </Paper>
                                     )}
-                                    options={uniqueOptions}
+                                    options={prefixes}
                                 />
                             </FormControl>
                         </Grid>
