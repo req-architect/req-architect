@@ -37,6 +37,8 @@ def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
             return False
     try:
         docTree = doorstop.build(cwd=userFolder)
+        if len(docTree.documents) >= 1 and not parentId:
+            return False
         docTree.create_document(
             userFolder + "/" + docId, docId, parent=parentId)
         return True
