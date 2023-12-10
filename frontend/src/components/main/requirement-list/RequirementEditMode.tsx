@@ -47,7 +47,7 @@ export default function RequirementEditMode({
     return (
         <Grid container>
             <Grid item xs={6} sx={{borderRight: "1px solid green"}}>
-                    <Typography variant="h6" color="black" sx={{ml: 1, mt: 1}}>
+                    <Typography variant="h6" color="black" fontWeight={"bold"} sx={{ml: 1, mt: 1}}>
                         Req {requirement.id}
                     </Typography>
                 <Box sx={{m: 4}}>
