@@ -60,7 +60,7 @@ class ReqView(APIView):
             return Response({'message': 'Missing docId parameter in the request'}, status=status.HTTP_400_BAD_REQUEST)
 
         reqs = MyServer.restHandlersHelpers.getDocReqs(
-            doc_id, self._serverInfo["usersFolder"] + "/user")
+            request.GET.get("docId"), self._serverInfo["usersFolder"] + "/user")
         if not reqs:
             return JsonResponse([], safe=False)
         serialized = MyServer.restHandlersHelpers.serializeDocReqs(reqs)
@@ -89,7 +89,7 @@ class DocView(APIView):
         if not self._serverInfo:
             return Response({'message': 'Unable to add document. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         if not MyServer.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), self._serverInfo["usersFolder"] + "/user"):
-            return Response({'message': 'Unable to add document. Could not build documents tree or root document exists and you need to specify the parent document.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response({'message': 'Unable to add document. Could not build documents tree or root document exists and you need to specify the parent document or root document does not exist and you must not specify parentId.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _deleteDocument(self, request):
@@ -126,13 +126,6 @@ class LinkView(APIView):
             return Response({'message': 'Unable to link requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
-    def _removeLink(self, request):
-        if not self._serverInfo:
-            return Response({'message': 'Unable to unlink requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        if not MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + "/user"):
-            return Response({'message': 'Unable to unlink requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
-
 
 class UnlinkView(APIView):
     def __init__(self):
@@ -144,7 +137,7 @@ class UnlinkView(APIView):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
-        return super(LinkView, self).dispatch(*args, **kwargs)
+        return super(UnlinkView, self).dispatch(*args, **kwargs)
 
     def _removeLink(self, request):
         if not self._serverInfo:
