@@ -88,7 +88,7 @@ def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: s
     try:
         docTree = doorstop.build(userFolder)
         doc = docTree.find_document(docId)
-        req = doc.add_item(reqNumberId)
+        req = doc.add_item(number=reqNumberId)
         if reqText:
             req.text = reqText
         return True
@@ -188,6 +188,8 @@ def serializeDocuments(userFolder: str):
         return data
     except doorstop.DoorstopError:
         return []
+    except FileNotFoundError:
+        return []
 
 
 def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
@@ -197,4 +199,6 @@ def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
         data[-1]["id"] = str(req.uid)
         data[-1]["text"] = req.text
         data[-1]["reviewed"] = req.reviewed
+        data[-1]["links"] = req.links
+        data[-1]["childLinks"] = req.child_links
     return data
