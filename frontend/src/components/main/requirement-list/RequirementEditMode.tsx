@@ -6,12 +6,18 @@ import UndoIcon from "@mui/icons-material/Undo";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { MainContext } from "../../../pages/MainPage.tsx";
-import {IconButtonStyles} from "../../main/DocumentList.tsx";
+import { IconButtonStyles } from "../../../lib/styles.ts";
+import {
+    deleteRequirement,
+    putRequirement,
+} from "../../../lib/api/requirementService.ts";
 
 export default function RequirementEditMode({
     requirement,
+    updateRequirements,
 }: {
     requirement: Requirement;
+    updateRequirements: () => void;
 }) {
     const [editedText, setEditedText] = useState(requirement.text);
     const contextTools = useContext(MainContext);
@@ -25,14 +31,22 @@ export default function RequirementEditMode({
         contextTools?.updateEditMode(false);
         contextTools?.updateSelectedRequirement(null);
     }
-    function handleSave() {
+    async function handleSave() {
         // TODO: update requirement in database and reload
         contextTools?.updateEditMode(false);
         contextTools?.updateSelectedRequirement(null);
+        await putRequirement(requirement.id, editedText);
+        updateRequirements();
+    }
+    async function handleDelete() {
+        contextTools?.updateEditMode(false);
+        contextTools?.updateSelectedRequirement(null);
+        await deleteRequirement(requirement.id);
+        updateRequirements();
     }
     return (
-        <Box sx={{m: 2}}>
-            <Typography variant="h6" color="black" sx={{  }}>
+        <Box sx={{ m: 2 }}>
+            <Typography variant="h6" color="black" sx={{}}>
                 Req {requirement.id}
             </Typography>
             <RenderedRequirementText text={editedText} />
@@ -51,7 +65,7 @@ export default function RequirementEditMode({
             <IconButton aria-label="abort" color="error" onClick={handleAbort}>
                 <UndoIcon />
             </IconButton>
-            <IconButton>
+            <IconButton aria-label="delete" onClick={handleDelete}>
                 <DeleteIcon sx={IconButtonStyles} />
             </IconButton>
         </Box>
