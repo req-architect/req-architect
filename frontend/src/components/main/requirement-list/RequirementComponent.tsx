@@ -5,6 +5,7 @@ import { useContext, useRef } from "react";
 import { MainContext } from "../../../pages/MainPage.tsx";
 import RequirementStandard from "./RequirementStandard.tsx";
 import useClickInside from "../../../hooks/useClickInside.ts";
+import Divider from "@mui/material/Divider";
 
 export default function RequirementComponent({
     requirement,
@@ -25,11 +26,14 @@ export default function RequirementComponent({
         <Box
             ref={wrapperRef}
             sx={
-                contextTools?.isSelected(requirement)
-                    ? { outline: "2px solid green", marginBottom: 4 }
-                    : { marginBottom: 4 }
+                contextTools?.isSelected(requirement) && 
+                contextTools?.data.requirementEditMode
+                    ? { outline: "1px solid green", borderRadius: 2, marginBottom: 4, width: "100%" }
+                    : contextTools?.isSelected(requirement) ? { outline: "1px solid green", borderRadius: 2, marginBottom: 4, width: "60%"}
+                    : { marginBottom: 4, width: "60%" }
             }
         >
+            <Divider />
             {/*Temporary button for testing*/}
             {contextTools?.isSelected(requirement) &&
             contextTools?.data.requirementEditMode ? (

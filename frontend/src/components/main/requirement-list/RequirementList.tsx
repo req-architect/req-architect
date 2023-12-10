@@ -1,7 +1,6 @@
 import { Requirement } from "../../../types.ts";
 import RequirementComponent from "./RequirementComponent.tsx";
-import { List } from "@mui/material";
-import Divider from "@mui/material/Divider";
+import { List, Box } from "@mui/material";
 
 export default function RequirementList({
     requirements,
@@ -22,13 +21,12 @@ export default function RequirementList({
     return (
         <List>
             {requirements.map((requirement) => (
-                <>
+                <Box sx={{display: "flex",  justifyContent: "center"}}>
                     <RequirementComponent
                         requirement={requirement}
                         updateRequirements={updateRequirements}
                     />
-                    <Divider />
-                </>
+                </Box>
             ))}
         </List>
     );
