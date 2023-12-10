@@ -41,6 +41,7 @@ export default function useMainContext() {
         }));
     }
     function updateSelectedRequirement(requirement: Requirement | null) {
+        if (requirement == mainContext.selectedRequirement) return;
         if (
             mainContext.requirementEditMode &&
             mainContext.selectedRequirement !== requirement &&

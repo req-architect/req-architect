@@ -5,8 +5,10 @@ import Divider from "@mui/material/Divider";
 
 export default function RequirementList({
     requirements,
+    updateRequirements,
 }: {
     requirements: Requirement[];
+    updateRequirements: () => void;
 }) {
     // const [requirements, setRequirements] = useState<Requirement[]>([
     //     { id: "1", reviewed: true, text: "System shall provide feature 1" },
@@ -21,7 +23,10 @@ export default function RequirementList({
         <List>
             {requirements.map((requirement) => (
                 <>
-                    <RequirementComponent requirement={requirement} />
+                    <RequirementComponent
+                        requirement={requirement}
+                        updateRequirements={updateRequirements}
+                    />
                     <Divider />
                 </>
             ))}

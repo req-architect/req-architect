@@ -8,8 +8,10 @@ import useClickInside from "../../../hooks/useClickInside.ts";
 
 export default function RequirementComponent({
     requirement,
+    updateRequirements,
 }: {
     requirement: Requirement;
+    updateRequirements: () => void;
 }) {
     const contextTools = useContext(MainContext);
     const wrapperRef = useRef<HTMLInputElement>(null);
@@ -31,7 +33,10 @@ export default function RequirementComponent({
             {/*Temporary button for testing*/}
             {contextTools?.isSelected(requirement) &&
             contextTools?.data.requirementEditMode ? (
-                <RequirementEditMode requirement={requirement} />
+                <RequirementEditMode
+                    requirement={requirement}
+                    updateRequirements={updateRequirements}
+                />
             ) : (
                 <RequirementStandard requirement={requirement} />
             )}

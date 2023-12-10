@@ -9,6 +9,7 @@ import RequirementDetails from "../components/main/RequirementDetails.tsx";
 import { fetchDocuments } from "../lib/api/documentService.ts";
 import { fetchRequirements } from "../lib/api/requirementService.ts";
 import { ReqDocumentWithChildren, Requirement } from "../types.ts";
+import AddRequirement from "../components/main/AddRequirement.tsx";
 
 export const MainContext = createContext<MainContextTools | null>(null);
 
@@ -65,6 +66,7 @@ export default function MainPage() {
             console.log("Fetched requirements:", data);
             setRequirements(data);
         }
+        mainContextTools?.updateSelectedRequirement(null);
     }
 
     useEffect(() => {
@@ -140,7 +142,16 @@ export default function MainPage() {
                             paddingLeft: 8,
                         }}
                     >
-                        <RequirementList requirements={requirements} />
+                        <RequirementList
+                            requirements={requirements}
+                            updateRequirements={handleClickDocument}
+                        />
+                        {selectedDocument && (
+                            <AddRequirement
+                                docPrefix={selectedDocument}
+                                updateRequirements={handleClickDocument}
+                            />
+                        )}
                     </Grid>
                     {/* <Grid item xs={1} /> */}
                     <Grid item xs={2}>
