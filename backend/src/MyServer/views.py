@@ -85,7 +85,7 @@ class DocView(APIView):
         if not self._serverInfo:
             return Response({'message': 'Unable to add document. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         if not MyServer.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), self._serverInfo["usersFolder"] + "/user"):
-            return Response({'message': 'Unable to add document. Could not build documents tree or root document exists and you need to specify the parent document.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response({'message': 'Unable to add document. Could not build documents tree or root document exists and you need to specify the parent document or root document does not exist and you must not specify parentId.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _deleteDocument(self, request):

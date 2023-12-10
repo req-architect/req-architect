@@ -39,6 +39,8 @@ def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
         docTree = doorstop.build(cwd=userFolder)
         if len(docTree.documents) >= 1 and not parentId:
             return False
+        if len(docTree.documents) == 0 and parentId:
+            return False
         docTree.create_document(
             userFolder + "/" + docId, docId, parent=parentId)
         return True
@@ -56,7 +58,7 @@ def removeDocTree(tree: doorstop.Tree, docId: str, userFolder: str, rootTree: do
             document for document in rootTree.documents if document not in ToBeRemoved]
         for document in ToBeRemoved:
             for req in document.items:
-                RemoveLinksToReq(req.prefix, ToCheck, userFolder)
+                RemoveLinksToReq(str(req.uid), ToCheck, userFolder)
         for document in tree.documents:
             rmtree(document.path)
         return
