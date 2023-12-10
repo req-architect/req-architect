@@ -22,12 +22,12 @@ export default function fetchAPI(method: Method, uri: string, body?: object) {
         .then(async (response) => {
             if (!response.ok) {
                 const data = await response.json().catch(() => {
-                    throw new APIError("Unknown error", response.status);
+                    throw new APIError(response.statusText, response.status);
                 });
                 if (data.message) {
                     throw new APIError(data.message, response.status);
                 } else {
-                    throw new APIError("Unknown error", response.status);
+                    throw new APIError(response.statusText, response.status);
                 }
             }
             return response.json();
