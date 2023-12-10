@@ -1,8 +1,7 @@
 import { Requirement } from "../../../types.ts";
-import { IconButton, Typography, Button, Box } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useContext } from "react";
 import { MainContext } from "../../../pages/MainPage.tsx";
-import EditIcon from "@mui/icons-material/Edit";
 import RenderedRequirementText from "./RenderedRequirementText.tsx";
 
 export default function RequirementStandard({
@@ -15,11 +14,11 @@ export default function RequirementStandard({
         contextTools?.updateSelectedRequirement(requirement);
     }
     return (
-        <Box sx={{m: 2}}>
-            <Typography variant="h6" color="black" sx={{mt: 1}}>
+        <Box sx={{ m: 2 }}>
+            <Typography variant="h6" color="black" sx={{ mt: 1 }}>
                 Req {requirement.id}
             </Typography>
-            <RenderedRequirementText text={requirement.text}/>
+            <RenderedRequirementText text={requirement.text} />
             {/* {contextTools?.isSelected(requirement) && (
                 <IconButton
                     aria-label="edit"
@@ -29,7 +28,10 @@ export default function RequirementStandard({
                 </IconButton>
             )} */}
             <Button
-                onClick={() => {handleSelect(); contextTools?.updateEditMode(true);}}
+                onClick={() => {
+                    handleSelect();
+                    contextTools?.updateEditMode(true);
+                }}
                 sx={{
                     background: "green",
                     color: "white",
@@ -41,7 +43,8 @@ export default function RequirementStandard({
                     },
                     textTransform: "none",
                 }}
-                >Edit
+            >
+                Edit
             </Button>
         </Box>
     );

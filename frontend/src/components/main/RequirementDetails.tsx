@@ -1,6 +1,7 @@
 import Grid from "@mui/material/Grid";
 import { useContext } from "react";
 import { MainContext } from "../../pages/MainPage.tsx";
+import { Typography } from "@mui/material";
 
 export default function RequirementDetails() {
     const contextTools = useContext(MainContext);
@@ -15,8 +16,14 @@ export default function RequirementDetails() {
                 height: "100%",
             }}
         >
-            Requirement Details. Reviewed:{" "}
-            {contextTools?.data.selectedRequirement?.reviewed}
+            {contextTools?.data.selectedRequirement && (
+                <Typography>
+                    Requirement Details. Reviewed:{" "}
+                    {contextTools?.data.selectedRequirement?.reviewed
+                        ? "Yes"
+                        : "No"}
+                </Typography>
+            )}
         </Grid>
     );
 }
