@@ -138,8 +138,8 @@ export default function MainPage() {
                         sx={{
                             height: "100%",
                             overflow: "auto",
-                            paddingRight: 8,
-                            paddingLeft: 8,
+                            paddingRight: 4,
+                            paddingLeft: 4,
                         }}
                     >
                         <RequirementList

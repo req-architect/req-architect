@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Requirement } from "../../../types.ts";
-import { IconButton, TextField, Typography, Box } from "@mui/material";
+import { IconButton, TextField, Typography, Box, Grid } from "@mui/material";
 import RenderedRequirementText from "./RenderedRequirementText.tsx";
 import UndoIcon from "@mui/icons-material/Undo";
 import DoneIcon from "@mui/icons-material/Done";
@@ -45,29 +45,39 @@ export default function RequirementEditMode({
         updateRequirements();
     }
     return (
-        <Box sx={{ m: 2 }}>
-            <Typography variant="h6" color="black" sx={{}}>
-                Req {requirement.id}
-            </Typography>
-            <RenderedRequirementText text={editedText} />
-            <TextField
-                multiline
-                rows={4}
-                value={editedText}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    setEditedText(event.target.value);
-                }}
-                sx={{ width: "100%", mt: 2 }}
-            />
-            <IconButton aria-label="save" color="success" onClick={handleSave}>
-                <DoneIcon />
-            </IconButton>
-            <IconButton aria-label="abort" color="error" onClick={handleAbort}>
-                <UndoIcon />
-            </IconButton>
-            <IconButton aria-label="delete" onClick={handleDelete}>
-                <DeleteIcon sx={IconButtonStyles} />
-            </IconButton>
-        </Box>
+        <Grid container>
+            <Grid item xs={6} sx={{borderRight: "1px solid green"}}>
+                    <Typography variant="h6" color="black" fontWeight={"bold"} sx={{ml: 1, mt: 1}}>
+                        Req {requirement.id}
+                    </Typography>
+                <Box sx={{m: 4}}>
+                    <TextField
+                    multiline
+                    rows={12}
+                    value={editedText}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setEditedText(event.target.value);
+                    }}
+                    sx={{ width: "100%"}}
+                    />
+                </Box>
+            </Grid>
+            <Grid item xs={6}>
+                <Box sx={{display: "flex", justifyContent: "end"}}>
+                    <IconButton aria-label="save" color="success" onClick={handleSave}>
+                        <DoneIcon />
+                    </IconButton>
+                    <IconButton aria-label="abort" color="error" onClick={handleAbort}>
+                        <UndoIcon />
+                    </IconButton>
+                    <IconButton aria-label="delete" onClick={handleDelete}>
+                        <DeleteIcon sx={IconButtonStyles} />
+                    </IconButton>
+                </Box>
+                <Box sx={{m: 4}}>
+                    <RenderedRequirementText text={editedText} />
+                </Box>
+            </Grid>
+        </Grid>
     );
 }

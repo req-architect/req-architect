@@ -15,7 +15,7 @@ export default function RequirementStandard({
     }
     return (
         <Box sx={{ m: 2 }}>
-            <Typography variant="h6" color="black" sx={{ mt: 1 }}>
+            <Typography variant="h6" color="black" fontWeight={"bold"} sx={{ mb: 1 }}>
                 Req {requirement.id}
             </Typography>
             <RenderedRequirementText text={requirement.text} />
