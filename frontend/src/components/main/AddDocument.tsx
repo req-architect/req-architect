@@ -9,25 +9,24 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
-import {PostDocument} from "../../hooks/MainFunctions.ts"
+import { postDocument } from "../../lib/documentService.ts";
 
 export default function AddDocument({
     mode,
     setMode,
     prefixes,
-    onAddDocument
+    onAddDocument,
 }: {
     mode: string;
     setMode: (mode: string) => void;
     prefixes: string[];
     onAddDocument: () => void;
 }) {
-    
     const [formData, setFormData] = useState({
         text: "",
         selectedOption: "",
     });
-    
+
     useEffect(() => {
         if (formData.selectedOption === "" && prefixes.length > 0) {
             setFormData((prev) => ({
@@ -36,12 +35,11 @@ export default function AddDocument({
             }));
         }
     }, [formData.selectedOption, prefixes]);
-    
 
     const handleClick = () => {
         setMode("select");
     };
-    
+
     const handleAddDocument = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); //prevent: localhost/:1 Form submission canceled because the form is not connected
         if (!formData.text) {
@@ -50,15 +48,14 @@ export default function AddDocument({
         }
         if (formData.selectedOption === "") {
             console.log("No parent prefix selected");
-            await PostDocument(formData.text);
-        }
-        else{
+            await postDocument(formData.text);
+        } else {
             console.log("Parent prefix selected:", formData.selectedOption);
-        await PostDocument(formData.text, formData.selectedOption);}
+            await postDocument(formData.text, formData.selectedOption);
+        }
         setMode("add");
         onAddDocument();
     };
-    
 
     return (
         <Grid

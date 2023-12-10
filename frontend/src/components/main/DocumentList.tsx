@@ -7,7 +7,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import FolderIcon from "@mui/icons-material/Folder";
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
-import { DeleteDocument } from "../../hooks/MainFunctions.ts";
+import { deleteDocument } from "../../lib/documentService.ts";
 import { useEffect } from "react";
 
 const isReqDocumentWithChildren = (
@@ -42,7 +42,7 @@ export default function DocumentList({
         );
         if (confirmDelete) {
             console.log(`Deleted ${itemName}`);
-            await DeleteDocument(itemName);
+            await deleteDocument(itemName);
         }
         onDeleteDocument();
     };
