@@ -133,7 +133,7 @@ class UnlinkView(APIView):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
-        return super(LinkView, self).dispatch(*args, **kwargs)
+        return super(UnlinkView, self).dispatch(*args, **kwargs)
 
     def _removeLink(self, request):
         if not self._serverInfo:
