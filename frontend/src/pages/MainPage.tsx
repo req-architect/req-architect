@@ -94,7 +94,7 @@ export default function MainPage() {
             <div
                 style={{
                     width: "100%",
-                    minWidth: 1025,
+                    minWidth: 1200,
                     height: "100vh",
                     minHeight: 700,
                     display: "flex",
@@ -108,7 +108,7 @@ export default function MainPage() {
                     sx={{
                         borderBottom: "0.5px solid green",
                         overflow: "hidden",
-                        height: "95vh",
+                        flexGrow: 1
                     }}
                 >
                     <Grid

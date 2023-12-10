@@ -93,9 +93,10 @@ export default function DocumentList({
     return (
         <Box
             sx={{
-                minHeight: 180,
+                minHeight: "20vh",
                 flexGrow: 1,
                 maxWidth: 300,
+                maxHeight: "55vh",
                 overflowY: "auto",
             }}
         >
