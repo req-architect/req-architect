@@ -28,11 +28,12 @@ export default function RequirementComponent({
             sx={
                 contextTools?.isSelected(requirement) && 
                 contextTools?.data.requirementEditMode
-                    ? { outline: "2px solid green", marginBottom: 4, width: "100%" }
-                    : contextTools?.isSelected(requirement) ? { outline: "2px solid green", marginBottom: 4, width: "60%"}
+                    ? { outline: "1px solid green", borderRadius: 2, marginBottom: 4, width: "100%" }
+                    : contextTools?.isSelected(requirement) ? { outline: "1px solid green", borderRadius: 2, marginBottom: 4, width: "60%"}
                     : { marginBottom: 4, width: "60%" }
             }
         >
+            <Divider />
             {/*Temporary button for testing*/}
             {contextTools?.isSelected(requirement) &&
             contextTools?.data.requirementEditMode ? (
@@ -43,7 +44,6 @@ export default function RequirementComponent({
             ) : (
                 <RequirementStandard requirement={requirement} />
             )}
-            <Divider />
         </Box>
     );
 }
