@@ -17,6 +17,10 @@ export async function fetchRequirements(
 }
 
 export async function postRequirement(docPrefix: string) {
+    if (!docPrefix){
+        alert("To add a requirement you must first choose a document");
+        return;
+    }
     await fetchAPI("POST", "/MyServer/req/", {
         docId: docPrefix,
         reqNumberId: "", // id assigned automatically

@@ -147,12 +147,10 @@ export default function MainPage() {
                             />
                         </Box>
                         <Box sx={{height: "0%", display: "flex", justifyContent: "flex-end", alignItems: "flex-end"}}>
-                        {selectedDocument && (
                             <AddRequirement
                                 docPrefix={selectedDocument}
                                 updateRequirements={handleClickDocument}
                             />
-                        )}
                         </Box>
                     </Grid>
                     {/* <Grid item xs={1} /> */}
