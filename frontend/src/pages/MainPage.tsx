@@ -140,13 +140,13 @@ export default function MainPage() {
                             height: "100%",
                         }}
                     >
-                        <Box sx={{height: "93%", overflowY: "auto"}}>
+                        <Box sx={{height: "100%", overflowY: "auto"}}>
                             <RequirementList
                                 requirements={requirements}
                                 updateRequirements={handleClickDocument}
                             />
                         </Box>
-                        <Box sx={{height: "7%", display: "flex", justifyContent: "flex-end", alignItems: "flex-end"}}>
+                        <Box sx={{height: "0%", display: "flex", justifyContent: "flex-end", alignItems: "flex-end"}}>
                         {selectedDocument && (
                             <AddRequirement
                                 docPrefix={selectedDocument}
