@@ -40,6 +40,10 @@ export default function AddDocument({
         setMode("select");
     };
 
+    const handleCancel = () => {
+        setMode("add");
+    }
+
     const handleAddDocument = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); //prevent: localhost/:1 Form submission canceled because the form is not connected
         if (!formData.text) {
@@ -57,7 +61,7 @@ export default function AddDocument({
             console.log("Parent prefix selected:", formData.selectedOption);
             await postDocument(formData.text, formData.selectedOption);
         }
-        setMode("add");
+        //setMode("add");
         onAddDocument();
     };
 
@@ -77,58 +81,74 @@ export default function AddDocument({
                     <AddIcon />
                 </Fab>
             ) : (
-                <form onSubmit={handleAddDocument}>
-                    <TextField
-                        label="New document prefix"
-                        fullWidth
-                        sx={{ mt: 2, mb: 2 }}
-                        onChange={(event) => {
-                            setFormData((prev) => ({
-                                ...prev,
-                                text: event.target.value,
-                            }));
-                        }}
-                    />
-                    <FormControl
-                        fullWidth
-                        variant="outlined"
-                        sx={{ mt: 2, mb: 2 }}
-                    >
-                        <Autocomplete
-                            value={formData.selectedOption}
-                            onChange={(_event, newValue) => {
+                <Box>
+                    <form>
+                        <TextField
+                            label="New document prefix"
+                            fullWidth
+                            sx={{ mt: 2, mb: 2 }}
+                            onChange={(event) => {
                                 setFormData((prev) => ({
                                     ...prev,
-                                    selectedOption: newValue || "",
+                                    text: event.target.value,
                                 }));
                             }}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label="Parent prefix"
-                                />
-                            )}
-                            PaperComponent={({ children }) => (
-                                <Paper
-                                    style={{
-                                        maxHeight: "150px",
-                                        overflowY: "auto",
-                                    }}
-                                >
-                                    {children}
-                                </Paper>
-                            )}
-                            options={prefixes}
                         />
-                    </FormControl>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="success"
-                    >
-                        Add Document
-                    </Button>
-                </form>
+                        <FormControl
+                            fullWidth
+                            variant="outlined"
+                            sx={{ mt: 2, mb: 2 }}
+                        >
+                            <Autocomplete
+                                value={formData.selectedOption}
+                                onChange={(_event, newValue) => {
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        selectedOption: newValue || "",
+                                    }));
+                                }}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Parent prefix"
+                                    />
+                                )}
+                                PaperComponent={({ children }) => (
+                                    <Paper
+                                        style={{
+                                            maxHeight: "150px",
+                                            overflowY: "auto",
+                                        }}
+                                    >
+                                        {children}
+                                    </Paper>
+                                )}
+                                options={prefixes}
+                            />
+                        </FormControl>
+                    </form>
+                    <Box sx = {{mb: 2}}>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="success"
+                            onClick={handleAddDocument}
+                            sx={{width: "100%"}}
+                        >
+                            Add Document
+                        </Button>
+                    </Box>
+                    <Box sx={{}}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={handleCancel}
+                            sx={{width: "100%"}}
+                        >
+                            Back
+                        </Button>
+                    </Box>
+                </Box>
             )}
         </Box>
     );

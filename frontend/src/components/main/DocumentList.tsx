@@ -96,7 +96,7 @@ export default function DocumentList({
                 minHeight: "20vh",
                 flexGrow: 1,
                 maxWidth: 300,
-                maxHeight: "55vh",
+                height: "55vh",
                 overflowY: "auto",
             }}
         >
