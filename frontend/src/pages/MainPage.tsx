@@ -1,16 +1,15 @@
 import MainPageHeader from "../components/main/MainPageHeader.tsx";
-import DocumentList from "../components/main/DocumentList.tsx";
+import DocumentList, { RenderTree } from "../components/main/DocumentList.tsx";
 import { createContext, useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
-import { Container } from "@mui/material";
 import useMainContext, { MainContextTools } from "../hooks/useMainContext.ts";
 import AddDocument from "../components/main/AddDocument.tsx";
 import RequirementList from "../components/main/requirement-list/RequirementList.tsx";
 import RequirementDetails from "../components/main/RequirementDetails.tsx";
-import { RenderTree } from "../components/main/DocumentList.tsx";
-import { fetchDocuments, fetchRequirements } from "../hooks/MainFunctions.ts";
-import { get } from "http";
-import { Requirement } from "../types.ts";
+import { fetchDocuments } from "../lib/api/documentService.ts";
+import { fetchRequirements } from "../lib/api/requirementService.ts";
+import { ReqDocumentWithChildren, Requirement } from "../types.ts";
+import AddRequirement from "../components/main/AddRequirement.tsx";
 
 export const MainContext = createContext<MainContextTools | null>(null);
 
@@ -21,11 +20,10 @@ export default function MainPage() {
     const [fetchedPrefixes, setFetchedPrefixes] = useState<string[]>([]);
     const [selectedDocument, setSelectedDocument] = useState<string>("");
     const [requirements, setRequirements] = useState<Requirement[]>([]);
-    
-    
-    const extractPrefixes = (document: { prefix: string; children?: any[] }) => {
+
+    const extractPrefixes = (document: ReqDocumentWithChildren) => {
         let prefixes: string[] = [document.prefix];
-    
+
         if (document.children && document.children.length > 0) {
             document.children.forEach((child) => {
                 prefixes = [...prefixes, ...extractPrefixes(child)];
@@ -33,60 +31,63 @@ export default function MainPage() {
         }
         return prefixes;
     };
-    
+
     const updatePrefixes = () => {
         if (fetchedPrefixes.length > 1) {
-            const uniqueOptions = Array.from(new Set(fetchedPrefixes)).sort((a, b) => a.localeCompare(b));
+            const uniqueOptions = Array.from(new Set(fetchedPrefixes)).sort(
+                (a, b) => a.localeCompare(b),
+            );
             setFetchedPrefixes(uniqueOptions);
-          }
+        }
     };
-    
-    async function getDocuments  () {
+
+    async function getDocuments() {
         // Fetch documents from Django backend
         const data = await fetchDocuments();
         console.log("Fetched documents:", data);
         setFetchedPrefixes([]);
         setFetchedDocuments(data);
-        data.forEach(async (document: { prefix: string; children?: any[] | undefined; }) => {
-        const documentPrefixes = extractPrefixes(document);
-        setFetchedPrefixes((prevPrefixes) => [...prevPrefixes, ...documentPrefixes]);
-    });
-    };
-    
-    async function getRequirements (docPrefix : string) {
+        data.forEach(async (document: ReqDocumentWithChildren) => {
+            const documentPrefixes = extractPrefixes(document);
+            setFetchedPrefixes((prevPrefixes) => [
+                ...prevPrefixes,
+                ...documentPrefixes,
+            ]);
+        });
+    }
+
+    async function getRequirements(docPrefix: string) {
         // Fetch requirements from Django backend
         if (docPrefix === "") {
             console.log("No document selected");
             return;
-        }
-        else {
+        } else {
             const data = await fetchRequirements(docPrefix);
             console.log("Fetched requirements:", data);
             setRequirements(data);
         }
+        mainContextTools?.updateSelectedRequirement(null);
     }
-      
-      useEffect(() => {
-        getDocuments();
-        getRequirements(selectedDocument);
-      }, []);
-      
-      const handleDeleteDocument = async () => {
+
+    useEffect(() => {
+        Promise.all([getDocuments(), getRequirements(selectedDocument)]);
+    }, [selectedDocument]);
+
+    const handleDeleteDocument = async () => {
         await getDocuments();
-      };
-      
-      const handleAddDocument = async () => {
+    };
+
+    const handleAddDocument = async () => {
         await getDocuments();
-      }
-      
-      const handleClickDocument = async () => {
+    };
+
+    const handleClickDocument = async () => {
         await getRequirements(selectedDocument);
-      }
-      
-      useEffect(() => {
+    };
+
+    useEffect(() => {
         updatePrefixes();
     }, [fetchedDocuments]);
-
 
     return (
         <MainContext.Provider value={mainContextTools}>
@@ -110,12 +111,47 @@ export default function MainPage() {
                         height: "95vh",
                     }}
                 >
-                    <Grid item xs={2} display={"flex"} flexDirection={"column"} borderRight={"1px solid green"}>
-                        <DocumentList documents={fetchedDocuments} onDeleteDocument={handleDeleteDocument} selectedDocument={selectedDocument} setSelectedDocument={setSelectedDocument} onClickDocument={handleClickDocument}/>
-                        <AddDocument mode={mode} setMode={setMode} prefixes={fetchedPrefixes} onAddDocument={handleAddDocument} />
+                    <Grid
+                        item
+                        xs={2}
+                        display={"flex"}
+                        flexDirection={"column"}
+                        borderRight={"1px solid green"}
+                    >
+                        <DocumentList
+                            documents={fetchedDocuments}
+                            onDeleteDocument={handleDeleteDocument}
+                            selectedDocument={selectedDocument}
+                            setSelectedDocument={setSelectedDocument}
+                            onClickDocument={handleClickDocument}
+                        />
+                        <AddDocument
+                            mode={mode}
+                            setMode={setMode}
+                            prefixes={fetchedPrefixes}
+                            onAddDocument={handleAddDocument}
+                        />
                     </Grid>
-                    <Grid item xs={8} sx={{ height: "100%", overflow: "auto", paddingRight: 8 , paddingLeft: 8}}>
-                        <RequirementList requirements={requirements}/>
+                    <Grid
+                        item
+                        xs={8}
+                        sx={{
+                            height: "100%",
+                            overflow: "auto",
+                            paddingRight: 8,
+                            paddingLeft: 8,
+                        }}
+                    >
+                        <RequirementList
+                            requirements={requirements}
+                            updateRequirements={handleClickDocument}
+                        />
+                        {selectedDocument && (
+                            <AddRequirement
+                                docPrefix={selectedDocument}
+                                updateRequirements={handleClickDocument}
+                            />
+                        )}
                     </Grid>
                     {/* <Grid item xs={1} /> */}
                     <Grid item xs={2}>
