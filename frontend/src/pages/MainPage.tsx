@@ -6,8 +6,8 @@ import useMainContext, { MainContextTools } from "../hooks/useMainContext.ts";
 import AddDocument from "../components/main/AddDocument.tsx";
 import RequirementList from "../components/main/requirement-list/RequirementList.tsx";
 import RequirementDetails from "../components/main/RequirementDetails.tsx";
-import { fetchDocuments } from "../lib/documentService.ts";
-import { fetchRequirements } from "../lib/requirementService.ts";
+import { fetchDocuments } from "../lib/api/documentService.ts";
+import { fetchRequirements } from "../lib/api/requirementService.ts";
 import { ReqDocumentWithChildren, Requirement } from "../types.ts";
 
 export const MainContext = createContext<MainContextTools | null>(null);

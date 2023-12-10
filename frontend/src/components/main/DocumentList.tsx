@@ -7,20 +7,14 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import FolderIcon from "@mui/icons-material/Folder";
 import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
-import { deleteDocument } from "../../lib/documentService.ts";
+import { deleteDocument } from "../../lib/api/documentService.ts";
 import { useEffect } from "react";
+import { IconButtonStyles } from "../../lib/styles.ts";
 
 const isReqDocumentWithChildren = (
     node: ReqDocumentWithChildren | ReqDocument,
 ): node is ReqDocumentWithChildren => "children" in node;
 export type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
-
-export const IconButtonStyles = {
-    color: "#666666",
-    "&:hover": {
-        color: "darkred",
-    },
-};
 
 export default function DocumentList({
     documents,

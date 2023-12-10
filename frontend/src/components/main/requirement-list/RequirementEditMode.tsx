@@ -6,7 +6,7 @@ import UndoIcon from "@mui/icons-material/Undo";
 import DoneIcon from "@mui/icons-material/Done";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { MainContext } from "../../../pages/MainPage.tsx";
-import { IconButtonStyles } from "../DocumentList.tsx";
+import { IconButtonStyles } from "../../../lib/styles.ts";
 
 export default function RequirementEditMode({
     requirement,

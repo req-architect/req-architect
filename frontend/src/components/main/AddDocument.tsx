@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
-import { postDocument } from "../../lib/documentService.ts";
+import { postDocument } from "../../lib/api/documentService.ts";
 
 export default function AddDocument({
     mode,

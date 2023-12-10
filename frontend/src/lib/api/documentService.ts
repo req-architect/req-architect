@@ -1,5 +1,5 @@
 import fetchAPI from "./fetchAPI.ts";
-import { ReqDocumentWithChildren } from "../types.ts";
+import { ReqDocumentWithChildren } from "../../types.ts";
 
 export async function postDocument(prefix: string, parent?: string) {
     console.log("Sending data:", prefix, parent);
