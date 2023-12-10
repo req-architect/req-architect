@@ -46,6 +46,10 @@ export default function AddDocument({
             alert("Please enter a document prefix");
             return;
         }
+        if (/^\d+$/.test(formData.text.charAt(formData.text.length - 1))) { // if is digit
+            alert("Document prefix cannot end with a digit");
+            return;
+        }
         if (formData.selectedOption === "") {
             console.log("No parent prefix selected");
             await postDocument(formData.text);
