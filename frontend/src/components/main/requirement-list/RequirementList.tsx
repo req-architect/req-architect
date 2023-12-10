@@ -21,7 +21,7 @@ export default function RequirementList({
     return (
         <List>
             {requirements.map((requirement) => (
-                <Box sx={{display: "flex",  justifyContent: "center"}}>
+                <Box sx={{display: "flex",  justifyContent: "center", ml: 2, mr: 2}}>
                     <RequirementComponent
                         requirement={requirement}
                         updateRequirements={updateRequirements}

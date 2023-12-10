@@ -10,6 +10,7 @@ import { fetchDocuments } from "../lib/api/documentService.ts";
 import { fetchRequirements } from "../lib/api/requirementService.ts";
 import { ReqDocumentWithChildren, Requirement } from "../types.ts";
 import AddRequirement from "../components/main/AddRequirement.tsx";
+import { Box } from "@mui/material";
 
 export const MainContext = createContext<MainContextTools | null>(null);
 
@@ -137,21 +138,22 @@ export default function MainPage() {
                         xs={8}
                         sx={{
                             height: "100%",
-                            overflow: "auto",
-                            paddingRight: 4,
-                            paddingLeft: 4,
                         }}
                     >
-                        <RequirementList
-                            requirements={requirements}
-                            updateRequirements={handleClickDocument}
-                        />
+                        <Box sx={{height: "93%", overflowY: "auto"}}>
+                            <RequirementList
+                                requirements={requirements}
+                                updateRequirements={handleClickDocument}
+                            />
+                        </Box>
+                        <Box sx={{height: "7%", display: "flex", justifyContent: "flex-end", alignItems: "flex-end"}}>
                         {selectedDocument && (
                             <AddRequirement
                                 docPrefix={selectedDocument}
                                 updateRequirements={handleClickDocument}
                             />
                         )}
+                        </Box>
                     </Grid>
                     {/* <Grid item xs={1} /> */}
                     <Grid item xs={2}>
