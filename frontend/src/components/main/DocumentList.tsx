@@ -55,7 +55,7 @@ export default function DocumentList({
                                 <FolderIcon
                                     sx={{ color: IconButtonStyles.color }}
                                 />
-                                <Typography noWrap minWidth={"fit-content"}>
+                                <Typography noWrap sx={{minWidth: "fit-content", flexGrow: 1}}>
                                     Document: {node.prefix}
                                 </Typography>
                                 <IconButton
