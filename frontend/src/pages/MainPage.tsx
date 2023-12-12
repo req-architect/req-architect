@@ -10,6 +10,7 @@ import { fetchDocuments } from "../lib/api/documentService.ts";
 import { fetchRequirements } from "../lib/api/requirementService.ts";
 import { ReqDocumentWithChildren, Requirement } from "../types.ts";
 import AddRequirement from "../components/main/AddRequirement.tsx";
+import { Box } from "@mui/material";
 
 export const MainContext = createContext<MainContextTools | null>(null);
 
@@ -94,7 +95,7 @@ export default function MainPage() {
             <div
                 style={{
                     width: "100%",
-                    minWidth: 1025,
+                    minWidth: 1200,
                     height: "100vh",
                     minHeight: 700,
                     display: "flex",
@@ -108,7 +109,7 @@ export default function MainPage() {
                     sx={{
                         borderBottom: "0.5px solid green",
                         overflow: "hidden",
-                        height: "95vh",
+                        flexGrow: 1
                     }}
                 >
                     <Grid
@@ -137,21 +138,20 @@ export default function MainPage() {
                         xs={8}
                         sx={{
                             height: "100%",
-                            overflow: "auto",
-                            paddingRight: 4,
-                            paddingLeft: 4,
                         }}
                     >
-                        <RequirementList
-                            requirements={requirements}
-                            updateRequirements={handleClickDocument}
-                        />
-                        {selectedDocument && (
+                        <Box sx={{height: "100%", overflowY: "auto"}}>
+                            <RequirementList
+                                requirements={requirements}
+                                updateRequirements={handleClickDocument}
+                            />
+                        </Box>
+                        <Box sx={{height: "0%", display: "flex", justifyContent: "flex-end", alignItems: "flex-end"}}>
                             <AddRequirement
                                 docPrefix={selectedDocument}
                                 updateRequirements={handleClickDocument}
                             />
-                        )}
+                        </Box>
                     </Grid>
                     {/* <Grid item xs={1} /> */}
                     <Grid item xs={2}>
