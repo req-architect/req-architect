@@ -162,9 +162,9 @@ def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list or No
         doc = docTree.find_document(docId)
         reqs = doc.items
     except doorstop.DoorstopError:
-        return None
+        return []
     except FileNotFoundError:
-        return None
+        return []
     return reqs
 
 
@@ -199,6 +199,8 @@ def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
         data[-1]["id"] = str(req.uid)
         data[-1]["text"] = req.text
         data[-1]["reviewed"] = req.reviewed
-        data[-1]["links"] = req.links
-        data[-1]["childLinks"] = req.child_links
+        links = []
+        for link in req.links:
+            links.append(str(link))
+        data[-1]["links"] = links
     return data
