@@ -1,4 +1,4 @@
-import { Fab, Grid } from "@mui/material";
+import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { postRequirement } from "../../lib/api/requirementService.ts";
 
@@ -14,16 +14,14 @@ export default function AddRequirement({
         updateRequirements();
     }
     return (
-        <Grid item container justifyContent={"flex-end"} mt={2} height={"10vh"}>
-            <Fab
-                size="small"
-                color="success"
-                aria-label="add"
-                sx={{ ml: "auto", mr: 8, mb: 2 }}
-                onClick={handleClick}
-            >
-                <AddIcon />
-            </Fab>
-        </Grid>
+        <Fab
+            size="small"
+            color="success"
+            aria-label="add"
+            onClick={handleClick}
+            sx={{mb: 2, mr: 2}}
+        >
+            <AddIcon />
+        </Fab>
     );
 }

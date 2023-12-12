@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { TreeView } from "@mui/x-tree-view/TreeView";
@@ -55,7 +55,9 @@ export default function DocumentList({
                                 <FolderIcon
                                     sx={{ color: IconButtonStyles.color }}
                                 />
-                                Document: {node.prefix}
+                                <Typography noWrap sx={{minWidth: "fit-content", flexGrow: 1}}>
+                                    Document: {node.prefix}
+                                </Typography>
                                 <IconButton
                                     edge="end"
                                     aria-label="delete"
@@ -93,15 +95,17 @@ export default function DocumentList({
     return (
         <Box
             sx={{
-                minHeight: 180,
+                minHeight: "20vh",
                 flexGrow: 1,
                 maxWidth: 300,
+                height: "55vh",
                 overflowY: "auto",
             }}
         >
             <TreeView
                 defaultCollapseIcon={<ExpandMoreIcon />}
                 defaultExpandIcon={<ChevronRightIcon />}
+                sx={{minWidth: "fit-content"}}
             >
                 {renderTree(documents)}
             </TreeView>
