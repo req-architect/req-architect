@@ -1,18 +1,18 @@
 # PZSP2-KUKIWAKO
 
 Projekt z przedmiotu PZSP2 w semestrze 23Z.  
-Zespół nr 7 - KUKIWAKO  
+Zespół nr 7 - KUKIWAKO
 
 Skład:
 
-- Nel Kułakowska
-- Marcin Wawrzyniak
-- Jan Kowalczewski
-- Mateusz Kiełbus
+-   Nel Kułakowska
+-   Marcin Wawrzyniak
+-   Jan Kowalczewski
+-   Mateusz Kiełbus
 
 ## Cel projektu
-Celem naszego projektu jest stworzenie serwisu internetowego będącego nakładką graficzną na narzędzie "doorstop". Aplikacja będzie skierowana dla osób nietechnicznych, aby nie musiały wykonywać poszczególnych komend z poziomu konsoli. Pozwoli na generowanie diagramów UML zawarte w plikach z wymaganiami doorstop i integrację z wybranym zdalnym repozytorium git.
 
+Celem naszego projektu jest stworzenie serwisu internetowego będącego nakładką graficzną na narzędzie "doorstop". Aplikacja będzie skierowana dla osób nietechnicznych, aby nie musiały wykonywać poszczególnych komend z poziomu konsoli. Pozwoli na generowanie diagramów UML zawarte w plikach z wymaganiami doorstop i integrację z wybranym zdalnym repozytorium git.
 
 ## Instalacja i uruchamianie w trybie deweloperskim
 
@@ -64,3 +64,21 @@ docker-compose down
 ### Zmiany w kodzie podczas działania aplikacji
 
 Wszystkie zmiany w katalogach `frontend/src` i `backend/src` są automatycznie wykrywane i aplikowane w kontenerach.
+
+## Uruchomienie "nielokalnego" servera
+
+```bash
+docker-compose up
+```
+
+w jednym terminalu:
+
+```bash
+ ssh -R kukiwakobackend.serveo.net:80:localhost:8000 serveo.net
+```
+
+w drugim:
+
+```bash
+ ssh -R kukiwako.serveo.net:80:localhost:3000 serveo.net
+```
