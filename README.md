@@ -5,10 +5,10 @@ Zespół nr 7 - KUKIWAKO
 
 Skład:
 
--   Nel Kułakowska
--   Marcin Wawrzyniak
--   Jan Kowalczewski
--   Mateusz Kiełbus
+- Nel Kułakowska
+- Marcin Wawrzyniak
+- Jan Kowalczewski
+- Mateusz Kiełbus
 
 ## Cel projektu
 
@@ -28,7 +28,8 @@ W katalogu głównym projektu należy utworzyć plik `.env` i ustawić w nim zmi
 Przykładowy plik `.env`:
 
 ```text
-APP_ADDRESS="http://localhost"
+FRONTEND_URL="http://localhost:3000"
+BACKEND_URL="http://localhost:8000"
 ```
 
 ### Zbudowanie kontenerów
@@ -65,7 +66,14 @@ docker-compose down
 
 Wszystkie zmiany w katalogach `frontend/src` i `backend/src` są automatycznie wykrywane i aplikowane w kontenerach.
 
-## Uruchomienie "nielokalnego" servera
+## Uruchomienie "nielokalnego" serwera
+
+Plik ".env":
+
+```text
+FRONTEND_URL="https://kukiwako.serveo.net"
+BACKEND_URL="https://kukiwakobackend.serveo.net"
+```
 
 ```bash
 docker-compose up

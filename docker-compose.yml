@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      CORS_ALLOWED_ORIGINS: ${APP_ADDRESS}:3000
+      CORS_ALLOWED_ORIGINS: ${FRONTEND_URL}
     volumes:
       - ./backend/src:/app/src
   frontend:
@@ -18,6 +18,6 @@ services:
     depends_on:
       - backend
     environment:
-      VITE_APP_API_URL: https://kukiwakobackend.serveo.net
+      VITE_APP_API_URL: ${BACKEND_URL}
     volumes:
       - ./frontend/src:/app/src

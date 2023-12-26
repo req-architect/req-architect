@@ -28,9 +28,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS').split('|')
-CORS_ALLOW_HEADERS = ['*']
-ALLOWED_HOSTS = ['*']
-CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
