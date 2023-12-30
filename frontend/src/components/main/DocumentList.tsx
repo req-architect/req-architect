@@ -6,34 +6,26 @@ import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import FolderIcon from "@mui/icons-material/Folder";
-import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
+import { ReqDocumentWithChildren } from "../../types.ts";
 import { deleteDocument } from "../../lib/api/documentService.ts";
-import { useEffect } from "react";
 import { IconButtonStyles } from "../../lib/styles.ts";
 
 export default function DocumentList({
     rootDocument,
-    onDeleteDocument,
-    selectedDocument,
+    refreshDocuments,
     setSelectedDocument,
-    onClickDocument,
 }: {
     rootDocument: ReqDocumentWithChildren | null;
-    onDeleteDocument: () => void;
-    selectedDocument: string;
+    refreshDocuments: () => void;
     setSelectedDocument: (selectedDocument: string) => void;
-    onClickDocument: () => void;
 }) {
     const handleDelete = async (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
-        const confirmDelete = window.confirm(
-            `Are you sure you want to delete ${itemName}?`,
-        );
-        if (confirmDelete) {
+        if (window.confirm(`Are you sure you want to delete ${itemName}?`)) {
             console.log(`Deleted ${itemName}`);
             await deleteDocument(itemName);
+            refreshDocuments();
         }
-        onDeleteDocument();
     };
 
     const renderTree = (nodes: ReqDocumentWithChildren[]) => (
@@ -41,7 +33,10 @@ export default function DocumentList({
             {nodes.map((node) => (
                 <div
                     key={node.prefix}
-                    onClick={(event) => handleTreeItemClick(event, node)}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        setSelectedDocument(node.prefix);
+                    }}
                 >
                     <TreeItem
                         nodeId={node.prefix}
@@ -77,19 +72,6 @@ export default function DocumentList({
             ))}
         </>
     );
-
-    const handleTreeItemClick = (
-        event: React.MouseEvent,
-        node: ReqDocumentWithChildren | ReqDocument,
-    ) => {
-        event.stopPropagation();
-        setSelectedDocument(node.prefix);
-    };
-
-    useEffect(() => {
-        console.log("Selected document:", selectedDocument);
-        onClickDocument();
-    }, [selectedDocument]);
 
     return (
         <Box

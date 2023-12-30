@@ -108,10 +108,8 @@ export default function MainPage() {
                     >
                         <DocumentList
                             rootDocument={fetchedRootDocument}
-                            onDeleteDocument={handleDeleteDocument}
-                            selectedDocument={selectedDocument}
+                            refreshDocuments={handleDeleteDocument}
                             setSelectedDocument={setSelectedDocument}
-                            onClickDocument={handleClickDocument}
                         />
                         <AddDocument
                             mode={mode}
