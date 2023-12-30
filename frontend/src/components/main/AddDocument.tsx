@@ -11,14 +11,16 @@ import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import { postDocument } from "../../lib/api/documentService.ts";
 
+export type Mode = "add" | "select";
+
 export default function AddDocument({
     mode,
     setMode,
     prefixes,
     onAddDocument,
 }: {
-    mode: string;
-    setMode: (mode: string) => void;
+    mode: Mode;
+    setMode: (mode: Mode) => void;
     prefixes: string[];
     onAddDocument: () => void;
 }) {
@@ -42,7 +44,7 @@ export default function AddDocument({
 
     const handleCancel = () => {
         setMode("add");
-    }
+    };
 
     const handleAddDocument = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); //prevent: localhost/:1 Form submission canceled because the form is not connected
@@ -50,7 +52,8 @@ export default function AddDocument({
             alert("Please enter a document prefix");
             return;
         }
-        if (/^\d+$/.test(formData.text.charAt(formData.text.length - 1))) { // if is digit
+        if (/^\d+$/.test(formData.text.charAt(formData.text.length - 1))) {
+            // if is digit
             alert("Document prefix cannot end with a digit");
             return;
         }
@@ -68,14 +71,21 @@ export default function AddDocument({
     return (
         <Box
             alignItems="stretch"
-            sx={{ alignSelf: "flex-end", marginTop: "auto", ml: 2, mr: 2, mb: 2, justifyContent: "flex-end"}}
+            sx={{
+                alignSelf: "flex-end",
+                marginTop: "auto",
+                ml: 2,
+                mr: 2,
+                mb: 2,
+                justifyContent: "flex-end",
+            }}
         >
             {mode === "add" ? (
                 <Fab
                     size="small"
                     color="success"
                     aria-label="add"
-                    sx={{  }}
+                    sx={{}}
                     onClick={handleClick}
                 >
                     <AddIcon />
@@ -127,13 +137,13 @@ export default function AddDocument({
                             />
                         </FormControl>
                     </form>
-                    <Box sx = {{mb: 2}}>
+                    <Box sx={{ mb: 2 }}>
                         <Button
                             type="submit"
                             variant="contained"
                             color="success"
                             onClick={handleAddDocument}
-                            sx={{width: "100%"}}
+                            sx={{ width: "100%" }}
                         >
                             Add Document
                         </Button>
@@ -143,7 +153,7 @@ export default function AddDocument({
                             variant="contained"
                             color="success"
                             onClick={handleCancel}
-                            sx={{width: "100%"}}
+                            sx={{ width: "100%" }}
                         >
                             Back
                         </Button>

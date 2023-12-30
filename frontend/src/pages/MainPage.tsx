@@ -1,9 +1,9 @@
 import MainPageHeader from "../components/main/MainPageHeader.tsx";
-import DocumentList, { RenderTree } from "../components/main/DocumentList.tsx";
+import DocumentList from "../components/main/DocumentList.tsx";
 import { createContext, useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import useMainContext, { MainContextTools } from "../hooks/useMainContext.ts";
-import AddDocument from "../components/main/AddDocument.tsx";
+import AddDocument, { Mode } from "../components/main/AddDocument.tsx";
 import RequirementList from "../components/main/requirement-list/RequirementList.tsx";
 import RequirementDetails from "../components/main/RequirementDetails.tsx";
 import { fetchDocuments } from "../lib/api/documentService.ts";
@@ -16,8 +16,9 @@ export const MainContext = createContext<MainContextTools | null>(null);
 
 export default function MainPage() {
     const mainContextTools = useMainContext();
-    const [mode, setMode] = useState("add");
-    const [fetchedDocuments, setFetchedDocuments] = useState<RenderTree>([]);
+    const [mode, setMode] = useState<Mode>("add");
+    const [fetchedRootDocument, setFetchedRootDocument] =
+        useState<ReqDocumentWithChildren | null>(null);
     const [selectedDocument, setSelectedDocument] = useState<string>("");
     const [requirements, setRequirements] = useState<Requirement[]>([]);
 
@@ -32,14 +33,19 @@ export default function MainPage() {
         return prefixes;
     };
 
-    const fetchedPrefixes =
-        fetchedDocuments.length > 0 ? extractPrefixes(fetchedDocuments[0]) : [];
+    const fetchedPrefixes = fetchedRootDocument
+        ? extractPrefixes(fetchedRootDocument)
+        : [];
 
     async function getDocuments() {
         // Fetch documents from Django backend
         const data = await fetchDocuments();
         console.log("Fetched documents:", data);
-        setFetchedDocuments(data);
+        if (data.length > 0) {
+            setFetchedRootDocument(data[0]);
+        } else {
+            setFetchedRootDocument(null);
+        }
     }
 
     async function getRequirements(docPrefix: string) {
@@ -101,7 +107,7 @@ export default function MainPage() {
                         borderRight={"1px solid green"}
                     >
                         <DocumentList
-                            documents={fetchedDocuments}
+                            rootDocument={fetchedRootDocument}
                             onDeleteDocument={handleDeleteDocument}
                             selectedDocument={selectedDocument}
                             setSelectedDocument={setSelectedDocument}

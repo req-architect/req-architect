@@ -11,19 +11,14 @@ import { deleteDocument } from "../../lib/api/documentService.ts";
 import { useEffect } from "react";
 import { IconButtonStyles } from "../../lib/styles.ts";
 
-const isReqDocumentWithChildren = (
-    node: ReqDocumentWithChildren | ReqDocument,
-): node is ReqDocumentWithChildren => "children" in node;
-export type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
-
 export default function DocumentList({
-    documents,
+    rootDocument,
     onDeleteDocument,
     selectedDocument,
     setSelectedDocument,
     onClickDocument,
 }: {
-    documents: RenderTree;
+    rootDocument: ReqDocumentWithChildren | null;
     onDeleteDocument: () => void;
     selectedDocument: string;
     setSelectedDocument: (selectedDocument: string) => void;
@@ -41,7 +36,7 @@ export default function DocumentList({
         onDeleteDocument();
     };
 
-    const renderTree = (nodes: ReqDocumentWithChildren[] | ReqDocument[]) => (
+    const renderTree = (nodes: ReqDocumentWithChildren[]) => (
         <>
             {nodes.map((node) => (
                 <div
@@ -55,7 +50,13 @@ export default function DocumentList({
                                 <FolderIcon
                                     sx={{ color: IconButtonStyles.color }}
                                 />
-                                <Typography noWrap sx={{minWidth: "fit-content", flexGrow: 1}}>
+                                <Typography
+                                    noWrap
+                                    sx={{
+                                        minWidth: "fit-content",
+                                        flexGrow: 1,
+                                    }}
+                                >
                                     Document: {node.prefix}
                                 </Typography>
                                 <IconButton
@@ -70,9 +71,7 @@ export default function DocumentList({
                             </Box>
                         }
                     >
-                        {isReqDocumentWithChildren(node) &&
-                            node.children &&
-                            renderTree(node.children)}
+                        {node.children && renderTree(node.children)}
                     </TreeItem>
                 </div>
             ))}
@@ -105,9 +104,9 @@ export default function DocumentList({
             <TreeView
                 defaultCollapseIcon={<ExpandMoreIcon />}
                 defaultExpandIcon={<ChevronRightIcon />}
-                sx={{minWidth: "fit-content"}}
+                sx={{ minWidth: "fit-content" }}
             >
-                {renderTree(documents)}
+                {rootDocument && renderTree([rootDocument])}
             </TreeView>
         </Box>
     );
