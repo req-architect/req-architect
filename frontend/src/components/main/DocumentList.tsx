@@ -9,16 +9,16 @@ import FolderIcon from "@mui/icons-material/Folder";
 import { ReqDocumentWithChildren } from "../../types.ts";
 import { deleteDocument } from "../../lib/api/documentService.ts";
 import { IconButtonStyles } from "../../lib/styles.ts";
+import { useMainContextTools } from "../../hooks/useMainContext.ts";
 
 export default function DocumentList({
     rootDocument,
     refreshDocuments,
-    setSelectedDocument,
 }: {
     rootDocument: ReqDocumentWithChildren | null;
     refreshDocuments: () => void;
-    setSelectedDocument: (selectedDocument: string) => void;
 }) {
+    const mainContextTools = useMainContextTools();
     const handleDelete = async (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
         if (window.confirm(`Are you sure you want to delete ${itemName}?`)) {
@@ -35,7 +35,7 @@ export default function DocumentList({
                     key={node.prefix}
                     onClick={(event) => {
                         event.stopPropagation();
-                        setSelectedDocument(node.prefix);
+                        mainContextTools.updateSelectedDocument(node.prefix);
                     }}
                 >
                     <TreeItem

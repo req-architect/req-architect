@@ -1,17 +1,19 @@
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { postRequirement } from "../../lib/api/requirementService.ts";
+import { useMainContextTools } from "../../hooks/useMainContext.ts";
 
 export default function AddRequirement({
-    docPrefix,
-    updateRequirements,
+    refreshRequirements,
 }: {
-    docPrefix: string;
-    updateRequirements: () => void;
+    refreshRequirements: () => void;
 }) {
+    const mainContextTools = useMainContextTools();
     async function handleClick() {
-        await postRequirement(docPrefix);
-        updateRequirements();
+        if (mainContextTools.data.selectedDocumentPrefix !== null) {
+            await postRequirement(mainContextTools.data.selectedDocumentPrefix);
+            refreshRequirements();
+        }
     }
     return (
         <Fab
@@ -19,7 +21,7 @@ export default function AddRequirement({
             color="success"
             aria-label="add"
             onClick={handleClick}
-            sx={{mb: 2, mr: 2}}
+            sx={{ mb: 2, mr: 2 }}
         >
             <AddIcon />
         </Fab>

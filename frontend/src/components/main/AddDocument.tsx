@@ -10,24 +10,35 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState } from "react";
 import { postDocument } from "../../lib/api/documentService.ts";
+import { ReqDocumentWithChildren } from "../../types.ts";
 
-export type Mode = "add" | "select";
+type AddDocumentMode = "add" | "select";
 
 export default function AddDocument({
-    mode,
-    setMode,
-    prefixes,
-    onAddDocument,
+    rootDocument,
+    refreshDocuments,
 }: {
-    mode: Mode;
-    setMode: (mode: Mode) => void;
-    prefixes: string[];
-    onAddDocument: () => void;
+    rootDocument: ReqDocumentWithChildren | null;
+    refreshDocuments: () => void;
 }) {
+    const [mode, setMode] = useState<AddDocumentMode>("add");
     const [formData, setFormData] = useState({
         text: "",
         selectedOption: "",
     });
+
+    const extractPrefixes = (document: ReqDocumentWithChildren) => {
+        let prefixes: string[] = [document.prefix];
+
+        if (document.children && document.children.length > 0) {
+            document.children.forEach((child) => {
+                prefixes = [...prefixes, ...extractPrefixes(child)];
+            });
+        }
+        return prefixes;
+    };
+
+    const prefixes = rootDocument ? extractPrefixes(rootDocument) : [];
 
     useEffect(() => {
         if (formData.selectedOption === "" && prefixes.length > 0) {
@@ -65,7 +76,7 @@ export default function AddDocument({
             await postDocument(formData.text, formData.selectedOption);
         }
         //setMode("add");
-        onAddDocument();
+        refreshDocuments();
     };
 
     return (

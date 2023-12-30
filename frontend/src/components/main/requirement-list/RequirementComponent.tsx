@@ -1,23 +1,23 @@
 import { Requirement } from "../../../types";
 import { Box } from "@mui/material";
 import RequirementEditMode from "./RequirementEditMode.tsx";
-import { useContext, useRef } from "react";
-import { MainContext } from "../../../pages/MainPage.tsx";
+import { useRef } from "react";
 import RequirementStandard from "./RequirementStandard.tsx";
 import useClickInside from "../../../hooks/useClickInside.ts";
 import Divider from "@mui/material/Divider";
+import { useMainContextTools } from "../../../hooks/useMainContext.ts";
 
 export default function RequirementComponent({
     requirement,
-    updateRequirements,
+    refreshRequirements,
 }: {
     requirement: Requirement;
-    updateRequirements: () => void;
+    refreshRequirements: () => void;
 }) {
-    const contextTools = useContext(MainContext);
+    const contextTools = useMainContextTools();
     const wrapperRef = useRef<HTMLInputElement>(null);
     function handleSelect() {
-        contextTools?.updateSelectedRequirement(requirement);
+        contextTools?.updateSelectedRequirement(requirement.id);
     }
     useClickInside(wrapperRef, handleSelect);
     return (
@@ -26,20 +26,31 @@ export default function RequirementComponent({
         <Box
             ref={wrapperRef}
             sx={
-                contextTools?.isSelected(requirement) && 
-                contextTools?.data.requirementEditMode
-                    ? { outline: "1px solid green", borderRadius: 2, marginBottom: 4, width: "100%" }
-                    : contextTools?.isSelected(requirement) ? { outline: "1px solid green", borderRadius: 2, marginBottom: 4, width: "60%"}
-                    : { marginBottom: 4, width: "60%" }
+                contextTools.data.selectedRequirementId === requirement.id &&
+                contextTools.data.requirementEditMode
+                    ? {
+                          outline: "1px solid green",
+                          borderRadius: 2,
+                          marginBottom: 4,
+                          width: "100%",
+                      }
+                    : contextTools.data.selectedRequirementId === requirement.id
+                      ? {
+                            outline: "1px solid green",
+                            borderRadius: 2,
+                            marginBottom: 4,
+                            width: "60%",
+                        }
+                      : { marginBottom: 4, width: "60%" }
             }
         >
             <Divider />
             {/*Temporary button for testing*/}
-            {contextTools?.isSelected(requirement) &&
+            {contextTools.data.selectedRequirementId === requirement.id &&
             contextTools?.data.requirementEditMode ? (
                 <RequirementEditMode
                     requirement={requirement}
-                    updateRequirements={updateRequirements}
+                    refreshRequirements={refreshRequirements}
                 />
             ) : (
                 <RequirementStandard requirement={requirement} />

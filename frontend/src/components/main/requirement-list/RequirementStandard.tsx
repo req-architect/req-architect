@@ -1,21 +1,25 @@
 import { Requirement } from "../../../types.ts";
 import { Box, Button, Typography } from "@mui/material";
-import { useContext } from "react";
-import { MainContext } from "../../../pages/MainPage.tsx";
 import RenderedRequirementText from "./RenderedRequirementText.tsx";
+import { useMainContextTools } from "../../../hooks/useMainContext.ts";
 
 export default function RequirementStandard({
     requirement,
 }: {
     requirement: Requirement;
 }) {
-    const contextTools = useContext(MainContext);
+    const contextTools = useMainContextTools();
     function handleSelect() {
-        contextTools?.updateSelectedRequirement(requirement);
+        contextTools.updateSelectedRequirement(requirement.id);
     }
     return (
         <Box sx={{ m: 2 }}>
-            <Typography variant="h6" color="black" fontWeight={"bold"} sx={{ mb: 1 }}>
+            <Typography
+                variant="h6"
+                color="black"
+                fontWeight={"bold"}
+                sx={{ mb: 1 }}
+            >
                 Req {requirement.id}
             </Typography>
             <RenderedRequirementText text={requirement.text} />
@@ -30,7 +34,7 @@ export default function RequirementStandard({
             <Button
                 onClick={() => {
                     handleSelect();
-                    contextTools?.updateEditMode(true);
+                    contextTools.updateEditMode(true);
                 }}
                 sx={{
                     background: "green",

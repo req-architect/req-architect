@@ -1,29 +1,28 @@
-import { useState } from "react";
-import { ReqDocument, Requirement } from "../types.ts";
+import { useContext, useState } from "react";
+import { MainContext } from "../pages/MainPage.tsx";
 
 type MainContextData = {
-    selectedDocument: ReqDocument | null;
-    selectedRequirement: Requirement | null;
+    selectedDocumentPrefix: string | null;
+    selectedRequirementId: string | null;
     requirementEditMode: boolean;
 };
 
 export type MainContextTools = {
     data: MainContextData;
-    updateSelectedDocument: (document: ReqDocument) => void;
-    updateSelectedRequirement: (requirement: Requirement | null) => void;
+    updateSelectedDocument: (documentPrefix: string | null) => void;
+    updateSelectedRequirement: (requirementId: string | null) => void;
     updateEditMode: (editMode: boolean) => void;
-    isSelected: (requirement: Requirement) => boolean;
 };
 export default function useMainContext() {
     const [mainContext, setMainContext] = useState<MainContextData>({
-        selectedDocument: { prefix: "REQ" },
-        selectedRequirement: null,
+        selectedDocumentPrefix: null,
+        selectedRequirementId: null,
         requirementEditMode: false,
     });
-    function updateSelectedDocument(document: ReqDocument) {
+    function updateSelectedDocument(documentPrefix: string | null) {
         if (
             mainContext.requirementEditMode &&
-            mainContext.selectedDocument !== document
+            mainContext.selectedDocumentPrefix !== documentPrefix
         ) {
             if (
                 !confirm(
@@ -35,17 +34,17 @@ export default function useMainContext() {
         }
         setMainContext((prev) => ({
             ...prev,
-            selectedDocument: document,
-            selectedRequirement: null,
+            selectedDocumentPrefix: documentPrefix,
+            selectedRequirementId: null,
             requirementEditMode: false,
         }));
     }
-    function updateSelectedRequirement(requirement: Requirement | null) {
-        if (requirement == mainContext.selectedRequirement) return;
+    function updateSelectedRequirement(requirementId: string | null) {
+        if (requirementId == mainContext.selectedRequirementId) return;
         if (
             mainContext.requirementEditMode &&
-            mainContext.selectedRequirement !== requirement &&
-            requirement !== null
+            mainContext.selectedRequirementId !== requirementId &&
+            requirementId !== null
         ) {
             if (
                 !confirm(
@@ -57,7 +56,7 @@ export default function useMainContext() {
         }
         setMainContext((prev) => ({
             ...prev,
-            selectedRequirement: requirement,
+            selectedRequirementId: requirementId,
             requirementEditMode: false,
         }));
     }
@@ -67,14 +66,18 @@ export default function useMainContext() {
             requirementEditMode: editMode,
         }));
     }
-    function isSelected(requirement: Requirement) {
-        return mainContext.selectedRequirement === requirement;
-    }
     return {
         data: mainContext,
         updateSelectedDocument,
         updateSelectedRequirement,
         updateEditMode,
-        isSelected,
     } as MainContextTools;
+}
+
+export function useMainContextTools() {
+    const contextTools = useContext(MainContext);
+    if (contextTools === null) {
+        throw new Error("MainContextTools is null");
+    }
+    return contextTools;
 }
