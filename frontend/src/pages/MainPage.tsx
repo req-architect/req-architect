@@ -18,7 +18,6 @@ export default function MainPage() {
     const mainContextTools = useMainContext();
     const [mode, setMode] = useState("add");
     const [fetchedDocuments, setFetchedDocuments] = useState<RenderTree>([]);
-    const [fetchedPrefixes, setFetchedPrefixes] = useState<string[]>([]);
     const [selectedDocument, setSelectedDocument] = useState<string>("");
     const [requirements, setRequirements] = useState<Requirement[]>([]);
 
@@ -33,28 +32,14 @@ export default function MainPage() {
         return prefixes;
     };
 
-    const updatePrefixes = () => {
-        if (fetchedPrefixes.length > 1) {
-            const uniqueOptions = Array.from(new Set(fetchedPrefixes)).sort(
-                (a, b) => a.localeCompare(b),
-            );
-            setFetchedPrefixes(uniqueOptions);
-        }
-    };
+    const fetchedPrefixes =
+        fetchedDocuments.length > 0 ? extractPrefixes(fetchedDocuments[0]) : [];
 
     async function getDocuments() {
         // Fetch documents from Django backend
         const data = await fetchDocuments();
         console.log("Fetched documents:", data);
-        setFetchedPrefixes([]);
         setFetchedDocuments(data);
-        data.forEach(async (document: ReqDocumentWithChildren) => {
-            const documentPrefixes = extractPrefixes(document);
-            setFetchedPrefixes((prevPrefixes) => [
-                ...prevPrefixes,
-                ...documentPrefixes,
-            ]);
-        });
     }
 
     async function getRequirements(docPrefix: string) {
@@ -86,10 +71,6 @@ export default function MainPage() {
         await getRequirements(selectedDocument);
     };
 
-    useEffect(() => {
-        updatePrefixes();
-    }, [fetchedDocuments]);
-
     return (
         <MainContext.Provider value={mainContextTools}>
             <div
@@ -109,7 +90,7 @@ export default function MainPage() {
                     sx={{
                         borderBottom: "0.5px solid green",
                         overflow: "hidden",
-                        flexGrow: 1
+                        flexGrow: 1,
                     }}
                 >
                     <Grid
@@ -140,13 +121,20 @@ export default function MainPage() {
                             height: "100%",
                         }}
                     >
-                        <Box sx={{height: "100%", overflowY: "auto"}}>
+                        <Box sx={{ height: "100%", overflowY: "auto" }}>
                             <RequirementList
                                 requirements={requirements}
                                 updateRequirements={handleClickDocument}
                             />
                         </Box>
-                        <Box sx={{height: "0%", display: "flex", justifyContent: "flex-end", alignItems: "flex-end"}}>
+                        <Box
+                            sx={{
+                                height: "0%",
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                alignItems: "flex-end",
+                            }}
+                        >
                             <AddRequirement
                                 docPrefix={selectedDocument}
                                 updateRequirements={handleClickDocument}
