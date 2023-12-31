@@ -24,7 +24,6 @@ export async function postRequirement(docPrefix: string) {
 }
 
 export async function putRequirement(reqId: string, reqText: string) {
-    console.log(`Updating ${reqId} to ${reqText}`);
     const prefix = getReqPrefix(reqId);
     await fetchAPI("PUT", "/MyServer/req/", {
         docId: prefix,
