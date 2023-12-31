@@ -38,3 +38,10 @@ export async function deleteRequirement(reqId: string) {
         reqId,
     });
 }
+
+export async function linkRequirement(reqId1: string, reqId2: string) {
+    await fetchAPI("PUT", "/MyServer/req/link/", {
+        reqId1,
+        reqId2,
+    });
+}
