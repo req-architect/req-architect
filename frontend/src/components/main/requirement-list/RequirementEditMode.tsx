@@ -32,7 +32,6 @@ export default function RequirementEditMode({
         contextTools.updateSelectedRequirement(null);
     }
     async function handleSave() {
-        // TODO: update requirement in database and reload
         contextTools.updateEditMode(false);
         contextTools.updateSelectedRequirement(null);
         await putRequirement(requirement.id, editedText);

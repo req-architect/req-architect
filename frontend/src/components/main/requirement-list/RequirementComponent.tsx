@@ -21,8 +21,6 @@ export default function RequirementComponent({
     }
     useClickInside(wrapperRef, handleSelect);
     return (
-        // add an outline to box if it is selected
-        // TODO: change width of the box if selected && edit mode
         <Box
             ref={wrapperRef}
             sx={
@@ -45,7 +43,6 @@ export default function RequirementComponent({
             }
         >
             <Divider />
-            {/*Temporary button for testing*/}
             {contextTools.data.selectedRequirementId === requirement.id &&
             contextTools?.data.requirementEditMode ? (
                 <RequirementEditMode

@@ -23,14 +23,6 @@ export default function RequirementStandard({
                 Req {requirement.id}
             </Typography>
             <RenderedRequirementText text={requirement.text} />
-            {/* {contextTools?.isSelected(requirement) && (
-                <IconButton
-                    aria-label="edit"
-                    onClick={() => contextTools?.updateEditMode(true)}
-                >
-                    <EditIcon />
-                </IconButton>
-            )} */}
             <Button
                 onClick={() => {
                     handleSelect();

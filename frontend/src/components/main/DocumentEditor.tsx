@@ -29,7 +29,6 @@ export default function DocumentEditor() {
 
     const refreshDocuments = useCallback(async () => {
         const data = await fetchDocuments();
-        console.log("Fetched documents:", data);
         if (data.length > 0) {
             setFetchedRootDocument(data[0]);
         } else {
