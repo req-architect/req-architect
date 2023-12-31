@@ -2,12 +2,8 @@ import fetchAPI from "./fetchAPI.ts";
 import { Requirement } from "../../types.ts";
 
 function getReqPrefix(reqId: string): string {
-    // get all characters to first digit
-    const prefix = reqId.match(/^[^\d]+/);
-    if (prefix === null) {
-        throw new Error("Invalid requirement ID");
-    }
-    return prefix[0];
+    // get all character without the last 3
+    return reqId.slice(0, -3);
 }
 
 export async function fetchRequirements(
@@ -17,9 +13,8 @@ export async function fetchRequirements(
 }
 
 export async function postRequirement(docPrefix: string) {
-    if (!docPrefix){
-        alert("To add a requirement you must first choose a document");
-        return;
+    if (!docPrefix) {
+        throw new Error("docPrefix is empty");
     }
     await fetchAPI("POST", "/MyServer/req/", {
         docId: docPrefix,

@@ -74,11 +74,10 @@ export default function AddDocument({
                 prefixError: "Document prefix cannot be empty",
             };
         }
-        if (/^\d+$/.test(formData.text.charAt(formData.text.length - 1))) {
-            // if is digit
+        if (formData.text && prefixes.includes(formData.text)) {
             newErrorState = {
                 ...newErrorState,
-                prefixError: "Document prefix cannot end with a digit",
+                prefixError: "Document prefix must be unique",
             };
         }
         if (formData.selectedOption === null && prefixes.length > 0) {
