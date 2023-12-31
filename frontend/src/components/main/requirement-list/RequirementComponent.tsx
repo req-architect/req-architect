@@ -12,7 +12,7 @@ export default function RequirementComponent() {
     const { requirement } = useRequirementContext();
     const wrapperRef = useRef<HTMLInputElement>(null);
     function handleSelect() {
-        contextTools?.updateSelectedRequirement(requirement.id);
+        contextTools.updateSelectedRequirement(requirement.id);
     }
     useClickInside(wrapperRef, handleSelect);
     return (

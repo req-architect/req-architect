@@ -23,17 +23,14 @@ export default function RequirementEditMode() {
                 return;
             }
         }
-        contextTools.updateEditMode(false);
         contextTools.updateSelectedRequirement(null);
     }
     async function handleSave() {
-        contextTools.updateEditMode(false);
         contextTools.updateSelectedRequirement(null);
         await putRequirement(requirement.id, editedText);
         refreshRequirements();
     }
     async function handleDelete() {
-        contextTools.updateEditMode(false);
         contextTools.updateSelectedRequirement(null);
         await deleteRequirement(requirement.id);
         refreshRequirements();

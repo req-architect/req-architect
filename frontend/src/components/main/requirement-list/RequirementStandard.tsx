@@ -6,9 +6,6 @@ import useRequirementContext from "../../../hooks/useRequirementContext.ts";
 export default function RequirementStandard() {
     const contextTools = useMainContextTools();
     const { requirement } = useRequirementContext();
-    function handleSelect() {
-        contextTools.updateSelectedRequirement(requirement.id);
-    }
     return (
         <Box sx={{ m: 2 }}>
             <Typography
@@ -22,8 +19,7 @@ export default function RequirementStandard() {
             <RenderedRequirementText text={requirement.text} />
             <Button
                 onClick={() => {
-                    handleSelect();
-                    contextTools.updateEditMode(true);
+                    contextTools.selectAndEdit(requirement.id);
                 }}
                 sx={{
                     background: "green",

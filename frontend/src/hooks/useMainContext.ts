@@ -12,6 +12,7 @@ export type MainContextTools = {
     updateSelectedDocument: (documentPrefix: string | null) => void;
     updateSelectedRequirement: (requirementId: string | null) => void;
     updateEditMode: (editMode: boolean) => void;
+    selectAndEdit: (requirementId: string) => void;
 };
 export default function useMainContext() {
     const [mainContext, setMainContext] = useState<MainContextData>({
@@ -66,11 +67,19 @@ export default function useMainContext() {
             requirementEditMode: editMode,
         }));
     }
+    function selectAndEdit(requirementId: string) {
+        setMainContext((prev) => ({
+            ...prev,
+            selectedRequirementId: requirementId,
+            requirementEditMode: true,
+        }));
+    }
     return {
         data: mainContext,
         updateSelectedDocument,
         updateSelectedRequirement,
         updateEditMode,
+        selectAndEdit,
     } as MainContextTools;
 }
 
