@@ -11,6 +11,7 @@ import {
 } from "../../../lib/api/requirementService.ts";
 import { useMainContextTools } from "../../../hooks/useMainContext.ts";
 import useRequirementContext from "../../../hooks/useRequirementContext.ts";
+import { defaultConfirm } from "../../../lib/defaultConfirm.ts";
 
 export default function RequirementEditMode() {
     const { requirement, refreshRequirements } = useRequirementContext();
@@ -19,11 +20,16 @@ export default function RequirementEditMode() {
     function handleAbort() {
         if (editedText !== requirement.text) {
             // confirm abort
-            if (!window.confirm("Are you sure you want to abort?")) {
-                return;
-            }
+            defaultConfirm(
+                "Abort confirmation",
+                "Are you sure you want to abort your changes?",
+                () => {
+                    contextTools.updateSelectedRequirement(null);
+                },
+            );
+        } else {
+            contextTools.updateSelectedRequirement(null);
         }
-        contextTools.updateSelectedRequirement(null);
     }
     async function handleSave() {
         contextTools.updateSelectedRequirement(null);

@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { MainContext } from "../pages/MainPage.tsx";
+import { defaultConfirm } from "../lib/defaultConfirm.ts";
 
 type MainContextData = {
     selectedDocumentPrefix: string | null;
@@ -21,45 +22,61 @@ export default function useMainContext() {
         requirementEditMode: false,
     });
     function updateSelectedDocument(documentPrefix: string | null) {
+        function checkAndUpdate() {
+            setMainContext((prev) =>
+                prev.selectedDocumentPrefix === documentPrefix
+                    ? prev
+                    : {
+                          ...prev,
+                          selectedDocumentPrefix: documentPrefix,
+                          selectedRequirementId: null,
+                          requirementEditMode: false,
+                      },
+            );
+        }
         if (
             mainContext.requirementEditMode &&
             mainContext.selectedDocumentPrefix !== documentPrefix
         ) {
-            if (
-                !confirm(
-                    "Are you sure you want to leave this page? All unsaved changes will be lost.",
-                )
-            ) {
-                return;
-            }
+            defaultConfirm(
+                "Abort confirmation",
+                "You are currently editing a requirement. Are you sure you want to leave this page?",
+                () => {
+                    checkAndUpdate();
+                },
+            );
+            return;
         }
-        setMainContext((prev) => ({
-            ...prev,
-            selectedDocumentPrefix: documentPrefix,
-            selectedRequirementId: null,
-            requirementEditMode: false,
-        }));
+        checkAndUpdate();
     }
     function updateSelectedRequirement(requirementId: string | null) {
+        function checkAndUpdate() {
+            setMainContext((prev) =>
+                prev.selectedRequirementId === requirementId
+                    ? prev
+                    : {
+                          ...prev,
+                          selectedRequirementId: requirementId,
+                          requirementEditMode: false,
+                      },
+            );
+        }
         if (requirementId == mainContext.selectedRequirementId) return;
         if (
             mainContext.requirementEditMode &&
             mainContext.selectedRequirementId !== requirementId &&
             requirementId !== null
         ) {
-            if (
-                !confirm(
-                    "Are you sure you want to leave this page? All unsaved changes will be lost.",
-                )
-            ) {
-                return;
-            }
+            defaultConfirm(
+                "Abort confirmation",
+                "You are currently editing a requirement. Are you sure you want to leave this page?",
+                () => {
+                    checkAndUpdate();
+                },
+            );
+            return;
         }
-        setMainContext((prev) => ({
-            ...prev,
-            selectedRequirementId: requirementId,
-            requirementEditMode: false,
-        }));
+        checkAndUpdate();
     }
     function updateEditMode(editMode: boolean) {
         setMainContext((prev) => ({
