@@ -13,6 +13,7 @@ export default function RequirementList({
         <List>
             {requirements.map((requirement) => (
                 <Box
+                    key={requirement.id}
                     sx={{
                         display: "flex",
                         justifyContent: "center",
