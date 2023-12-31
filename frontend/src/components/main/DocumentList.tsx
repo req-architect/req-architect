@@ -11,6 +11,7 @@ import { deleteDocument } from "../../lib/api/documentService.ts";
 import { IconButtonStyles } from "../../lib/styles.ts";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
 import React from "react";
+import { defaultConfirm } from "../../lib/defaultConfirm.ts";
 
 export default function DocumentList({
     rootDocument,
@@ -22,11 +23,14 @@ export default function DocumentList({
     const mainContextTools = useMainContextTools();
     const handleDelete = async (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
-        if (window.confirm(`Are you sure you want to delete ${itemName}?`)) {
-            console.log(`Deleted ${itemName}`);
-            await deleteDocument(itemName);
-            refreshDocuments();
-        }
+        defaultConfirm(
+            "Delete confirmation",
+            `Are you sure you want to delete ${itemName}?`,
+            async () => {
+                await deleteDocument(itemName);
+                refreshDocuments();
+            },
+        );
     };
 
     const renderTree = (nodes: ReqDocumentWithChildren[]) => (
