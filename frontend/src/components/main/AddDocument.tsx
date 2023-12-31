@@ -8,11 +8,27 @@ import {
     TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { postDocument } from "../../lib/api/documentService.ts";
 import { ReqDocumentWithChildren } from "../../types.ts";
 
 type AddDocumentMode = "add" | "select";
+
+function extractPrefixes(document: ReqDocumentWithChildren) {
+    let prefixes: string[] = [document.prefix];
+
+    if (document.children && document.children.length > 0) {
+        document.children.forEach((child) => {
+            prefixes = [...prefixes, ...extractPrefixes(child)];
+        });
+    }
+    return prefixes;
+}
+
+type ErrorState = {
+    prefixError: string | null;
+    parentPrefixError: string | null;
+};
 
 export default function AddDocument({
     rootDocument,
@@ -22,57 +38,66 @@ export default function AddDocument({
     refreshDocuments: () => void;
 }) {
     const [mode, setMode] = useState<AddDocumentMode>("add");
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        text: string;
+        selectedOption: string | null;
+    }>({
         text: "",
-        selectedOption: "",
+        selectedOption: null,
+    });
+    const [errorState, setErrorState] = useState<ErrorState>({
+        prefixError: null,
+        parentPrefixError: null,
     });
 
-    const extractPrefixes = (document: ReqDocumentWithChildren) => {
-        let prefixes: string[] = [document.prefix];
-
-        if (document.children && document.children.length > 0) {
-            document.children.forEach((child) => {
-                prefixes = [...prefixes, ...extractPrefixes(child)];
-            });
-        }
-        return prefixes;
-    };
-
-    const prefixes = rootDocument ? extractPrefixes(rootDocument) : [];
+    const prefixes = useMemo(
+        () => (rootDocument ? extractPrefixes(rootDocument) : []),
+        [rootDocument],
+    );
 
     useEffect(() => {
-        if (formData.selectedOption === "" && prefixes.length > 0) {
-            setFormData((prev) => ({
-                ...prev,
-                selectedOption: prefixes[0],
-            }));
-        }
-    }, [formData.selectedOption, prefixes]);
-
-    const handleClick = () => {
-        setMode("select");
-    };
-
-    const handleCancel = () => {
-        setMode("add");
-    };
+        setFormData({
+            text: "",
+            selectedOption: prefixes.length > 0 ? prefixes[0] : null,
+        });
+    }, [prefixes]);
 
     const handleAddDocument = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); //prevent: localhost/:1 Form submission canceled because the form is not connected
+        let newErrorState: ErrorState = {
+            prefixError: null,
+            parentPrefixError: null,
+        };
         if (!formData.text) {
-            alert("Please enter a document prefix");
-            return;
+            newErrorState = {
+                ...newErrorState,
+                prefixError: "Document prefix cannot be empty",
+            };
         }
         if (/^\d+$/.test(formData.text.charAt(formData.text.length - 1))) {
             // if is digit
-            alert("Document prefix cannot end with a digit");
+            newErrorState = {
+                ...newErrorState,
+                prefixError: "Document prefix cannot end with a digit",
+            };
+        }
+        if (formData.selectedOption === null && prefixes.length > 0) {
+            newErrorState = {
+                ...newErrorState,
+                parentPrefixError: "Parent prefix cannot be empty",
+            };
+        }
+        if (
+            newErrorState.prefixError !== null ||
+            newErrorState.parentPrefixError !== null
+        ) {
+            setErrorState(newErrorState);
             return;
         }
-        if (formData.selectedOption === "") {
-            console.log("No parent prefix selected");
+        setErrorState(newErrorState);
+        if (formData.selectedOption === null) {
             await postDocument(formData.text);
         } else {
-            console.log("Parent prefix selected:", formData.selectedOption);
             await postDocument(formData.text, formData.selectedOption);
         }
         //setMode("add");
@@ -97,7 +122,9 @@ export default function AddDocument({
                     color="success"
                     aria-label="add"
                     sx={{}}
-                    onClick={handleClick}
+                    onClick={() => {
+                        setMode("select");
+                    }}
                 >
                     <AddIcon />
                 </Fab>
@@ -108,12 +135,15 @@ export default function AddDocument({
                             label="New document prefix"
                             fullWidth
                             sx={{ mt: 2, mb: 2 }}
+                            value={formData.text}
                             onChange={(event) => {
                                 setFormData((prev) => ({
                                     ...prev,
                                     text: event.target.value,
                                 }));
                             }}
+                            error={!!errorState.prefixError}
+                            helperText={errorState.prefixError}
                         />
                         <FormControl
                             fullWidth
@@ -125,13 +155,17 @@ export default function AddDocument({
                                 onChange={(_event, newValue) => {
                                     setFormData((prev) => ({
                                         ...prev,
-                                        selectedOption: newValue || "",
+                                        selectedOption: newValue || null,
                                     }));
                                 }}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
                                         label="Parent prefix"
+                                        error={!!errorState.parentPrefixError}
+                                        helperText={
+                                            errorState.parentPrefixError
+                                        }
                                     />
                                 )}
                                 PaperComponent={({ children }) => (
@@ -163,7 +197,9 @@ export default function AddDocument({
                         <Button
                             variant="contained"
                             color="success"
-                            onClick={handleCancel}
+                            onClick={() => {
+                                setMode("add");
+                            }}
                             sx={{ width: "100%" }}
                         >
                             Back

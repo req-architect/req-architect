@@ -1,7 +1,7 @@
 import Grid from "@mui/material/Grid";
 import DocumentList from "./DocumentList.tsx";
 import AddDocument from "./AddDocument.tsx";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ReqDocumentWithChildren } from "../../types.ts";
 import { fetchDocuments } from "../../lib/api/documentService.ts";
 import RequirementsEditor from "./RequirementsEditor.tsx";
@@ -9,7 +9,8 @@ import RequirementsEditor from "./RequirementsEditor.tsx";
 export default function DocumentEditor() {
     const [fetchedRootDocument, setFetchedRootDocument] =
         useState<ReqDocumentWithChildren | null>(null);
-    async function refreshDocuments() {
+
+    const refreshDocuments = useCallback(async () => {
         const data = await fetchDocuments();
         console.log("Fetched documents:", data);
         if (data.length > 0) {
@@ -17,10 +18,12 @@ export default function DocumentEditor() {
         } else {
             setFetchedRootDocument(null);
         }
-    }
-    useEffect(() => {
-        refreshDocuments();
     }, []);
+
+    useEffect(() => {
+        refreshDocuments().then();
+    }, [refreshDocuments]);
+
     return (
         <Grid
             container

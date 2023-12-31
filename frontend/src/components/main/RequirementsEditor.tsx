@@ -3,7 +3,7 @@ import { Box } from "@mui/material";
 import RequirementList from "./requirement-list/RequirementList.tsx";
 import AddRequirement from "./AddRequirement.tsx";
 import RequirementDetails from "./RequirementDetails.tsx";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Requirement } from "../../types.ts";
 import { fetchRequirements } from "../../lib/api/requirementService.ts";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
@@ -13,7 +13,8 @@ export default function RequirementsEditor() {
     const [fetchedRequirements, setFetchedRequirements] = useState<
         Requirement[]
     >([]);
-    async function refreshRequirements() {
+
+    const refreshRequirements = useCallback(async () => {
         if (mainContextTools.data.selectedDocumentPrefix !== null) {
             const data = await fetchRequirements(
                 mainContextTools.data.selectedDocumentPrefix,
@@ -21,10 +22,11 @@ export default function RequirementsEditor() {
             console.log("Fetched requirements:", data);
             setFetchedRequirements(data);
         }
-    }
-    useEffect(() => {
-        refreshRequirements();
     }, [mainContextTools.data.selectedDocumentPrefix]);
+
+    useEffect(() => {
+        refreshRequirements().then();
+    }, [refreshRequirements]);
 
     function findRequirement(id: string | null) {
         return fetchedRequirements.find((req) => req.id === id) || null;

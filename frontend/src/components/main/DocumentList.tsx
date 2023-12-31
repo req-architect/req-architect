@@ -10,6 +10,7 @@ import { ReqDocumentWithChildren } from "../../types.ts";
 import { deleteDocument } from "../../lib/api/documentService.ts";
 import { IconButtonStyles } from "../../lib/styles.ts";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
+import React from "react";
 
 export default function DocumentList({
     rootDocument,
