@@ -1,14 +1,11 @@
-import { Requirement } from "../../../types.ts";
 import { Box, Button, Typography } from "@mui/material";
 import RenderedRequirementText from "./RenderedRequirementText.tsx";
 import { useMainContextTools } from "../../../hooks/useMainContext.ts";
+import useRequirementContext from "../../../hooks/useRequirementContext.ts";
 
-export default function RequirementStandard({
-    requirement,
-}: {
-    requirement: Requirement;
-}) {
+export default function RequirementStandard() {
     const contextTools = useMainContextTools();
+    const { requirement } = useRequirementContext();
     function handleSelect() {
         contextTools.updateSelectedRequirement(requirement.id);
     }

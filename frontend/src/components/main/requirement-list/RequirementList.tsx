@@ -1,6 +1,12 @@
 import { Requirement } from "../../../types.ts";
 import RequirementComponent from "./RequirementComponent.tsx";
 import { List, Box, Typography } from "@mui/material";
+import { createContext } from "react";
+import { RequirementContextType } from "../../../hooks/useRequirementContext.ts";
+
+export const RequirementContext = createContext<RequirementContextType | null>(
+    null,
+);
 
 export default function RequirementList({
     requirements,
@@ -21,10 +27,11 @@ export default function RequirementList({
                         mr: 2,
                     }}
                 >
-                    <RequirementComponent
-                        requirement={requirement}
-                        refreshRequirements={refreshRequirements}
-                    />
+                    <RequirementContext.Provider
+                        value={{ requirement, refreshRequirements }}
+                    >
+                        <RequirementComponent />
+                    </RequirementContext.Provider>
                 </Box>
             ))}
         </List>

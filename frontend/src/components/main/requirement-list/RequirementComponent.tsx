@@ -1,4 +1,3 @@
-import { Requirement } from "../../../types";
 import { Box } from "@mui/material";
 import RequirementEditMode from "./RequirementEditMode.tsx";
 import { useRef } from "react";
@@ -6,15 +5,11 @@ import RequirementStandard from "./RequirementStandard.tsx";
 import useClickInside from "../../../hooks/useClickInside.ts";
 import Divider from "@mui/material/Divider";
 import { useMainContextTools } from "../../../hooks/useMainContext.ts";
+import useRequirementContext from "../../../hooks/useRequirementContext.ts";
 
-export default function RequirementComponent({
-    requirement,
-    refreshRequirements,
-}: {
-    requirement: Requirement;
-    refreshRequirements: () => void;
-}) {
+export default function RequirementComponent() {
     const contextTools = useMainContextTools();
+    const { requirement } = useRequirementContext();
     const wrapperRef = useRef<HTMLInputElement>(null);
     function handleSelect() {
         contextTools?.updateSelectedRequirement(requirement.id);
@@ -45,12 +40,9 @@ export default function RequirementComponent({
             <Divider />
             {contextTools.data.selectedRequirementId === requirement.id &&
             contextTools?.data.requirementEditMode ? (
-                <RequirementEditMode
-                    requirement={requirement}
-                    refreshRequirements={refreshRequirements}
-                />
+                <RequirementEditMode />
             ) : (
-                <RequirementStandard requirement={requirement} />
+                <RequirementStandard />
             )}
         </Box>
     );

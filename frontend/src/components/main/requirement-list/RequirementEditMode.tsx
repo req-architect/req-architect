@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Requirement } from "../../../types.ts";
 import { IconButton, TextField, Typography, Box, Grid } from "@mui/material";
 import RenderedRequirementText from "./RenderedRequirementText.tsx";
 import UndoIcon from "@mui/icons-material/Undo";
@@ -11,14 +10,10 @@ import {
     putRequirement,
 } from "../../../lib/api/requirementService.ts";
 import { useMainContextTools } from "../../../hooks/useMainContext.ts";
+import useRequirementContext from "../../../hooks/useRequirementContext.ts";
 
-export default function RequirementEditMode({
-    requirement,
-    refreshRequirements,
-}: {
-    requirement: Requirement;
-    refreshRequirements: () => void;
-}) {
+export default function RequirementEditMode() {
+    const { requirement, refreshRequirements } = useRequirementContext();
     const [editedText, setEditedText] = useState(requirement.text);
     const contextTools = useMainContextTools();
     function handleAbort() {
