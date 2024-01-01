@@ -1,65 +1,82 @@
-import { useState } from "react";
-import { ReqDocument, Requirement } from "../types.ts";
+import { useContext, useState } from "react";
+import { MainContext } from "../pages/MainPage.tsx";
+import { defaultConfirm } from "../lib/defaultConfirm.ts";
 
 type MainContextData = {
-    selectedDocument: ReqDocument | null;
-    selectedRequirement: Requirement | null;
+    selectedDocumentPrefix: string | null;
+    selectedRequirementId: string | null;
     requirementEditMode: boolean;
 };
 
 export type MainContextTools = {
     data: MainContextData;
-    updateSelectedDocument: (document: ReqDocument) => void;
-    updateSelectedRequirement: (requirement: Requirement | null) => void;
+    updateSelectedDocument: (documentPrefix: string | null) => void;
+    updateSelectedRequirement: (requirementId: string | null) => void;
     updateEditMode: (editMode: boolean) => void;
-    isSelected: (requirement: Requirement) => boolean;
+    selectAndEdit: (requirementId: string) => void;
 };
 export default function useMainContext() {
     const [mainContext, setMainContext] = useState<MainContextData>({
-        selectedDocument: { prefix: "REQ" },
-        selectedRequirement: null,
+        selectedDocumentPrefix: null,
+        selectedRequirementId: null,
         requirementEditMode: false,
     });
-    function updateSelectedDocument(document: ReqDocument) {
+    function updateSelectedDocument(documentPrefix: string | null) {
+        function checkAndUpdate() {
+            setMainContext((prev) =>
+                prev.selectedDocumentPrefix === documentPrefix
+                    ? prev
+                    : {
+                          ...prev,
+                          selectedDocumentPrefix: documentPrefix,
+                          selectedRequirementId: null,
+                          requirementEditMode: false,
+                      },
+            );
+        }
         if (
             mainContext.requirementEditMode &&
-            mainContext.selectedDocument !== document
+            mainContext.selectedDocumentPrefix !== documentPrefix
         ) {
-            if (
-                !confirm(
-                    "Are you sure you want to leave this page? All unsaved changes will be lost.",
-                )
-            ) {
-                return;
-            }
+            defaultConfirm(
+                "Abort confirmation",
+                "You are currently editing a requirement. Are you sure you want to leave this page?",
+                () => {
+                    checkAndUpdate();
+                },
+            );
+            return;
         }
-        setMainContext((prev) => ({
-            ...prev,
-            selectedDocument: document,
-            selectedRequirement: null,
-            requirementEditMode: false,
-        }));
+        checkAndUpdate();
     }
-    function updateSelectedRequirement(requirement: Requirement | null) {
-        if (requirement == mainContext.selectedRequirement) return;
+    function updateSelectedRequirement(requirementId: string | null) {
+        function checkAndUpdate() {
+            setMainContext((prev) =>
+                prev.selectedRequirementId === requirementId
+                    ? prev
+                    : {
+                          ...prev,
+                          selectedRequirementId: requirementId,
+                          requirementEditMode: false,
+                      },
+            );
+        }
+        if (requirementId == mainContext.selectedRequirementId) return;
         if (
             mainContext.requirementEditMode &&
-            mainContext.selectedRequirement !== requirement &&
-            requirement !== null
+            mainContext.selectedRequirementId !== requirementId &&
+            requirementId !== null
         ) {
-            if (
-                !confirm(
-                    "Are you sure you want to leave this page? All unsaved changes will be lost.",
-                )
-            ) {
-                return;
-            }
+            defaultConfirm(
+                "Abort confirmation",
+                "You are currently editing a requirement. Are you sure you want to leave this page?",
+                () => {
+                    checkAndUpdate();
+                },
+            );
+            return;
         }
-        setMainContext((prev) => ({
-            ...prev,
-            selectedRequirement: requirement,
-            requirementEditMode: false,
-        }));
+        checkAndUpdate();
     }
     function updateEditMode(editMode: boolean) {
         setMainContext((prev) => ({
@@ -67,14 +84,26 @@ export default function useMainContext() {
             requirementEditMode: editMode,
         }));
     }
-    function isSelected(requirement: Requirement) {
-        return mainContext.selectedRequirement === requirement;
+    function selectAndEdit(requirementId: string) {
+        setMainContext((prev) => ({
+            ...prev,
+            selectedRequirementId: requirementId,
+            requirementEditMode: true,
+        }));
     }
     return {
         data: mainContext,
         updateSelectedDocument,
         updateSelectedRequirement,
         updateEditMode,
-        isSelected,
+        selectAndEdit,
     } as MainContextTools;
+}
+
+export function useMainContextTools() {
+    const contextTools = useContext(MainContext);
+    if (contextTools === null) {
+        throw new Error("MainContextTools is null");
+    }
+    return contextTools;
 }

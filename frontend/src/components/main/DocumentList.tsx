@@ -6,47 +6,42 @@ import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import FolderIcon from "@mui/icons-material/Folder";
-import { ReqDocument, ReqDocumentWithChildren } from "../../types.ts";
+import { ReqDocumentWithChildren } from "../../types.ts";
 import { deleteDocument } from "../../lib/api/documentService.ts";
-import { useEffect } from "react";
 import { IconButtonStyles } from "../../lib/styles.ts";
-
-const isReqDocumentWithChildren = (
-    node: ReqDocumentWithChildren | ReqDocument,
-): node is ReqDocumentWithChildren => "children" in node;
-export type RenderTree = (ReqDocument | ReqDocumentWithChildren)[];
+import { useMainContextTools } from "../../hooks/useMainContext.ts";
+import React from "react";
+import { defaultConfirm } from "../../lib/defaultConfirm.ts";
 
 export default function DocumentList({
-    documents,
-    onDeleteDocument,
-    selectedDocument,
-    setSelectedDocument,
-    onClickDocument,
+    rootDocument,
+    refreshDocuments,
 }: {
-    documents: RenderTree;
-    onDeleteDocument: () => void;
-    selectedDocument: string;
-    setSelectedDocument: (selectedDocument: string) => void;
-    onClickDocument: () => void;
+    rootDocument: ReqDocumentWithChildren | null;
+    refreshDocuments: () => void;
 }) {
+    const mainContextTools = useMainContextTools();
     const handleDelete = async (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
-        const confirmDelete = window.confirm(
+        defaultConfirm(
+            "Delete confirmation",
             `Are you sure you want to delete ${itemName}?`,
+            async () => {
+                await deleteDocument(itemName);
+                refreshDocuments();
+            },
         );
-        if (confirmDelete) {
-            console.log(`Deleted ${itemName}`);
-            await deleteDocument(itemName);
-        }
-        onDeleteDocument();
     };
 
-    const renderTree = (nodes: ReqDocumentWithChildren[] | ReqDocument[]) => (
+    const renderTree = (nodes: ReqDocumentWithChildren[]) => (
         <>
             {nodes.map((node) => (
                 <div
                     key={node.prefix}
-                    onClick={(event) => handleTreeItemClick(event, node)}
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        mainContextTools.updateSelectedDocument(node.prefix);
+                    }}
                 >
                     <TreeItem
                         nodeId={node.prefix}
@@ -55,7 +50,13 @@ export default function DocumentList({
                                 <FolderIcon
                                     sx={{ color: IconButtonStyles.color }}
                                 />
-                                <Typography noWrap sx={{minWidth: "fit-content", flexGrow: 1}}>
+                                <Typography
+                                    noWrap
+                                    sx={{
+                                        minWidth: "fit-content",
+                                        flexGrow: 1,
+                                    }}
+                                >
                                     Document: {node.prefix}
                                 </Typography>
                                 <IconButton
@@ -70,27 +71,12 @@ export default function DocumentList({
                             </Box>
                         }
                     >
-                        {isReqDocumentWithChildren(node) &&
-                            node.children &&
-                            renderTree(node.children)}
+                        {node.children && renderTree(node.children)}
                     </TreeItem>
                 </div>
             ))}
         </>
     );
-
-    const handleTreeItemClick = (
-        event: React.MouseEvent,
-        node: ReqDocumentWithChildren | ReqDocument,
-    ) => {
-        event.stopPropagation();
-        setSelectedDocument(node.prefix);
-    };
-
-    useEffect(() => {
-        console.log("Selected document:", selectedDocument);
-        onClickDocument();
-    }, [selectedDocument]);
 
     return (
         <Box
@@ -105,9 +91,9 @@ export default function DocumentList({
             <TreeView
                 defaultCollapseIcon={<ExpandMoreIcon />}
                 defaultExpandIcon={<ChevronRightIcon />}
-                sx={{minWidth: "fit-content"}}
+                sx={{ minWidth: "fit-content" }}
             >
-                {renderTree(documents)}
+                {rootDocument && renderTree([rootDocument])}
             </TreeView>
         </Box>
     );
