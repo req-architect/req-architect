@@ -147,6 +147,28 @@ class UnlinkView(APIView):
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
+class AllReqsView(APIView):
+    def __init__(self):
+        self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
+            "/app/serverInfo.log")
+
+    def get(self, request, *args, **kwargs):
+        return self._getAllReqs(request)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(AllReqsView, self).dispatch(*args, **kwargs)
+
+    def _getAllReqs(self, request):
+        if not self._serverInfo:
+            return Response({'message': 'Unable to get requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        reqs = MyServer.restHandlersHelpers.getAllReqs(self._serverInfo["usersFolder"] + "/user")
+        if not reqs:
+            return JsonResponse([], safe=False)
+        serialized = MyServer.restHandlersHelpers.serializeAllReqs(reqs)
+        return JsonResponse(serialized, safe=False)
+
+
 def seyHello(request) -> HttpResponse:
     """A simple hello world function to check if connection between the app and the server is correctly established"""
     return HttpResponse('Hello from backend')

@@ -1,37 +1,10 @@
 import { Autocomplete, Box, Button, Paper, TextField } from "@mui/material";
 import {useCallback, useEffect, useState} from "react";
 import {
-    fetchRequirements,
+    getAllRequirements,
     linkRequirement,
 } from "../../../lib/api/requirementService";
-import { fetchDocuments } from "../../../lib/api/documentService";
-import {
-    ReqDocumentWithChildren,
-    Requirement,
-    RequirementWithDoc,
-} from "../../../types";
-
-const fetchChildRequirements = async (
-    children?: ReqDocumentWithChildren[],
-): Promise<RequirementWithDoc[]> => {
-    if (!children) {
-        return [];
-    }
-
-    const childReqs = await Promise.all(
-        children.map(async (child) => {
-            const reqs = await fetchRequirements(child.prefix);
-            const reqsWithDoc: RequirementWithDoc[] = reqs.map((req) => ({
-                ...req,
-                docPrefix: child.prefix,
-            }));
-            return reqsWithDoc.concat(
-                await fetchChildRequirements(child.children),
-            );
-        }),
-    );
-    return childReqs.flat();
-};
+import {Requirement, RequirementWithDoc} from "../../../types";
 
 export default function RequirementAddLink({requirement, refreshRequirements}: {requirement: Requirement, refreshRequirements: () => void}) {
     const [selectedRequirement, setSelectedRequirement] =
@@ -54,24 +27,8 @@ export default function RequirementAddLink({requirement, refreshRequirements}: {
 
     const fetchData = useCallback(async () => {
         try {
-            const documents = await fetchDocuments();
-            const allReqs = await Promise.all(
-                documents.map(async (doc) => {
-                    const prefix = doc.prefix;
-                    const reqs = await fetchRequirements(prefix);
-                    const reqsWithDoc: RequirementWithDoc[] = reqs.map(
-                        (req) => ({
-                            ...req,
-                            docPrefix: prefix,
-                        }),
-                    );
-                    return reqsWithDoc.concat(
-                        await fetchChildRequirements(doc.children),
-                    );
-                }),
-            );
-            const flattenedReqs = allReqs.flat();
-            const filteredReqs = filterRequirements(flattenedReqs);
+            const allReqs = await getAllRequirements();
+            const filteredReqs = filterRequirements(allReqs.flat());
             setAllRequirements(filteredReqs);
             setAutocompleteKey((prevKey) => prevKey + 1);
         } catch (error) {
