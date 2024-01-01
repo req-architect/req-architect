@@ -39,9 +39,16 @@ export async function deleteRequirement(reqId: string) {
     });
 }
 
-export async function linkRequirement(reqId1: string, reqId2: string) {
+export async function linkRequirement(req1Id: string, req2Id: string) {
     await fetchAPI("PUT", "/MyServer/req/link/", {
-        reqId1,
-        reqId2,
+        req1Id,
+        req2Id,
+    });
+}
+
+export async function unlinkRequirement(req1Id: string, req2Id: string) {
+    await fetchAPI("PUT", "/MyServer/req/unlink/", {
+        req1Id,
+        req2Id,
     });
 }

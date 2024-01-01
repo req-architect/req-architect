@@ -1,31 +1,49 @@
-import { useContext } from "react";
-import { MainContext } from "../../../pages/MainPage.tsx";
-import { Box, List, ListItem, ListItemText, Typography } from "@mui/material";
+import {
+    Box,
+    IconButton,
+    List,
+    ListItem,
+    ListItemText,
+    Typography,
+} from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
+import DeleteIcon from "@mui/icons-material/Delete";
 import RequirementAddLink from "./RequirementAddLink.tsx";
+import { unlinkRequirement } from "../../../lib/api/requirementService";
+import { IconButtonStyles } from "../../../lib/styles.ts";
+import {Requirement} from "../../../types.ts";
 
-export default function RequirementDetails() {
-    const contextTools = useContext(MainContext);
+export default function RequirementDetails({requirement, refreshRequirements}: {requirement: Requirement | null, refreshRequirements: () => void}) {
+
+    const unlinkSelectedRequirement = async (linkReqId: string) => {
+        if (requirement) {
+            await unlinkRequirement(
+                requirement.id,
+                linkReqId,
+            );
+            console.log(`Unlinking: ${linkReqId}`);
+            refreshRequirements();
+        }
+    };
+
     return (
         <Box
             borderLeft="1px solid green"
             sx={{
-                p: 0,
-                paddingLeft: 2,
-                paddingTop: 2,
+                p: 2,
                 // width: "15%",
                 height: "100%",
             }}
         >
-            {contextTools?.data.selectedRequirement && (
+            {requirement && (
                 <Box>
                     <Box textAlign="center">
                         <Typography variant="h5" fontWeight="bold" mb={1}>
-                            {contextTools.data.selectedRequirement.id}
+                            {requirement.id}
                         </Typography>
                         <Typography sx={{ mt: 1 }}>
                             Reviewed:{" "}
-                            {contextTools?.data.selectedRequirement?.reviewed
+                            {requirement.reviewed
                                 ? "Yes"
                                 : "No"}
                         </Typography>
@@ -34,10 +52,10 @@ export default function RequirementDetails() {
                         Links:
                     </Typography>
                     <Box>
-                        {contextTools.data.selectedRequirement.links.length >
+                        {requirement.links.length >
                         0 ? (
                             <List>
-                                {contextTools.data.selectedRequirement.links.map(
+                                {requirement.links.map(
                                     (linkText, index) => (
                                         <ListItem key={index}>
                                             <LinkIcon
@@ -45,6 +63,18 @@ export default function RequirementDetails() {
                                                 sx={{ marginRight: 1 }}
                                             />
                                             <ListItemText primary={linkText} />
+                                            <IconButton
+                                                edge="end"
+                                                aria-label="delete"
+                                                sx={IconButtonStyles}
+                                                onClick={() =>
+                                                    unlinkSelectedRequirement(
+                                                        linkText,
+                                                    )
+                                                }
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
                                         </ListItem>
                                     ),
                                 )}
@@ -53,7 +83,7 @@ export default function RequirementDetails() {
                             <Typography>No links</Typography>
                         )}
                     </Box>
-                    <RequirementAddLink />
+                    <RequirementAddLink requirement={requirement} refreshRequirements={refreshRequirements}/>
                 </Box>
             )}
         </Box>

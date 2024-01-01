@@ -12,3 +12,7 @@ export type Requirement = {
     reviewed: boolean;
     links: string[];
 };
+
+export type RequirementWithDoc = Requirement & {
+    docPrefix: string;
+};

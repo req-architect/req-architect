@@ -2,7 +2,7 @@ import Grid from "@mui/material/Grid";
 import { Box } from "@mui/material";
 import RequirementList from "./requirement-list/RequirementList.tsx";
 import AddRequirement from "./AddRequirement.tsx";
-import RequirementDetails from "./RequirementDetails.tsx";
+import RequirementDetails from "./requirement-details/RequirementDetails.tsx";
 import { useCallback, useEffect, useState } from "react";
 import { Requirement } from "../../types.ts";
 import { fetchRequirements } from "../../lib/api/requirementService.ts";
@@ -82,6 +82,7 @@ export default function RequirementsEditor() {
                         fetchedRequirements,
                         mainContextTools.data.selectedRequirementId,
                     )}
+                    refreshRequirements={refreshRequirements}
                 />
             </Grid>
         </>
