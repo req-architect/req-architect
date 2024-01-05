@@ -1,3 +1,4 @@
+from enum import Enum
 from django.http import HttpResponse, JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,6 +9,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 # Views - they are really request handlers, byt Django has weird naming style
+
+class CUSTOM_STATUS_CODES(Enum):
+    LINK_CYCLE_ATTEMPT = 599
 
 
 class ReqView(APIView):
@@ -123,7 +127,7 @@ class LinkView(APIView):
         if not self._serverInfo:
             return Response({'message': 'Unable to link requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         if not MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + "/user"):
-            return Response({'message': 'Unable to link requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response({'message': 'Unable to link requirements. At least one invalid requirement id or could not build document tree.'}, status=CUSTOM_STATUS_CODES.LINK_CYCLE_ATTEMPT.value)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 

@@ -1,36 +1,63 @@
 import { Autocomplete, Box, Button, Paper, TextField } from "@mui/material";
-import {useCallback, useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     getAllRequirements,
     linkRequirement,
 } from "../../../lib/api/requirementService";
-import {Requirement, RequirementWithDoc} from "../../../types";
+import { Requirement, RequirementWithDoc } from "../../../types";
 
-export default function RequirementAddLink({requirement, refreshRequirements}: {requirement: Requirement, refreshRequirements: () => void}) {
+type ErrorState = {
+    prefixError: string | null;
+    parentPrefixError: string | null;
+};
+
+interface RequirementsAndKey {
+    allRequirements: RequirementWithDoc[];
+    autocompleteKey: number;
+}
+
+export default function RequirementAddLink({
+    requirement,
+    refreshRequirements,
+}: {
+    requirement: Requirement;
+    refreshRequirements: () => void;
+}) {
     const [selectedRequirement, setSelectedRequirement] =
         useState<Requirement>();
-    const [allRequirements, setAllRequirements] = useState<
-        RequirementWithDoc[]
-    >([]);
-    const [autocompleteKey, setAutocompleteKey] = useState(0);
 
-    const filterRequirements = useCallback((requirements: RequirementWithDoc[]) => {
-
-        return requirements.filter((req) => {
-            const isNotSelectedReq = req.id !== requirement.id;
-            const isNotLinked = !requirement.links?.some(
-                (link) => link === req.id,
-            );
-            return isNotSelectedReq && isNotLinked;
+    const [allRequirementsAndKey, setAllRequirementsAndKey] =
+        useState<RequirementsAndKey>({
+            allRequirements: [],
+            autocompleteKey: 0,
         });
-    }, [requirement]);
+
+    const [errorState, setErrorState] = useState<ErrorState>({
+        prefixError: null,
+        parentPrefixError: null,
+    });
+
+    const filterRequirements = useCallback(
+        (requirements: RequirementWithDoc[]) => {
+            return requirements.filter((req) => {
+                const isNotSelectedReq = req.id !== requirement.id;
+                const isNotLinked = !requirement.links?.some(
+                    (link) => link === req.id,
+                );
+                return isNotSelectedReq && isNotLinked;
+            });
+        },
+        [requirement],
+    );
 
     const fetchData = useCallback(async () => {
         try {
             const allReqs = await getAllRequirements();
             const filteredReqs = filterRequirements(allReqs.flat());
-            setAllRequirements(filteredReqs);
-            setAutocompleteKey((prevKey) => prevKey + 1);
+            setAllRequirementsAndKey({
+                allRequirements: filteredReqs,
+                autocompleteKey: allRequirementsAndKey.autocompleteKey + 1,
+            });
         } catch (error) {
             console.error("Error fetching requirements:", error);
         }
@@ -38,41 +65,51 @@ export default function RequirementAddLink({requirement, refreshRequirements}: {
 
     useEffect(() => {
         fetchData().then();
-    }, [
-        fetchData,
-        requirement
-    ]);
+        let newErrorState: ErrorState = {
+            prefixError: null,
+            parentPrefixError: null,
+        };
+        setErrorState(newErrorState);
+    }, [fetchData, requirement]);
 
     const linkWithSelectedRequirement = async () => {
+        let newErrorState: ErrorState = {
+            prefixError: null,
+            parentPrefixError: null,
+        };
         if (!selectedRequirement) {
-            console.log("No requirement selected");
+            newErrorState = {
+                ...newErrorState,
+                prefixError: "No requirement selected",
+            };
+            setErrorState(newErrorState);
             return;
         }
         if (!requirement) {
-            console.log("No requirement to link to");
+            console.log("No requirement is selected");
             return;
         }
-        await linkRequirement(
-            requirement.id,
-            selectedRequirement.id,
-        );
-        refreshRequirements();
+        try {
+            await linkRequirement(requirement.id, selectedRequirement.id);
+            refreshRequirements();
+        } catch (error) {
+            console.clear();
+            newErrorState = {
+                ...newErrorState,
+                prefixError:
+                    "Can't link this requirement - you mustn't build a cycle",
+            };
+        }
+        setErrorState(newErrorState);
     };
 
     return (
         <Box mt={2}>
             <Autocomplete
-                key={autocompleteKey}
-                options={allRequirements}
+                key={allRequirementsAndKey.autocompleteKey}
+                options={allRequirementsAndKey.allRequirements}
                 getOptionLabel={(option) => option.id}
                 groupBy={(option) => option.docPrefix}
-                renderInput={(params) => (
-                    <TextField
-                        {...params}
-                        label="Select Requirement"
-                        sx={{ fontSize: "10px" }}
-                    />
-                )}
                 onChange={(_event, newValue) =>
                     setSelectedRequirement(newValue || undefined)
                 }
@@ -80,6 +117,15 @@ export default function RequirementAddLink({requirement, refreshRequirements}: {
                     <Paper style={{ maxHeight: 160, overflow: "auto" }}>
                         {children}
                     </Paper>
+                )}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        error={!!errorState.prefixError}
+                        helperText={errorState.prefixError}
+                        label="Select Requirement"
+                        sx={{ fontSize: "10px" }}
+                    />
                 )}
             />
             <Button

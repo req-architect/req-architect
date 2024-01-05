@@ -24,10 +24,15 @@ export default function fetchAPI(method: Method, uri: string, body?: object) {
                 const data = await response.json().catch(() => {
                     throw new APIError(response.statusText, response.status);
                 });
-                if (data.message) {
+                if (data.message && response.status !== 599) {
                     throw new APIError(data.message, response.status);
                 } else {
-                    throw new APIError(response.statusText, response.status);
+                    if (response.status !== 599) {
+                        throw new APIError(
+                            response.statusText,
+                            response.status,
+                        );
+                    }
                 }
             }
             return response.json();
