@@ -11,7 +11,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 class ReqView(APIView):
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
             "/app/serverInfo.log")
 
@@ -68,7 +69,8 @@ class ReqView(APIView):
 
 
 class DocView(APIView):
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
             "/app/serverInfo.log")
 
@@ -108,7 +110,8 @@ class DocView(APIView):
 
 
 class LinkView(APIView):
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
             "/app/serverInfo.log")
 
@@ -128,7 +131,8 @@ class LinkView(APIView):
 
 
 class UnlinkView(APIView):
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
             "/app/serverInfo.log")
 
