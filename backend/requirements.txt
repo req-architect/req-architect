@@ -5,3 +5,5 @@ python-decouple
 psycopg2-binary
 doorstop
 gitpython
+requests-oauthlib
+pyjwt

@@ -12,6 +12,7 @@ def main():
     settings.CACHE_ITEMS = False
     # sys.setrecursionlimit(100000)
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.settings')
+    os.environ.setdefault('OAUTHLIB_INSECURE_TRANSPORT', '1')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

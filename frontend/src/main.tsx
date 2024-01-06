@@ -6,11 +6,21 @@ import MainPage from "./pages/MainPage.tsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-confirm-alert/src/react-confirm-alert.css";
+import AuthCallbackPage from "./pages/AuthCallbackPage.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <MainPage />,
+    },
+    {
+        path: "/login_callback",
+        element: <AuthCallbackPage />,
+    },
+    {
+        path: "/login",
+        element: <LoginPage />,
     },
 ]);
 

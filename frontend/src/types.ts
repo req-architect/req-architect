@@ -11,3 +11,9 @@ export type Requirement = {
     text: string,
     reviewed: boolean
 }
+
+export type JWTToken = {
+    token: string,
+    exp: number,
+    iat: number
+} | null
