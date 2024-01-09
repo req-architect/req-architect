@@ -69,8 +69,9 @@ export default function RequirementAddLink({
         try {
             await linkRequirement(requirement.id, selectedRequirement.id);
             refreshRequirements();
-        } catch (error: any) {
+        } catch (error) {
             if (
+                error instanceof Error &&
                 error.message.includes(CUSTOM_ERROR_MESSAGES.link_cycle_attempt)
             ) {
                 setErrorState(
@@ -79,7 +80,6 @@ export default function RequirementAddLink({
             } else {
                 throw error;
             }
-            return;
         }
     };
 
