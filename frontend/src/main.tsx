@@ -11,7 +11,7 @@ import LoginPage from "./pages/LoginPage.tsx";
 
 const router = createBrowserRouter([
     {
-        path: "/",
+        path: "/main_page",
         element: <MainPage />,
     },
     {
@@ -19,7 +19,7 @@ const router = createBrowserRouter([
         element: <AuthCallbackPage />,
     },
     {
-        path: "/login",
+        path: "/",
         element: <LoginPage />,
     },
 ]);
