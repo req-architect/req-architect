@@ -1,13 +1,18 @@
 export type ReqDocument = {
-    prefix: string
-}
+    prefix: string;
+};
 
 export type ReqDocumentWithChildren = ReqDocument & {
-    children?: ReqDocumentWithChildren[]
-}
+    children?: ReqDocumentWithChildren[];
+};
 
 export type Requirement = {
-    id: string,
-    text: string,
-    reviewed: boolean
-}
+    id: string;
+    text: string;
+    reviewed: boolean;
+    links: string[];
+};
+
+export type RequirementWithDoc = Requirement & {
+    docPrefix: string;
+};

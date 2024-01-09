@@ -11,6 +11,10 @@ export class APIError extends Error {
     }
 }
 
+export enum CUSTOM_ERROR_MESSAGES {
+    link_cycle_attempt = "could not build document tree",
+}
+
 export default function fetchAPI(method: Method, uri: string, body?: object) {
     return fetch(`${import.meta.env.VITE_APP_API_URL}${uri}`, {
         method,
@@ -33,7 +37,16 @@ export default function fetchAPI(method: Method, uri: string, body?: object) {
             return response.json();
         })
         .catch((error) => {
-            if (error instanceof APIError) {
+            if (
+                error instanceof APIError &&
+                !(
+                    error.status === 409 &&
+                    error.message.includes(
+                        CUSTOM_ERROR_MESSAGES.link_cycle_attempt,
+                    )
+                )
+            ) {
+                console.log(error);
                 toast.error(error.message);
             }
             throw error;
