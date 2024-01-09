@@ -47,10 +47,10 @@ export default function RequirementAddLink({
         try {
             const allReqs = await getAllRequirements();
             const filteredReqs = filterRequirements(allReqs.flat());
-            setAllRequirementsAndKey({
+            setAllRequirementsAndKey((prevAllRequirementsAndKey) => ({
                 allRequirements: filteredReqs,
-                autocompleteKey: allRequirementsAndKey.autocompleteKey + 1,
-            });
+                autocompleteKey: prevAllRequirementsAndKey.autocompleteKey + 1,
+            }));
         } catch (error) {
             console.error("Error fetching requirements:", error);
         }
