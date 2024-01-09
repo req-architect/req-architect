@@ -5,11 +5,7 @@ import {
     linkRequirement,
 } from "../../../lib/api/requirementService";
 import { Requirement, RequirementWithDoc } from "../../../types";
-
-type ErrorState = {
-    prefixError: string | null;
-    parentPrefixError: string | null;
-};
+import { CUSTOM_ERROR_MESSAGES } from "../../../lib/api/fetchAPI";
 
 interface RequirementsAndKey {
     allRequirements: RequirementWithDoc[];
@@ -32,10 +28,7 @@ export default function RequirementAddLink({
             autocompleteKey: 0,
         });
 
-    const [errorState, setErrorState] = useState<ErrorState>({
-        prefixError: null,
-        parentPrefixError: null,
-    });
+    const [errorState, setErrorState] = useState<string | null>(null);
 
     const filterRequirements = useCallback(
         (requirements: RequirementWithDoc[]) => {
@@ -65,42 +58,29 @@ export default function RequirementAddLink({
 
     useEffect(() => {
         fetchData().then();
-        let newErrorState: ErrorState = {
-            prefixError: null,
-            parentPrefixError: null,
-        };
-        setErrorState(newErrorState);
+        setErrorState(null);
     }, [fetchData, requirement]);
 
     const linkWithSelectedRequirement = async () => {
-        let newErrorState: ErrorState = {
-            prefixError: null,
-            parentPrefixError: null,
-        };
         if (!selectedRequirement) {
-            newErrorState = {
-                ...newErrorState,
-                prefixError: "No requirement selected",
-            };
-            setErrorState(newErrorState);
-            return;
-        }
-        if (!requirement) {
-            console.log("No requirement is selected");
+            setErrorState("No requirement selected");
             return;
         }
         try {
             await linkRequirement(requirement.id, selectedRequirement.id);
             refreshRequirements();
-        } catch (error) {
-            console.clear();
-            newErrorState = {
-                ...newErrorState,
-                prefixError:
+        } catch (error: any) {
+            if (
+                error.message.includes(CUSTOM_ERROR_MESSAGES.link_cycle_attempt)
+            ) {
+                setErrorState(
                     "Can't link this requirement - you mustn't build a cycle",
-            };
+                );
+            } else {
+                throw error;
+            }
+            return;
         }
-        setErrorState(newErrorState);
     };
 
     return (
@@ -121,8 +101,8 @@ export default function RequirementAddLink({
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        error={!!errorState.prefixError}
-                        helperText={errorState.prefixError}
+                        error={!!errorState}
+                        helperText={errorState}
                         label="Select Requirement"
                         sx={{ fontSize: "10px" }}
                     />
