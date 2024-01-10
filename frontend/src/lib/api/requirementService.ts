@@ -1,5 +1,5 @@
 import fetchAPI from "./fetchAPI.ts";
-import { Requirement } from "../../types.ts";
+import { Requirement, RequirementWithDoc } from "../../types.ts";
 
 function getReqPrefix(reqId: string): string {
     // get all character without the last 3
@@ -37,4 +37,22 @@ export async function deleteRequirement(reqId: string) {
         docId: prefix,
         reqId,
     });
+}
+
+export async function linkRequirement(req1Id: string, req2Id: string) {
+    await fetchAPI("PUT", "/MyServer/req/link/", {
+        req1Id,
+        req2Id,
+    });
+}
+
+export async function unlinkRequirement(req1Id: string, req2Id: string) {
+    await fetchAPI("PUT", "/MyServer/req/unlink/", {
+        req1Id,
+        req2Id,
+    });
+}
+
+export async function getAllRequirements(): Promise<RequirementWithDoc[]> {
+    return fetchAPI("GET", "/MyServer/req/all");
 }
