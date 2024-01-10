@@ -166,7 +166,6 @@ class UnlinkView(APIView):
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
-<<<<<<< backend/src/MyServer/views.py
 class LoginCallbackView(APIView):
     def get(self, request, *args, **kwargs):
         provider = MyServer.authHelpers.OAuthProvider[kwargs.get("provider_str").upper()]
@@ -181,7 +180,8 @@ class LoginView(APIView):
     def get(self, request, *args, **kwargs):
         provider = MyServer.authHelpers.OAuthProvider[kwargs.get("provider_str").upper()]
         return HttpResponseRedirect(MyServer.authHelpers.generate_authorization_url(provider))
-=======
+
+
 class AllReqsView(APIView):
     def __init__(self):
         self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
@@ -202,7 +202,6 @@ class AllReqsView(APIView):
             return JsonResponse([], safe=False)
         serialized = MyServer.restHandlersHelpers.serializeAllReqs(reqs)
         return JsonResponse(serialized, safe=False)
->>>>>>> backend/src/MyServer/views.py
 
 
 def seyHello(request) -> HttpResponse:
