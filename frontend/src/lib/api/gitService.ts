@@ -2,9 +2,9 @@ import fetchAPI from "./fetchAPI.ts";
 
 
 export async function postCommit(commitText: string) {
-    // await fetchAPI("POST", "/MyServer/doc/", {
-    //     docId: prefix,
-    //     ...(parent && { parentId: parent }),
-    // });
     console.log("Commit Text: " + commitText);
+    const response = await fetchAPI("POST", "/MyServer/git/commit/", {
+        commitText: commitText,
+    });
+    console.log("Server replied: " + response.message);
 }

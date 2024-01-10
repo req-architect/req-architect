@@ -180,6 +180,12 @@ class LoginView(APIView):
     def get(self, request, *args, **kwargs):
         provider = MyServer.authHelpers.OAuthProvider[kwargs.get("provider_str").upper()]
         return HttpResponseRedirect(MyServer.authHelpers.generate_authorization_url(provider))
+    
+
+class GitCommitView(APIView):
+    def post(self, request, *args, **kwargs):
+        text = request.data.get("commitText")
+        return Response({'message': text}, status=status.HTTP_200_OK)
 
 
 class AllReqsView(APIView):
