@@ -81,3 +81,12 @@ Wynik należy skopiować do pliku `.env` jako wartość `JWT_SECRET`.
 ```bash
 python3 src/manage.py runserver
 ```
+
+## Testy + coverage
+W venv:   
+```bash
+pip install coverage
+coverage run src/manage.py test
+coverage html
+coverage report
+```
