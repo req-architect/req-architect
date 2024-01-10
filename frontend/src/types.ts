@@ -11,7 +11,13 @@ export type Requirement = {
     text: string;
     reviewed: boolean;
     links: string[];
-};
+}
+
+export type JWTToken = {
+    token: string,
+    exp: number,
+    iat: number
+} | null
 
 export type RequirementWithDoc = Requirement & {
     docPrefix: string;

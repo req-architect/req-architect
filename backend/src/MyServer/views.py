@@ -1,3 +1,4 @@
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from enum import Enum
 from django.http import HttpResponse, JsonResponse
 from rest_framework.response import Response
@@ -6,6 +7,15 @@ import MyServer.restHandlersHelpers
 from rest_framework.views import APIView
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from oauthlib.oauth2 import AccessDeniedError
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+import MyServer.authHelpers
+import MyServer.restHandlersHelpers
+from MyServer.authHelpers import requires_jwt_login
+
 
 # Create your views here.
 # Views - they are really request handlers, byt Django has weird naming style
@@ -82,6 +92,7 @@ class DocView(APIView):
     def dispatch(self, *args, **kwargs):
         return super(DocView, self).dispatch(*args, **kwargs)
 
+    @requires_jwt_login
     def get(self, request, *args, **kwargs):
         return self._getDocuments(request)
 
@@ -153,6 +164,22 @@ class UnlinkView(APIView):
         if not MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + "/user"):
             return Response({'message': 'Unable to unlink requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
+
+
+class LoginCallbackView(APIView):
+    def get(self, request, *args, **kwargs):
+        provider = MyServer.authHelpers.OAuthProvider[kwargs.get("provider_str").upper()]
+        try:
+            redirect_url = MyServer.authHelpers.generate_frontend_redirect_url(request.build_absolute_uri(), MyServer.authHelpers.AuthProviderAPI(provider))
+        except AccessDeniedError as e:
+            return Response({'message': 'Access denied'}, status=status.HTTP_401_UNAUTHORIZED)
+        return HttpResponseRedirect(redirect_url)
+
+
+class LoginView(APIView):
+    def get(self, request, *args, **kwargs):
+        provider = MyServer.authHelpers.OAuthProvider[kwargs.get("provider_str").upper()]
+        return HttpResponseRedirect(MyServer.authHelpers.generate_authorization_url(provider))
 
 
 class AllReqsView(APIView):
