@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from functools import wraps
-from typing import Dict
+from typing import Dict, Tuple
 from uuid import uuid4, UUID
 
 import jwt
@@ -80,6 +80,15 @@ class AuthProviderAPI:
                                   session.token.get("refresh_token"),
                                   session.token.get("created_at"),
                                   session.token.get("expires_in"))
+
+    def get_identity(self, token: OAuthToken) -> Tuple[str, str]:
+        session = OAuth2Session(token=token.token)
+        if self._provider == OAuthProvider.GITHUB:
+            r = session.get("https://api.github.com/user").json()
+            return r['id'], r['login']
+        else:
+            r = session.get("https://gitlab.com/api/v4/user").json()
+            return r['id'], r['username']
 
 
 def generate_frontend_redirect_url(request_uri: str, provider: AuthProviderAPI) -> str:
