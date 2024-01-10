@@ -1,4 +1,4 @@
-type RenderedRequirementComponent = {
+export type RenderedRequirementComponent = {
     type: "text" | "uml";
     text: string;
 };
