@@ -185,7 +185,7 @@ class GitCommitView(APIView):
     def post(self, request, *args, **kwargs):
         text = request.data.get("commitText")
         if self._commitAndPush(text):
-            return Response({'message': text}, status=status.HTTP_200_OK)
+            return Response({'message': "Successfully staged changes in repository!"}, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Could not publish changes in repository'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     
