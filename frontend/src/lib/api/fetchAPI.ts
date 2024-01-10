@@ -13,6 +13,10 @@ export class APIError extends Error {
     }
 }
 
+export enum CUSTOM_ERROR_MESSAGES {
+    link_cycle_attempt = "could not build document tree",
+}
+
 export default function fetchAPI(method: Method, uri: string, body?: object) {
     const token = getLocalStorageObject<JWTToken>("jwtToken");
     if(!token) {
@@ -40,7 +44,16 @@ export default function fetchAPI(method: Method, uri: string, body?: object) {
             return response.json();
         })
         .catch((error) => {
-            if (error instanceof APIError) {
+            if (
+                error instanceof APIError &&
+                !(
+                    error.status === 409 &&
+                    error.message.includes(
+                        CUSTOM_ERROR_MESSAGES.link_cycle_attempt,
+                    )
+                )
+            ) {
+                console.log(error);
                 toast.error(error.message);
             }
             throw error;

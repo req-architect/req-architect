@@ -1,5 +1,10 @@
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from enum import Enum
+from django.http import HttpResponse, JsonResponse
+from rest_framework.response import Response
+from rest_framework import status
+import MyServer.restHandlersHelpers
+from rest_framework.views import APIView
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from oauthlib.oauth2 import AccessDeniedError
@@ -14,6 +19,9 @@ from MyServer.authHelpers import requires_jwt_login
 
 # Create your views here.
 # Views - they are really request handlers, byt Django has weird naming style
+
+class STATUS_CODES(Enum):
+    LINK_CYCLE_ATTEMPT = 409
 
 
 class ReqView(APIView):
@@ -133,7 +141,7 @@ class LinkView(APIView):
         if not self._serverInfo:
             return Response({'message': 'Unable to link requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         if not MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + "/user"):
-            return Response({'message': 'Unable to link requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response({'message': 'Unable to link requirements. At least one invalid requirement id or could not build document tree.'}, status=STATUS_CODES.LINK_CYCLE_ATTEMPT.value)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -172,6 +180,28 @@ class LoginView(APIView):
     def get(self, request, *args, **kwargs):
         provider = MyServer.authHelpers.OAuthProvider[kwargs.get("provider_str").upper()]
         return HttpResponseRedirect(MyServer.authHelpers.generate_authorization_url(provider))
+
+
+class AllReqsView(APIView):
+    def __init__(self):
+        self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
+            "/app/serverInfo.log")
+
+    def get(self, request, *args, **kwargs):
+        return self._getAllReqs(request)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(AllReqsView, self).dispatch(*args, **kwargs)
+
+    def _getAllReqs(self, request):
+        if not self._serverInfo:
+            return Response({'message': 'Unable to get requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        reqs = MyServer.restHandlersHelpers.getAllReqs(self._serverInfo["usersFolder"] + "/user")
+        if not reqs:
+            return JsonResponse([], safe=False)
+        serialized = MyServer.restHandlersHelpers.serializeAllReqs(reqs)
+        return JsonResponse(serialized, safe=False)
 
 
 def seyHello(request) -> HttpResponse:
