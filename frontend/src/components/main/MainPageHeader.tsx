@@ -9,6 +9,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { postCommit } from "../../lib/api/gitService";
 
 
 export default function MainPageHeader() {
@@ -24,7 +25,7 @@ export default function MainPageHeader() {
     }
     
     const handleCommit = () => {
-        console.log('Text from TextField:', commitTextFieldValue);
+        postCommit(commitTextFieldValue);
     };
 
     return (
