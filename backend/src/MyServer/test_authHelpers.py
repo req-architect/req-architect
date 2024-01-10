@@ -17,7 +17,11 @@ from MyServer.authHelpers import (
 
 
 class TestAuthHelpers(unittest.TestCase):
-    def test_get_redirect_url(self):
+    @patch("MyServer.authHelpers.config")
+    def test_get_redirect_url(self, mock_config):
+        mock_config.side_effect = lambda key: {
+            "BACKEND_URL": "https://backend.example.com",
+        }[key]
         provider_github = OAuthProvider.GITHUB
         provider_gitlab = OAuthProvider.GITLAB
         self.assertTrue(

@@ -85,7 +85,6 @@ python3 src/manage.py runserver
 ## Testy + coverage
 W venv:   
 ```bash
-pip install coverage
 coverage run src/manage.py test
 coverage html
 coverage report
