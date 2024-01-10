@@ -16,6 +16,8 @@ import MyServer.authHelpers
 import MyServer.restHandlersHelpers
 from MyServer.authHelpers import requires_jwt_login
 
+import MyServer.repoHelpers
+
 
 # Create your views here.
 # Views - they are really request handlers, byt Django has weird naming style
@@ -183,9 +185,22 @@ class LoginView(APIView):
     
 
 class GitCommitView(APIView):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
+            "/app/serverInfo.log")
+        
     def post(self, request, *args, **kwargs):
         text = request.data.get("commitText")
-        return Response({'message': text}, status=status.HTTP_200_OK)
+        if self._commitAndPush(text):
+            return Response({'message': text}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Could not publish changes in repository'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    
+    def _commitAndPush(self, commitText: str):
+        userFolder = self._serverInfo["usersFolder"] + "/user"
+        return MyServer.repoHelpers.stageChanges(userFolder)
+        # MyServer.repoHelpers.commitAndPush(userFolder, commitText)
 
 
 class AllReqsView(APIView):
