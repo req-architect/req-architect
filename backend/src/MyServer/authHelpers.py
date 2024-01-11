@@ -59,6 +59,14 @@ class TokenMap:
 
     def getToken(self, uuid: UUID) -> OAuthTokenWithInfo | None:
         return self._tokenDict.get(uuid)
+    
+
+@dataclass
+class OAuthRequestUserInfo:
+    token: str
+    provider: OAuthProvider
+    uid: str
+    userName: str
 
 
 tokenMap = TokenMap()
@@ -82,7 +90,7 @@ class AuthProviderAPI:
                                   session.token.get("expires_in"))
 
     def get_identity(self, token: OAuthToken) -> Tuple[str, str]:
-        session = OAuth2Session(token=token.token)
+        session =  OAuth2Session(token={"access_token": token.token, "token_type":"Bearer"})
         if self._provider == OAuthProvider.GITHUB:
             r = session.get("https://api.github.com/user").json()
             return r['id'], r['login']
@@ -130,7 +138,9 @@ def requires_jwt_login(func):
         oAuthToken = tokenMap.getToken(UUID(payload["uuid"]))
         if not oAuthToken:
             return Response({'message': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        request.auth = oAuthToken
+        uid, userName = AuthProviderAPI(oAuthToken.provider).get_identity(oAuthToken)
+        oAuthRequestUserInfo = OAuthRequestUserInfo(oAuthToken.token, oAuthToken.provider, uid, userName)
+        request.auth = oAuthRequestUserInfo
         return func(self, request, *args, **kwargs)
 
     return wrapper

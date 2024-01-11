@@ -24,6 +24,13 @@ def checkIfExists(userFolder: str) -> bool:
     return False
 
 
+def clone_repo(userFolder, token: str):
+    os.makedirs(userFolder)
+    url_private = f"https://{token}:@github.com/XarakBendardo/pzsp2-test.git"
+    repo = git.Repo.clone_from(url_private, userFolder)
+    return repo
+
+
 def initRepoFolder(userFolder: str) -> git.Repo:
     os.makedirs(userFolder)
     # git.Repo.working_dir = userFolder
@@ -31,9 +38,11 @@ def initRepoFolder(userFolder: str) -> git.Repo:
     return repo
 
 
-def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
+def addUserDocument(docId: str, parentId: str, userFolder: str, token: str) -> bool:
     if not checkIfExists(userFolder):
-        if not initRepoFolder(userFolder):
+        # if not initRepoFolder(userFolder):
+        #     return False
+        if not clone_repo(userFolder, token):
             return False
     try:
         docTree = doorstop.build(cwd=userFolder)
@@ -200,6 +209,44 @@ def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
         data[-1]["id"] = str(req.uid)
         data[-1]["text"] = req.text
         data[-1]["reviewed"] = req.reviewed
+        links = []
+        for link in req.links:
+            links.append(str(link))
+        data[-1]["links"] = links
+    return data
+
+
+def getAllReqs(userFolder: str):
+    try:
+        rootTree = doorstop.build(userFolder)
+        if len(rootTree.documents) == 0:
+            return []
+        doc = buildDicts(rootTree)
+        reqs = getAllReqsWithChildren(userFolder, doc)
+        return reqs
+    except doorstop.DoorstopError:
+        return []
+    except FileNotFoundError:
+        return []
+
+def getAllReqsWithChildren(userFolder: str, doc):
+    reqs = []
+    req = getDocReqs(doc["prefix"], userFolder)
+    reqs.extend([(r, doc["prefix"]) for r in req])
+    for child in doc["children"]:
+        reqs.extend(getAllReqsWithChildren(userFolder, child))
+    return reqs
+
+def serializeAllReqs(reqs):
+    data = []
+    print(reqs)
+    for reqlist in reqs:
+        req = reqlist[0]
+        data.append({})
+        data[-1]["id"] = str(req.uid)
+        data[-1]["text"] = req.text
+        data[-1]["reviewed"] = req.reviewed
+        data[-1]["docPrefix"] = reqlist[1]
         links = []
         for link in req.links:
             links.append(str(link))

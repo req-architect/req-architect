@@ -1,3 +1,4 @@
+from MyServer.authHelpers import OAuthProvider
 import git
 
 
@@ -36,3 +37,8 @@ def commitAndPush(userFolder: str, message: str) -> bool:
         return False
     except git.NoSuchPathError:
         return False
+
+
+def getUserFolderName(uid: str, provider: OAuthProvider) -> str:
+    prefix = "github" if provider == OAuthProvider.GITHUB else "gitlab"
+    return f"{prefix}-{uid}"
