@@ -27,10 +27,7 @@ def checkIfExists(userFolder: str) -> bool:
 def clone_repo(userFolder, token: str):
     os.makedirs(userFolder)
     url_private = f"https://{token}:@github.com/XarakBendardo/pzsp2-test.git"
-    url_private_no_token = "https://github.com/XarakBendardo/pzsp2-test.git"
-    url_public = "https://github.com/XarakBendardo/pzsp2-test-public.git"
-    url_public_token = f"https://{token}:@github.com/XarakBendardo/pzsp2-test-public.git"
-    repo = git.Repo.clone_from(url_public_token, userFolder)
+    repo = git.Repo.clone_from(url_private, userFolder)
     return repo
 
 

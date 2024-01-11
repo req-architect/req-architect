@@ -15,6 +15,7 @@ from rest_framework.views import APIView
 import MyServer.authHelpers
 import MyServer.restHandlersHelpers
 from MyServer.authHelpers import requires_jwt_login
+import MyServer.repoHelpers
 
 
 # Create your views here.
@@ -106,9 +107,8 @@ class DocView(APIView):
     def _addDocument(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to add document. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        provider = MyServer.authHelpers.AuthProviderAPI(request.auth.provider)
-        id_, name = provider.get_identity(request.auth)
-        if not MyServer.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), self._serverInfo["usersFolder"] + f"/{name}", request.auth.token):
+        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
+        if not MyServer.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), self._serverInfo["usersFolder"] + f"/{userFolder}", request.auth.token):
             return Response({'message': 'Unable to add document. Could not build documents tree or root document exists and you need to specify the parent document or root document does not exist and you must not specify parentId.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
