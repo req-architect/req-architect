@@ -13,6 +13,7 @@ urlpatterns = [
     path("login_callback/<str:provider_str>/", views.LoginCallbackView.as_view(), name="gitlabLoginCallbackView"),
     path("req/all/", views.AllReqsView.as_view(), name="allReqsView"),
     path('git/commit/', views.GitCommitView.as_view(), name="commitInRepo"),
+    path('git/repos/', views.GetUserReposList.as_view(), name="gitReposView"),
     # path('setParent/', views.setDocumentParent),
     # path('unsetParent/', views.setDocumentParentToNull)
 ]

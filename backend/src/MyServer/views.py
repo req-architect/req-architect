@@ -232,11 +232,20 @@ class GetUserReposList(APIView):
 
     @requires_jwt_login
     def get(self, request, *args, **kwargs):
-        self._getUserRepos(request)
+        return self._getUserRepos(request)
+    
+    @requires_jwt_login
+    def post(self, request, *args, **kwargs):
+        return self._postChosenRepo(request)
 
     def _getUserRepos(self, request):
         repos = MyServer.authHelpers.AuthProviderAPI(request.auth.provider).get_repos(request.auth.token)
         return JsonResponse(repos, safe=False)
+    
+    def _postChosenRepo(self, request):
+        repository_name = request.GET.get('repositoryName')
+        # @TODO : create folder for the repo
+        return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
 class AllReqsView(APIView):
