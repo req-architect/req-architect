@@ -35,43 +35,36 @@ class ReqView(APIView):
     def dispatch(self, *args, **kwargs):
         return super(ReqView, self).dispatch(*args, **kwargs)
 
-    @requires_jwt_login
     def get(self, request, *args, **kwargs):
         return self._getReqs(request)
 
-    @requires_jwt_login
     def post(self, request, *args, **kwargs):
         return self._addRequirement(request)
 
-    @requires_jwt_login
     def delete(self, request, *args, **kwargs):
         return self._deleteRequirement(request)
 
-    @requires_jwt_login
     def put(self, request, *args, **kwargs):
         return self._editRequirement(request)
 
     def _deleteRequirement(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to delete requirement. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
-        if not MyServer.restHandlersHelpers.deleteUserRequirement(request.data.get("docId"), request.data.get("reqId"), self._serverInfo["usersFolder"] + f"/{userFolder}"):
+        if not MyServer.restHandlersHelpers.deleteUserRequirement(request.data.get("docId"), request.data.get("reqId"), self._serverInfo["usersFolder"] + "/user"):
             return Response({'message': 'Unable to delete requirement. Specified requirement does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _editRequirement(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to modify requirement. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
-        if not MyServer.restHandlersHelpers.editUserRequirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), self._serverInfo["usersFolder"] + f"/{userFolder}"):
+        if not MyServer.restHandlersHelpers.editUserRequirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), self._serverInfo["usersFolder"] + "/user"):
             return Response({'message': 'Unable to modify requirement. At least one of specified uids is invalid or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _addRequirement(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to add requirement. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
-        if not MyServer.restHandlersHelpers.addUserRequirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), self._serverInfo["usersFolder"] + f"/{userFolder}"):
+        if not MyServer.restHandlersHelpers.addUserRequirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), self._serverInfo["usersFolder"] + "/user"):
             return Response({'message': 'Unable to add requirement. Invalid document uid or invalid req number or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
@@ -81,10 +74,9 @@ class ReqView(APIView):
         doc_id = request.GET.get('docId', '')  # Get docId from query parameters
         if not doc_id:
             return Response({'message': 'Missing docId parameter in the request'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
+
         reqs = MyServer.restHandlersHelpers.getDocReqs(
-            request.GET.get("docId"), self._serverInfo["usersFolder"] + f"/{userFolder}")
+            request.GET.get("docId"), self._serverInfo["usersFolder"] + "/user")
         if not reqs:
             return JsonResponse([], safe=False)
         serialized = MyServer.restHandlersHelpers.serializeDocReqs(reqs)
@@ -109,7 +101,6 @@ class DocView(APIView):
     def post(self, request, *args, **kwargs):
         return self._addDocument(request)
 
-    @requires_jwt_login
     def delete(self, request, *args, **kwargs):
         return self._deleteDocument(request)
 
@@ -124,17 +115,15 @@ class DocView(APIView):
     def _deleteDocument(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to delete document. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
-        if not MyServer.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), self._serverInfo["usersFolder"] + f"/{userFolder}"):
+        if not MyServer.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), self._serverInfo["usersFolder"] + "/user"):
             return Response({'message': 'Unable to delete document. Specified document does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _getDocuments(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to get documents. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
         serialized = MyServer.restHandlersHelpers.serializeDocuments(
-            self._serverInfo["usersFolder"] + f"/{userFolder}")
+            self._serverInfo["usersFolder"] + "/user")
         return JsonResponse(serialized, safe=False)
 
 
@@ -144,7 +133,6 @@ class LinkView(APIView):
         self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
             "/app/serverInfo.log")
 
-    @requires_jwt_login
     def put(self, request, *args, **kwargs):
         return self._addLink(request)
 
@@ -155,8 +143,7 @@ class LinkView(APIView):
     def _addLink(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to link requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
-        if not MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + f"/{userFolder}"):
+        if not MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + "/user"):
             return Response({'message': 'Unable to link requirements. At least one invalid requirement id or could not build document tree.'}, status=STATUS_CODES.LINK_CYCLE_ATTEMPT.value)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
@@ -167,7 +154,6 @@ class UnlinkView(APIView):
         self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
             "/app/serverInfo.log")
 
-    @requires_jwt_login
     def put(self, request, *args, **kwargs):
         return self._removeLink(request)
 
@@ -178,8 +164,7 @@ class UnlinkView(APIView):
     def _removeLink(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to unlink requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
-        if not MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + f"/{userFolder}"):
+        if not MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), self._serverInfo["usersFolder"] + "/user"):
             return Response({'message': 'Unable to unlink requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
@@ -205,7 +190,6 @@ class AllReqsView(APIView):
         self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
             "/app/serverInfo.log")
 
-    @requires_jwt_login
     def get(self, request, *args, **kwargs):
         return self._getAllReqs(request)
 
@@ -216,8 +200,7 @@ class AllReqsView(APIView):
     def _getAllReqs(self, request):
         if not self._serverInfo:
             return Response({'message': 'Unable to get requirements. Server configuration problem'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
-        reqs = MyServer.restHandlersHelpers.getAllReqs(self._serverInfo["usersFolder"] + f"/{userFolder}")
+        reqs = MyServer.restHandlersHelpers.getAllReqs(self._serverInfo["usersFolder"] + "/user")
         if not reqs:
             return JsonResponse([], safe=False)
         serialized = MyServer.restHandlersHelpers.serializeAllReqs(reqs)
