@@ -11,8 +11,8 @@ urlpatterns = [
     path("req/unlink/", views.UnlinkView.as_view(), name="unlinkView"),
     path("login/<str:provider_str>/", views.LoginView.as_view(), name="gitlabLoginView"),
     path("login_callback/<str:provider_str>/", views.LoginCallbackView.as_view(), name="gitlabLoginCallbackView"),
+    path("req/all/", views.AllReqsView.as_view(), name="allReqsView"),
     path('git/commit/', views.GitCommitView.as_view(), name="commitInRepo"),
-    path("req/all/", views.AllReqsView.as_view(), name="allReqsView")
     # path('setParent/', views.setDocumentParent),
     # path('unsetParent/', views.setDocumentParentToNull)
 ]
