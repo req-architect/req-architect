@@ -82,7 +82,7 @@ class AuthProviderAPI:
                                   session.token.get("expires_in"))
 
     def get_identity(self, token: OAuthToken) -> Tuple[str, str]:
-        session = OAuth2Session(token=token.token)
+        session =  OAuth2Session(token={"access_token": token.token, "token_type":"Bearer"})
         if self._provider == OAuthProvider.GITHUB:
             r = session.get("https://api.github.com/user").json()
             return r['id'], r['login']
