@@ -1,11 +1,26 @@
 import unittest
 from unittest import mock
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 import doorstop
-from MyServer.restHandlersHelpers import addUserDocument, checkIfExists, deleteUserDocument, initRepoFolder, readServerInfo, removeDocTree
+from MyServer.restHandlersHelpers import (
+    RemoveLinksToReq,
+    addUserDocument,
+    addUserLink,
+    addUserRequirement,
+    buildDicts,
+    checkIfExists,
+    deleteUserDocument,
+    deleteUserLink,
+    deleteUserRequirement,
+    editUserRequirement,
+    getDocReqs,
+    initRepoFolder,
+    readServerInfo,
+    removeDocTree,
+)
 
 
-class TestYourScriptFunctions(unittest.TestCase):
+class TestRestHandlersHelpers(unittest.TestCase):
     @patch("builtins.open", new_callable=unittest.mock.mock_open, read_data="HOST 127.0.0.1\nPORT 8080")
     def test_readServerInfo(self, mock_open):
         result = readServerInfo("sample_server_info.txt")
@@ -241,6 +256,248 @@ class TestYourScriptFunctions(unittest.TestCase):
         with patch("MyServer.restHandlersHelpers.doorstop.build", side_effect=doorstop.DoorstopError("Mocked DoorstopError")):
             result = deleteUserDocument("doc1", "user_folder")
         self.assertFalse(result)
+
+    @patch("MyServer.restHandlersHelpers.doorstop.build")
+    def test_add_user_requirement_success(self, mock_build):
+        mock_doc = mock_build.return_value
+        mock_add_item = mock_doc.find_document.return_value.add_item
+        doc_id = "test_doc"
+        req_number_id = 1
+        req_text = "Test Requirement"
+        user_folder = "/path/to/user"
+        result = addUserRequirement(doc_id, req_number_id, req_text, user_folder)
+
+        mock_build.assert_called_once_with(user_folder)
+        mock_doc.find_document.assert_called_once_with(doc_id)
+        mock_add_item.assert_called_once_with(number=req_number_id)
+        self.assertTrue(result)
+
+    @patch("MyServer.restHandlersHelpers.doorstop.build")
+    def test_add_user_requirement_DoorstopError(self, mock_build):
+        mock_build.side_effect = doorstop.DoorstopError("Test DoorstopError")
+        doc_id = "test_doc"
+        req_number_id = 1
+        req_text = "Test Requirement"
+        user_folder = "/path/to/user"
+        result = addUserRequirement(doc_id, req_number_id, req_text, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertFalse(result)
+
+    @patch("MyServer.restHandlersHelpers.doorstop.build")
+    def test_add_user_requirement_TypeError(self, mock_build):
+        mock_build.side_effect = TypeError("Test TypeError")
+        doc_id = "test_doc"
+        req_number_id = 1
+        req_text = "Test Requirement"
+        user_folder = "/path/to/user"
+        result = addUserRequirement(doc_id, req_number_id, req_text, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertFalse(result)
+
+    @patch("MyServer.restHandlersHelpers.doorstop.build")
+    def test_add_user_requirement_FileNotFoundError(self, mock_build):
+        mock_build.side_effect = FileNotFoundError("Test FileNotFoundError")
+        doc_id = "test_doc"
+        req_number_id = 1
+        req_text = "Test Requirement"
+        user_folder = "/path/to/user"
+        result = addUserRequirement(doc_id, req_number_id, req_text, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertFalse(result)
+
+    @patch("MyServer.restHandlersHelpers.deleteUserLink")
+    def test_remove_links_to_req(self, mock_delete_user_link):
+        mock_delete_user_link.return_value = True
+        req_id = "test_req_id"
+        user_folder = "/path/to/user"
+        mock_document1 = MagicMock()
+        mock_document2 = MagicMock()
+        mock_documents = [mock_document1, mock_document2]
+        mock_req1 = MagicMock(uid="1")
+        mock_req2 = MagicMock(uid="2")
+        mock_req3 = MagicMock(uid="3")
+        mock_document1.items = [mock_req1, mock_req2]
+        mock_document2.items = [mock_req3]
+        RemoveLinksToReq(req_id, mock_documents, user_folder)
+        expected_calls = [
+            unittest.mock.call(str(mock_req1.uid), req_id, user_folder),
+            unittest.mock.call(str(mock_req2.uid), req_id, user_folder),
+            unittest.mock.call(str(mock_req3.uid), req_id, user_folder),
+        ]
+        mock_delete_user_link.assert_has_calls(expected_calls, any_order=True)
+
+    @patch("MyServer.restHandlersHelpers.RemoveLinksToReq")
+    def test_delete_user_requirement_success(self, mock_remove_links):
+        mock_remove_links.return_value = True
+        doc_id = "test_doc"
+        req_uid = "test_req_uid"
+        user_folder = "/path/to/user"
+        mock_doc = MagicMock()
+        mock_build = MagicMock(return_value=mock_doc)
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = deleteUserRequirement(doc_id, req_uid, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        mock_doc.find_document.assert_called_once_with(doc_id)
+        mock_remove_links.assert_called_once_with(req_uid, mock_doc.documents, user_folder)
+        self.assertTrue(result)
+
+    @patch("MyServer.restHandlersHelpers.RemoveLinksToReq")
+    def test_delete_user_requirement_doorstop_error(self, mock_remove_links):
+        mock_remove_links.return_value = True
+        doc_id = "test_doc"
+        req_uid = "test_req_uid"
+        user_folder = "/path/to/user"
+        mock_build = MagicMock(side_effect=doorstop.DoorstopError("Test DoorstopError"))
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = deleteUserRequirement(doc_id, req_uid, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        mock_remove_links.assert_not_called()
+        self.assertFalse(result)
+
+    @patch("MyServer.restHandlersHelpers.RemoveLinksToReq")
+    def test_delete_user_requirement_file_not_found_error(self, mock_remove_links):
+        mock_remove_links.return_value = True
+        doc_id = "test_doc"
+        req_uid = "test_req_uid"
+        user_folder = "/path/to/user"
+        mock_build = MagicMock(side_effect=FileNotFoundError("Test FileNotFoundError"))
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = deleteUserRequirement(doc_id, req_uid, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        mock_remove_links.assert_not_called()
+        self.assertFalse(result)
+
+    def test_edit_user_requirement_success(self):
+        doc_id = "test_doc"
+        req_uid = "test_req_uid"
+        req_text = "new_req_text"
+        user_folder = "/path/to/user"
+        mock_doc = MagicMock()
+        mock_build = MagicMock(return_value=mock_doc)
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = editUserRequirement(doc_id, req_uid, req_text, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        mock_doc.find_document.assert_called_once_with(doc_id)
+        self.assertTrue(result)
+
+    def test_edit_user_requirement_DoorstopError(self):
+        doc_id = "test_doc"
+        req_uid = "test_req_uid"
+        req_text = "new_req_text"
+        user_folder = "/path/to/user"
+        mock_build = MagicMock(side_effect=doorstop.DoorstopError("Test DoorstopError"))
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = editUserRequirement(doc_id, req_uid, req_text, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertFalse(result)
+
+    def test_add_user_link_success(self):
+        req1_uid = "req1_uid"
+        req2_uid = "req2_uid"
+        user_folder = "/path/to/user"
+        mock_doc_tree = MagicMock()
+        mock_build = MagicMock(return_value=mock_doc_tree)
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = addUserLink(req1_uid, req2_uid, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        mock_doc_tree.link_items.assert_called_once_with(req1_uid, req2_uid)
+        self.assertTrue(result)
+
+    def test_add_user_link_DoorstopError(self):
+        req1_uid = "req1_uid"
+        req2_uid = "req2_uid"
+        user_folder = "/path/to/user"
+        mock_build = MagicMock(side_effect=doorstop.DoorstopError("Test DoorstopError"))
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = addUserLink(req1_uid, req2_uid, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertFalse(result)
+
+    def test_add_user_link_FileNotFound(self):
+        req1_uid = "req1_uid"
+        req2_uid = "req2_uid"
+        user_folder = "/path/to/user"
+        mock_build = MagicMock(side_effect=FileNotFoundError("Test DoorstopError"))
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = addUserLink(req1_uid, req2_uid, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertFalse(result)
+
+    def test_delete_user_link_success(self):
+        req1_uid = "req1_uid"
+        req2_uid = "req2_uid"
+        user_folder = "/path/to/user"
+        mock_doc_tree = MagicMock()
+        mock_build = MagicMock(return_value=mock_doc_tree)
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = deleteUserLink(req1_uid, req2_uid, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        mock_doc_tree.unlink_items.assert_called_once_with(req1_uid, req2_uid)
+        self.assertTrue(result)
+
+    def test_delete_user_link_DoorstopError(self):
+        req1_uid = "req1_uid"
+        req2_uid = "req2_uid"
+        user_folder = "/path/to/user"
+        mock_build = MagicMock(side_effect=doorstop.DoorstopError("Test DoorstopError"))
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = deleteUserLink(req1_uid, req2_uid, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertFalse(result)
+
+    def test_delete_user_link_FileNotFoundError(self):
+        req1_uid = "req1_uid"
+        req2_uid = "req2_uid"
+        user_folder = "/path/to/user"
+        mock_build = MagicMock(side_effect=FileNotFoundError("Test DoorstopError"))
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = deleteUserLink(req1_uid, req2_uid, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertFalse(result)
+
+    @patch("MyServer.restHandlersHelpers.doorstop.build")
+    def test_get_doc_reqs_success(self, mock_build):
+        doc_id = "your_doc_id"
+        user_folder = "/path/to/user"
+        mock_item1 = Mock(uid="req1")
+        mock_item2 = Mock(uid="req2")
+        mock_build.return_value = Mock()
+        mock_build.return_value.find_document = Mock()
+        mock_build.return_value.find_document.return_value.items = [mock_item1, mock_item2]
+        result = getDocReqs(doc_id, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        mock_build.return_value.find_document.assert_called_once_with(doc_id)
+        self.assertEqual(result[0].uid, "req1")
+        self.assertEqual(result[1].uid, "req2")
+
+    def test_get_doc_reqs_DoorstopError(self):
+        doc_id = "your_doc_id"
+        user_folder = "/path/to/user"
+        mock_build = MagicMock(side_effect=doorstop.DoorstopError("Test DoorstopError"))
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = getDocReqs(doc_id, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertEqual(result, [])
+
+    def test_get_doc_reqs_FileNotFoundError(self):
+        doc_id = "your_doc_id"
+        user_folder = "/path/to/user"
+        mock_build = MagicMock(side_effect=FileNotFoundError("Test FileNotFoundError"))
+        with patch("MyServer.restHandlersHelpers.doorstop.build", mock_build):
+            result = getDocReqs(doc_id, user_folder)
+        mock_build.assert_called_once_with(user_folder)
+        self.assertEqual(result, [])
+
+    def test_build_dicts_with_children(self):
+        mock_document = MagicMock(prefix="mock_prefix")
+        mock_child = MagicMock(prefix="mock_child_prefix")
+        mock_tree_instance = MagicMock()
+        mock_tree_instance.document = mock_document
+        mock_tree_instance.children = [mock_child]
+        result = buildDicts(mock_tree_instance)
+        expected_result = {"prefix": "mock_prefix", "children": [{"prefix": "mock_child_prefix", "children": []}]}
+        self.assertEqual(result["prefix"], expected_result["prefix"])
+        self.assertEqual(result["children"][0]["children"], expected_result["children"][0]["children"])
 
 
 if __name__ == "__main__":
