@@ -207,7 +207,8 @@ class GitCommitView(APIView):
         super().__init__(**kwargs)
         self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
             "/app/serverInfo.log")
-        
+    
+    @requires_jwt_login
     def post(self, request, *args, **kwargs):
         text = request.data.get("commitText")
         if self._commitAndPush(text):
