@@ -5,6 +5,7 @@ from enum import Enum
 from functools import wraps
 from typing import Dict, Tuple
 from uuid import uuid4, UUID
+import requests
 
 import jwt
 from decouple import config
@@ -97,6 +98,22 @@ class AuthProviderAPI:
         else:
             r = session.get("https://gitlab.com/api/v4/user").json()
             return r['id'], r['username']
+        
+    def get_repos(self, token: OAuthToken):
+        headers = {
+            'Accept': 'application/vnd.github+json',
+            'Authorization': f'Bearer {token}',
+        }
+        url = 'https://api.github.com/user/repos'
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            repositories = response.json()
+            write_access_repos = [repo for repo in repositories if repo['permissions']['push']]
+            for repo in write_access_repos:
+                print(repo["full_name"])
+            return write_access_repos
+        else:
+            return None
 
 
 def generate_frontend_redirect_url(request_uri: str, provider: AuthProviderAPI) -> str:

@@ -1,3 +1,4 @@
+from typing import Any
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from enum import Enum
 from django.http import HttpResponse, JsonResponse
@@ -220,6 +221,22 @@ class GitCommitView(APIView):
         userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
         return MyServer.repoHelpers.stageChanges(self._serverInfo["usersFolder"] + f"/{userFolder}", commitText, request.auth.userName)
         # MyServer.repoHelpers.commitAndPush(userFolder, commitText)
+    
+
+class GetUserReposList(APIView):
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self._serverInfo = MyServer.restHandlersHelpers.readServerInfo(
+            "/app/serverInfo.log"
+        )
+
+    @requires_jwt_login
+    def get(self, request, *args, **kwargs):
+        self._getUserRepos(request)
+
+    def _getUserRepos(self, request):
+        repos = MyServer.authHelpers.AuthProviderAPI(request.auth.provider).get_repos(request.auth.token)
+        return JsonResponse(repos, safe=False)
 
 
 class AllReqsView(APIView):
