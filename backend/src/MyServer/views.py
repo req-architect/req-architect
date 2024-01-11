@@ -211,14 +211,14 @@ class GitCommitView(APIView):
     @requires_jwt_login
     def post(self, request, *args, **kwargs):
         text = request.data.get("commitText")
-        if self._commitAndPush(text):
+        if self._commitAndPush(request, text):
             return Response({'message': "Successfully staged changes in repository!"}, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Could not publish changes in repository'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     
-    def _commitAndPush(self, commitText: str):
-        userFolder = self._serverInfo["usersFolder"] + "/user"
-        return MyServer.repoHelpers.stageChanges(userFolder)
+    def _commitAndPush(self, request, commitText: str):
+        userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
+        return MyServer.repoHelpers.stageChanges(self._serverInfo["usersFolder"] + f"/{userFolder}")
         # MyServer.repoHelpers.commitAndPush(userFolder, commitText)
 
 
