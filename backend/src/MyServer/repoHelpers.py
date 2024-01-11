@@ -1,10 +1,13 @@
 import git
 
 
-def stageChanges(repoFolderPath: str) -> bool:
+def stageChanges(repoFolderPath: str, message: str, userName: str) -> bool:
     try:
         repo = git.Repo(repoFolderPath)
+        repo.git.config('user.name', userName)
         repo.git.add(repoFolderPath)
+        repo.index.commit(message)
+        repo.remote().push()
         return True
     except git.InvalidGitRepositoryError:
         return False
