@@ -24,13 +24,6 @@ def checkIfExists(userFolder: str) -> bool:
     return False
 
 
-def clone_repo(userFolder, token: str):
-    os.makedirs(userFolder)
-    url_private = f"https://{token}:@github.com/XarakBendardo/pzsp2-test.git"
-    repo = git.Repo.clone_from(url_private, userFolder)
-    return repo
-
-
 def initRepoFolder(userFolder: str) -> git.Repo:
     os.makedirs(userFolder)
     # git.Repo.working_dir = userFolder
@@ -38,11 +31,9 @@ def initRepoFolder(userFolder: str) -> git.Repo:
     return repo
 
 
-def addUserDocument(docId: str, parentId: str, userFolder: str, token: str) -> bool:
+def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
     if not checkIfExists(userFolder):
-        # if not initRepoFolder(userFolder):
-        #     return False
-        if not clone_repo(userFolder, token):
+        if not initRepoFolder(userFolder):
             return False
     try:
         docTree = doorstop.build(cwd=userFolder)
