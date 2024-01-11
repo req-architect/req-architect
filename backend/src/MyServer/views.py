@@ -218,7 +218,7 @@ class GitCommitView(APIView):
     
     def _commitAndPush(self, request, commitText: str):
         userFolder = MyServer.repoHelpers.getUserFolderName(request.auth.uid, request.auth.provider)
-        return MyServer.repoHelpers.stageChanges(self._serverInfo["usersFolder"] + f"/{userFolder}")
+        return MyServer.repoHelpers.stageChanges(self._serverInfo["usersFolder"] + f"/{userFolder}", commitText, request.auth.userName)
         # MyServer.repoHelpers.commitAndPush(userFolder, commitText)
 
 
