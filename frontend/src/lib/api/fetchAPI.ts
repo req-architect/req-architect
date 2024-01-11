@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import {JWTToken} from "../../types.ts";
+import { JWTToken } from "../../types.ts";
 import { getLocalStorageObject } from "../localStorageUtil.ts";
 
 type Method = "GET" | "POST" | "PUT" | "DELETE";
@@ -19,14 +19,18 @@ export enum CUSTOM_ERROR_MESSAGES {
 
 export default function fetchAPI(method: Method, uri: string, body?: object) {
     const token = getLocalStorageObject<JWTToken>("jwtToken");
-    if(!token) {
+    if (!token) {
         throw new Error("fetchAPI called without jwtToken");
+    }
+    const repositoryName = getLocalStorageObject("chosenRepositoryName");
+    if (repositoryName) {
+        uri = uri + "?repositoryName=" + repositoryName;
     }
     return fetch(`${import.meta.env.VITE_APP_API_URL}${uri}`, {
         method,
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token.token}`,
+            Authorization: `Bearer ${token.token}`,
         },
         body: JSON.stringify(body),
     })

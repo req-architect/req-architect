@@ -100,9 +100,7 @@ class AuthProviderAPI:
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             repositories = response.json()
-            write_access_repos = [repo for repo in repositories if repo['permissions']['push']]
-            for repo in write_access_repos:
-                print(repo["full_name"])
+            write_access_repos = [repo["full_name"] for repo in repositories if repo['permissions']['push']]
             return write_access_repos
         else:
             return None
