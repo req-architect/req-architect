@@ -111,19 +111,36 @@ class AuthProviderAPI:
             r = session.get("https://gitlab.com/api/v4/user").json()
             return r['id'], r['username'], ['email']
         
-    def get_repos(self, token: OAuthToken):
-        headers = {
-            'Accept': 'application/vnd.github+json',
-            'Authorization': f'Bearer {token}',
-        }
-        url = 'https://api.github.com/user/repos'
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            repositories = response.json()
-            write_access_repos = [repo["full_name"] for repo in repositories if repo['permissions']['push']]
-            return write_access_repos
+    def get_repos(self, token: str):
+        if self._provider == OAuthProvider.GITHUB:
+            print("IN GITHUB REPOS")
+            headers = {
+                'Accept': 'application/vnd.github+json',
+                'Authorization': f'Bearer {token}',
+            }
+            url = 'https://api.github.com/user/repos'
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                repositories = response.json()
+                write_access_repos = [repo["full_name"] for repo in repositories if repo['permissions']['push']]
+                return write_access_repos
+            else:
+                return None
         else:
-            return None
+            print(f"IN GITLAB REPOS, TOKEN: {token}")
+            headers = {
+                'PRIVATE-TOKEN': token,
+            }
+            url = 'https://gitlab.com/api/v4/projects?membership=true&min_access_level=40'
+            response = requests.get(url, headers=headers)
+            print(response)
+            if response.status_code == 200:
+                repositories = response.json()
+                print(f"repos: {repositories}")
+                repo_names = [repo["name"] for repo in repositories]
+                # print(repo_names)
+                return repo_names
+
 
 
 def generate_frontend_redirect_url(request_uri: str, provider: AuthProviderAPI) -> str:
