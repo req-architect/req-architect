@@ -19,7 +19,7 @@ def readServerInfo(filename: str):
         return None
 
 
-def addUserDocument(docId: str, parentId: str, userFolder: str, token: str) -> bool:
+def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
     try:
         docTree = doorstop.build(cwd=userFolder)
         if len(docTree.documents) >= 1 and not parentId:
