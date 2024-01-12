@@ -1,23 +1,23 @@
 import unittest
-from unittest import mock
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 import doorstop
 import os
 import tempfile
 import shutil
 from MyServer.restHandlersHelpers import (
-    RemoveLinksToReq,
     addUserDocument,
     addUserLink,
     addUserRequirement,
     buildDicts,
     deleteUserDocument,
-    deleteUserLink,
     deleteUserRequirement,
     editUserRequirement,
+    getAllReqs,
     getDocReqs,
     readServerInfo,
-    removeDocTree,
+    serializeAllReqs,
+    serializeDocReqs,
+    serializeDocuments,
 )
 
 
@@ -100,6 +100,15 @@ class TestRestHandlersHelpers(unittest.TestCase):
         self.assertTrue(result)
         self.assertTrue("test_doc001.yml" in os.listdir(self.test_folder + "/" + doc_id))
 
+    @patch("doorstop.build")
+    def test_addUserRequirement_typerror(self, mock_buil):
+        doc_id = "test_doc"
+        mock_build = doorstop.build
+        result = addUserDocument(doc_id, None, self.test_folder)
+        mock_build.side_effect = TypeError
+        result = addUserRequirement(doc_id, 1, "text", self.test_folder)
+        self.assertFalse(result)
+
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)
     def test_addUserLink(self):
         doc_id = "test_doc"
@@ -123,6 +132,31 @@ class TestRestHandlersHelpers(unittest.TestCase):
         self.assertTrue(doc_id not in os.listdir(self.test_folder))
         self.assertTrue(child_id not in os.listdir(self.test_folder))
         self.assertFalse(deleteUserDocument("", self.test_folder))
+
+    @patch("doorstop.core.vcs.find_root", side_effect=doorstop.DoorstopError)
+    def test_delete_user_document_doorstop_error(self, mock_find_root):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        result = deleteUserDocument(doc_id, self.test_folder)
+        self.assertFalse(result)
+
+    @patch("doorstop.core.vcs.find_root", side_effect=FileNotFoundError)
+    def test_delete_user_document_file_not_found_error(self, mock_find_root):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        result = deleteUserDocument(doc_id, self.test_folder)
+        self.assertFalse(result)
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    @patch("MyServer.restHandlersHelpers.removeDocTree", return_value=None)
+    def test_deleteUserDocument_not_successful(self, mock_build):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        result = deleteUserDocument(doc_id, self.test_folder)
+        self.assertFalse(result)
 
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)
     def test_removeUserRequirement(self):
@@ -153,6 +187,115 @@ class TestRestHandlersHelpers(unittest.TestCase):
         result = getDocReqs(doc_id, self.test_folder)
         self.assertTrue(len(result) == 2)
         self.assertTrue("test_doc001" in [str(req.uid) for req in result])
+
+    @patch("doorstop.core.vcs.find_root", side_effect=doorstop.DoorstopError)
+    def test_getDocRequirements_doorstop_error(self, mock_find_root):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        result = getDocReqs(doc_id, self.test_folder)
+        self.assertEqual(result, [])
+
+    @patch("doorstop.core.vcs.find_root", side_effect=FileNotFoundError)
+    def test_getDocRequirements_file_not_found_error(self, mock_find_root):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        result = getDocReqs(doc_id, self.test_folder)
+        self.assertEqual(result, [])
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_buildDicts(self):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserDocument("test_child_1", doc_id, self.test_folder)
+        tree = doorstop.build(self.test_folder)
+        result = buildDicts(tree)
+        expected_result = {"prefix": doc_id, "children": [{"prefix": "test_child_1", "children": []}]}
+        self.assertEqual(result, expected_result)
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_serializeDocuments(self):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserDocument("test_child_1", doc_id, self.test_folder)
+        addUserDocument("test_child_2", doc_id, self.test_folder)
+
+        result = serializeDocuments(self.test_folder)
+        expected_result = [{"prefix": "test_doc", "children": [{"prefix": "test_child_2", "children": []}, {"prefix": "test_child_1", "children": []}]}]
+        self.assertEqual(result, expected_result)
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_serializeDocuments_no_documents(self):
+        result = serializeDocuments(self.test_folder)
+        self.assertEqual(result, [])
+
+    @patch("doorstop.core.vcs.find_root", side_effect=doorstop.DoorstopError)
+    def test_serializeDocuments_doorstop_error(self, mock_find_root):
+        result = serializeDocuments(self.test_folder)
+        self.assertEqual(result, [])
+
+    @patch("doorstop.core.vcs.find_root", side_effect=FileNotFoundError)
+    def test_serializeDocuments_file_not_found_error(self, mock_find_root):
+        result = serializeDocuments(self.test_folder)
+        self.assertEqual(result, [])
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_serializeDocReqs(self):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        addUserRequirement(doc_id, 2, "text", self.test_folder)
+        addUserLink("test_doc001", "test_doc002", self.test_folder)
+        reqs = getDocReqs(doc_id, self.test_folder)
+        result = serializeDocReqs(reqs)
+        expected_result = [
+            {"id": "test_doc001", "text": "text", "reviewed": False, "links": ["test_doc002"]},
+            {"id": "test_doc002", "text": "text", "reviewed": False, "links": []},
+        ]
+        self.assertEqual(result, expected_result)
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_getAllReqs(self):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserDocument("test_child_1", doc_id, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        addUserRequirement(doc_id, 2, "text", self.test_folder)
+        result = getAllReqs(self.test_folder)
+        self.assertEqual(result[0][1], "test_doc")
+        self.assertEqual(len(result), 2)
+        self.assertTrue("test_doc001" in [str(req[0].uid) for req in result])
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_getAllReqs_no_documents(self):
+        result = getAllReqs(self.test_folder)
+        self.assertEqual(result, [])
+
+    @patch("doorstop.core.vcs.find_root", side_effect=doorstop.DoorstopError)
+    def test_getAllReqs_doorstop_error(self, mock_find_root):
+        result = getAllReqs(self.test_folder)
+        self.assertEqual(result, [])
+
+    @patch("doorstop.core.vcs.find_root", side_effect=FileNotFoundError)
+    def test_getAllReqs_file_not_found_error(self, mock_find_root):
+        result = getAllReqs(self.test_folder)
+        self.assertEqual(result, [])
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_serializeAllReqs(self):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        addUserRequirement(doc_id, 2, "text", self.test_folder)
+        addUserLink("test_doc001", "test_doc002", self.test_folder)
+        reqs = getAllReqs(self.test_folder)
+        result = serializeAllReqs(reqs)
+        expected_result = [
+            {"id": "test_doc001", "text": "text", "reviewed": False, "links": ["test_doc002"], "docPrefix": doc_id},
+            {"id": "test_doc002", "text": "text", "reviewed": False, "links": [], "docPrefix": doc_id},
+        ]
+        self.assertEqual(result, expected_result)
 
 
 if __name__ == "__main__":
