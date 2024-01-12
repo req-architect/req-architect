@@ -20,7 +20,7 @@ export default function AuthCallbackPage() {
             exp: parseInt(exp),
             iat: parseInt(iat),
         } as JWTToken);
-        navigate("/main_page");
+        navigate("/repo");
     }, [navigate]);
     return error ? <div>Something went wrong</div> : <></>;
 }

@@ -7,7 +7,27 @@ import {
     Box,
 } from "@mui/material";
 
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { postCommit } from "../../lib/api/gitService";
+
+
 export default function MainPageHeader() {
+    const navigate = useNavigate();
+    const [commitTextFieldValue, setcommitTextFieldValue] = useState('');
+
+    const handleLogOut = () => {
+        navigate("/");
+    };
+
+    const changeCommitFieldValue = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setcommitTextFieldValue(event.target.value);
+    }
+    
+    const handleCommit = () => {
+        postCommit(commitTextFieldValue);
+    };
+
     return (
         <AppBar
             position="static"
@@ -40,6 +60,8 @@ export default function MainPageHeader() {
                         variant="outlined"
                         maxRows={1}
                         sx={{ width: "50%", mr: 2, bgcolor: "white" }}
+                        value={commitTextFieldValue}
+                        onChange={changeCommitFieldValue}
                     ></TextField>
                     <Button
                         sx={{
@@ -52,6 +74,7 @@ export default function MainPageHeader() {
                                 background: "#689F38",
                             },
                         }}
+                        onClick={handleCommit}
                     >
                         SAVE
                     </Button>
@@ -65,6 +88,7 @@ export default function MainPageHeader() {
                         height: "40px",
                         mr: 2,
                     }}
+                    onClick={handleLogOut}
                 >
                     Log out
                 </Button>
