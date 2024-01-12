@@ -243,7 +243,10 @@ class GetUserReposList(APIView):
         return self._postChosenRepo(request)
 
     def _getUserRepos(self, request):
+        print(f" IN USER REPOS. PROVIDER: {request.auth.provider}")
         userRepos = MyServer.authHelpers.AuthProviderAPI(request.auth.provider).get_repos(request.auth.token)
+        if not userRepos:
+            return JsonResponse([], safe=False)
         serverUserRepos = []
         for repoName in userRepos:
             if repoName in self._serverRepos.keys():
