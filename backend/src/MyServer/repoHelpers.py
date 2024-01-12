@@ -51,3 +51,16 @@ def cloneRepo(repoFolder: str, repoUrl, token):
     os.makedirs(destination)
     repo = git.Repo.clone_from(url, destination)
     return repo
+
+
+def pullRepo(repoFolder: str, token):
+    repo = git.Repo(repoFolder)
+    repo.git.update_environment(GIT_TERMINAL_PROMPT='0', GIT_USERNAME='x-access-token', GIT_PASSWORD=token)
+    origin = repo.remote()
+    origin.pull()
+
+
+def checkIfExists(repoFolder: str) -> bool:
+    if os.path.exists(repoFolder):
+        return True
+    return False

@@ -19,32 +19,7 @@ def readServerInfo(filename: str):
         return None
 
 
-def checkIfExists(userFolder: str) -> bool:
-    if os.path.exists(userFolder):
-        return True
-    return False
-
-
-# def clone_repo(userFolder, repoName: str, token: str):
-#     os.makedirs(userFolder)
-#     url_private = f"https://{token}:@github.com/XarakBendardo/pzsp2-test.git"
-#     repo = git.Repo.clone_from(url_private, userFolder)
-#     return repo
-
-
-def initRepoFolder(userFolder: str) -> git.Repo:
-    os.makedirs(userFolder)
-    # git.Repo.working_dir = userFolder
-    repo = git.Repo.init(path=userFolder)
-    return repo
-
-
 def addUserDocument(docId: str, parentId: str, userFolder: str, token: str) -> bool:
-    if not checkIfExists(userFolder):
-        # if not initRepoFolder(userFolder):
-        #     return False
-        if not MyServer.repoHelpers.cloneRepo(userFolder, token):
-            return False
     try:
         docTree = doorstop.build(cwd=userFolder)
         if len(docTree.documents) >= 1 and not parentId:
