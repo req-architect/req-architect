@@ -38,16 +38,16 @@ def repoName2DirName(userFolder: str, repoName: str) -> str:
     return f"{userFolder}/{repoName.replace('/', '-')}"
 
 
-def getRepoFolder(usersFolder: str, request) -> str:
+def getRepoInfo(usersFolder: str, request) -> tuple[str, str]:
     repoName = request.GET.get('repositoryName')
     userFolder = getUserFolderName(request.auth.uid, request.auth.provider)
     repoFolder = repoName2DirName(userFolder, repoName)
-    return f"{usersFolder}/{repoFolder}"
+    return f"{usersFolder}/{repoFolder}", repoName
 
 
-def cloneRepo(usersFolder: str, request):
-    repoFolder = getRepoFolder(usersFolder, request)
-    os.makedirs(repoFolder)
-    url = f"https://{request.auth.token}:@github.com/XarakBendardo/pzsp2-test.git"
-    repo = git.Repo.clone_from(url, repoFolder)
+def cloneRepo(repoFolder: str, repoUrl, token):
+    destination = f"{repoFolder}"
+    url = f"https://{token}:@{repoUrl}"
+    os.makedirs(destination)
+    repo = git.Repo.clone_from(url, destination)
     return repo
