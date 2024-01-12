@@ -68,6 +68,7 @@ class OAuthRequestUserInfo:
     provider: OAuthProvider
     uid: str
     userName: str
+    userMail: str
 
 
 tokenMap = TokenMap()
@@ -89,15 +90,26 @@ class AuthProviderAPI:
                                   session.token.get("refresh_token"),
                                   session.token.get("created_at"),
                                   session.token.get("expires_in"))
+    
+    def getUserMail(self, token):
+        url = 'https://api.github.com/user/emails'
+        headers = {'Authorization': f'token {token}'}
+        response = requests.get(url, headers=headers)  
+        if response.status_code == 200:
+            emails = response.json()
+            for email in emails:
+                if email['primary'] and email['verified']:
+                    return email['email']
 
     def get_identity(self, token: OAuthToken) -> Tuple[str, str]:
         session =  OAuth2Session(token={"access_token": token.token, "token_type":"Bearer"})
         if self._provider == OAuthProvider.GITHUB:
             r = session.get("https://api.github.com/user").json()
-            return r['id'], r['login']
+            email = self.getUserMail(token.token)
+            return r['id'], r['login'], email
         else:
             r = session.get("https://gitlab.com/api/v4/user").json()
-            return r['id'], r['username']
+            return r['id'], r['username'], ['email']
         
     def get_repos(self, token: OAuthToken):
         headers = {
@@ -153,8 +165,8 @@ def requires_jwt_login(func):
         oAuthToken = tokenMap.getToken(UUID(payload["uuid"]))
         if not oAuthToken:
             return Response({'message': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        uid, userName = AuthProviderAPI(oAuthToken.provider).get_identity(oAuthToken)
-        oAuthRequestUserInfo = OAuthRequestUserInfo(oAuthToken.token, oAuthToken.provider, uid, userName)
+        uid, userName, email = AuthProviderAPI(oAuthToken.provider).get_identity(oAuthToken)
+        oAuthRequestUserInfo = OAuthRequestUserInfo(oAuthToken.token, oAuthToken.provider, uid, userName, email)
         request.auth = oAuthRequestUserInfo
         return func(self, request, *args, **kwargs)
 
