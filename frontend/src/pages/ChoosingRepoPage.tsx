@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Grid from "@mui/material/Grid";
 import RepoList from "../components/choosing-repo/RepoList.tsx";
 import Button from "@mui/material/Button";
 import { Typography } from "@mui/material";

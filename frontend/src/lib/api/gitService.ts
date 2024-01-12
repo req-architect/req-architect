@@ -1,4 +1,3 @@
-import { getLocalStorageObject } from "../localStorageUtil.ts";
 import fetchAPI from "./fetchAPI.ts";
 
 export async function postCommit(commitText: string) {
