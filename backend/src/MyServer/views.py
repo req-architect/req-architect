@@ -253,7 +253,10 @@ class GetUserReposList(APIView):
     def _postChosenRepo(self, request):
         repoFolder, repoName = MyServer.repoHelpers.getRepoInfo(self._serverInfo["usersFolder"], request)
         repoUrl = self._serverRepos.get(repoName)
-        MyServer.repoHelpers.cloneRepo(repoFolder, repoUrl, request.auth.token)
+        if MyServer.repoHelpers.checkIfExists(repoFolder):
+            MyServer.repoHelpers.pullRepo(repoFolder, request.auth.token)
+        else:
+            MyServer.repoHelpers.cloneRepo(repoFolder, repoUrl, request.auth.token)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
