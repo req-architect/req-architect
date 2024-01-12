@@ -215,7 +215,6 @@ def getAllReqsWithChildren(userFolder: str, doc):
 
 def serializeAllReqs(reqs):
     data = []
-    print(reqs)
     for reqlist in reqs:
         req = reqlist[0]
         data.append({})
