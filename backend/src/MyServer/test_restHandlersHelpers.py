@@ -11,13 +11,11 @@ from MyServer.restHandlersHelpers import (
     addUserLink,
     addUserRequirement,
     buildDicts,
-    checkIfExists,
     deleteUserDocument,
     deleteUserLink,
     deleteUserRequirement,
     editUserRequirement,
     getDocReqs,
-    initRepoFolder,
     readServerInfo,
     removeDocTree,
 )
@@ -65,33 +63,6 @@ class TestRestHandlersHelpers(unittest.TestCase):
 
         mock_open.assert_called_once_with("sample_server_info.txt", "r")
 
-    @patch("os.path.exists", return_value=True)
-    def test_checkIfExists_folder_exists(self, mock_exists):
-        result = checkIfExists("existing_folder")
-
-        self.assertTrue(result)
-
-        mock_exists.assert_called_once_with("existing_folder")
-
-    @patch("os.path.exists", return_value=False)
-    def test_checkIfExists_folder_not_exists(self, mock_exists):
-        result = checkIfExists("nonexistent_folder")
-
-        self.assertFalse(result)
-
-        mock_exists.assert_called_once_with("nonexistent_folder")
-
-    @patch("MyServer.restHandlersHelpers.git.Repo")
-    @patch("os.makedirs")
-    def test_initRepoFolder(self, mock_makedirs, mock_repo):
-        result = initRepoFolder("user_folder")
-
-        mock_makedirs.assert_called_once_with("user_folder")
-
-        mock_repo.init.assert_called_once_with(path="user_folder")
-
-        self.assertIsInstance(result, MagicMock)
-
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)
     def test_add_user_document(self):
         doc_id = "test_doc"
@@ -109,16 +80,11 @@ class TestRestHandlersHelpers(unittest.TestCase):
         self.assertTrue(child_id in os.listdir(self.test_folder))
         self.assertFalse("invalid_doc" in os.listdir(self.test_folder))
 
-    @patch("MyServer.restHandlersHelpers.checkIfExists", return_value=False)
-    @patch("MyServer.restHandlersHelpers.initRepoFolder", return_value=False)
-    def test_addUserDocument_not_init(self, mock_initRepoFolder, mock_checkIfExists):
+    def test_addUserDocument_not_init(self):
         result = addUserDocument("test_doc", None, "user_folder")
         self.assertFalse(result)
-        mock_checkIfExists.assert_called_once_with("user_folder")
-        mock_initRepoFolder.assert_called_once_with("user_folder")
 
-    @patch("MyServer.restHandlersHelpers.checkIfExists", return_value=True)
-    def test_addUserDocument_throwsError(self, mock_check_exists):
+    def test_addUserDocument_throwsError(self):
         with patch("MyServer.restHandlersHelpers.doorstop.build", side_effect=doorstop.DoorstopError("Mocked DoorstopError")):
             result = addUserDocument("doc_id", "parent_id", "user_folder")
         self.assertFalse(result)

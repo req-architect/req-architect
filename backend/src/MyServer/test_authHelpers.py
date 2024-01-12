@@ -64,16 +64,18 @@ class TestAuthHelpers(unittest.TestCase):
         mock_config.assert_called_with("BACKEND_URL")
         self.assertTrue(authorization_url.startswith("https://github.com/login/oauth/authorize"))
 
+    @patch("MyServer.authHelpers.AuthProviderAPI.get_identity")
     @patch("MyServer.authHelpers.config")
     @patch("MyServer.authHelpers.jwt.decode")
     @patch("MyServer.authHelpers.tokenMap.getToken")
-    def test_requires_jwt_login_valid_token(self, mock_get_token, mock_jwt_decode, mock_config):
+    def test_requires_jwt_login_valid_token(self, mock_get_token, mock_jwt_decode, mock_config, mock_get_identity):
         valid_jwt_token = "valid_jwt_token"
         valid_uuid = UUID("550e8400-e29b-41d4-a716-446655440000")
         valid_oauth_token = OAuthToken("valid_token", OAuthProvider.GITHUB)
         mock_config.side_effect = lambda key: {
             "JWT_SECRET": "mocked_jwt_secret",
         }[key]
+        mock_get_identity.return_value = ("mocked_uid", "mocked_user_name", "mocked_user_mail")
 
         mock_jwt_decode.side_effect = lambda *args, **kwargs: {"uuid": str(valid_uuid)}
 
@@ -90,7 +92,7 @@ class TestAuthHelpers(unittest.TestCase):
 
         mock_jwt_decode.assert_called_once_with(valid_jwt_token, "mocked_jwt_secret", algorithms=["HS256"])
         mock_get_token.assert_called_once_with(valid_uuid)
-        self.assertEqual(request.auth, valid_oauth_token)
+        self.assertEqual(request.auth.token, valid_oauth_token.token)
         self.assertEqual(response, "OK")
 
     def test_requires_jwt_login_no_auth_header(self):
@@ -170,3 +172,48 @@ class TestAuthHelpers(unittest.TestCase):
         result = token_map.getToken(existing_uuid)
 
         self.assertEqual(result, existing_token)
+
+    @patch("MyServer.authHelpers.requests.get")
+    def test_getUserMail_success(self, mock_requests_get):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [{"email": "test@example.com", "primary": True, "verified": True}]
+        mock_requests_get.return_value = mock_response
+
+        auth_provider = AuthProviderAPI(OAuthProvider.GITHUB)
+        email = auth_provider.getUserMail("mocked_token")
+
+        mock_requests_get.assert_called_once_with("https://api.github.com/user/emails", headers={"Authorization": "token mocked_token"})
+        self.assertEqual(email, "test@example.com")
+
+    @patch("MyServer.authHelpers.requests.get")
+    @patch("MyServer.authHelpers.OAuth2Session")
+    def test_get_identity_github(self, mock_oauth_session, mock_requests_get):
+        mock_oauth_session_instance = mock_oauth_session.return_value
+        mock_oauth_session_instance.get.return_value.json.return_value = {"id": "mocked_id", "login": "mocked_login"}
+        mock_requests_get.return_value.status_code = 200
+
+        auth_provider = AuthProviderAPI(OAuthProvider.GITHUB)
+        token = OAuthToken("mocked_token", OAuthProvider.GITHUB)
+        identity = auth_provider.get_identity(token)
+
+        mock_oauth_session.assert_called_once_with(token={"access_token": "mocked_token", "token_type": "Bearer"})
+        mock_oauth_session_instance.get.assert_called_once_with("https://api.github.com/user")
+        mock_requests_get.assert_called_once_with("https://api.github.com/user/emails", headers={"Authorization": "token mocked_token"})
+        self.assertEqual(identity, ("mocked_id", "mocked_login", None))
+
+    @patch("MyServer.authHelpers.requests.get")
+    @patch("MyServer.authHelpers.OAuth2Session")
+    def test_get_identity_gitlab(self, mock_oauth_session, mock_requests_get):
+        mock_oauth_session_instance = mock_oauth_session.return_value
+        mock_oauth_session_instance.get.return_value.json.return_value = {"id": "mocked_id", "username": "mocked_login", "email": "mocked_email"}
+        mock_requests_get.return_value.status_code = 200
+
+        auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
+        token = OAuthToken("mocked_token", OAuthProvider.GITLAB)
+        identity = auth_provider.get_identity(token)
+
+        mock_oauth_session.assert_called_once_with(token={"access_token": "mocked_token", "token_type": "Bearer"})
+        mock_oauth_session_instance.get.assert_called_once_with("https://gitlab.com/api/v4/user")
+        # mock_requests_get.assert_called_once_with("https://api.gitlab.com/user/emails", headers={"Authorization": "token mocked_token"})
+        self.assertEqual(identity, ("mocked_id", "mocked_login", "mocked_email"))
