@@ -60,7 +60,7 @@ class TokenMap:
 
     def getToken(self, uuid: UUID) -> OAuthTokenWithInfo | None:
         return self._tokenDict.get(uuid)
-    
+
 
 @dataclass
 class OAuthRequestUserInfo:

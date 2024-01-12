@@ -19,7 +19,7 @@ def readServerInfo(filename: str):
         return None
 
 
-def addUserDocument(docId: str, parentId: str, userFolder: str, token: str) -> bool:
+def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
     try:
         docTree = doorstop.build(cwd=userFolder)
         if len(docTree.documents) >= 1 and not parentId:
@@ -27,8 +27,7 @@ def addUserDocument(docId: str, parentId: str, userFolder: str, token: str) -> b
         if len(docTree.documents) == 0 and parentId:
             return False
         docName = userFolder + "/" + docId
-        docTree.create_document(
-            docName, docId, parent=parentId)
+        docTree.create_document(docName, docId, parent=parentId)
         return True
     except doorstop.DoorstopError:
         return False
@@ -40,8 +39,7 @@ def removeDocTree(tree: doorstop.Tree, docId: str, userFolder: str, rootTree: do
     doc = tree.document
     if doc.prefix == docId:
         ToBeRemoved = tree.documents
-        ToCheck = [
-            document for document in rootTree.documents if document not in ToBeRemoved]
+        ToCheck = [document for document in rootTree.documents if document not in ToBeRemoved]
         for document in ToBeRemoved:
             for req in document.items:
                 RemoveLinksToReq(str(req.uid), ToCheck, userFolder)
@@ -205,6 +203,7 @@ def getAllReqs(userFolder: str):
     except FileNotFoundError:
         return []
 
+
 def getAllReqsWithChildren(userFolder: str, doc):
     reqs = []
     req = getDocReqs(doc["prefix"], userFolder)
@@ -212,6 +211,7 @@ def getAllReqsWithChildren(userFolder: str, doc):
     for child in doc["children"]:
         reqs.extend(getAllReqsWithChildren(userFolder, child))
     return reqs
+
 
 def serializeAllReqs(reqs):
     data = []
