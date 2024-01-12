@@ -24,7 +24,11 @@ export default function fetchAPI(method: Method, uri: string, body?: object) {
     }
     const repositoryName = getLocalStorageObject("chosenRepositoryName");
     if (repositoryName) {
-        uri = uri + "?repositoryName=" + repositoryName;
+        if (uri.includes("?")) {
+            uri = uri + "&repositoryName=" + repositoryName;
+        } else {
+            uri = uri + "?repositoryName=" + repositoryName;
+        }
     }
     return fetch(`${import.meta.env.VITE_APP_API_URL}${uri}`, {
         method,

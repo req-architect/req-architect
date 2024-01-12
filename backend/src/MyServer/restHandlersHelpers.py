@@ -2,6 +2,7 @@ import doorstop
 import os
 import git
 from shutil import rmtree
+import MyServer.repoHelpers
 
 
 def readServerInfo(filename: str):
@@ -31,9 +32,11 @@ def initRepoFolder(userFolder: str) -> git.Repo:
     return repo
 
 
-def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
+def addUserDocument(docId: str, parentId: str, userFolder: str, token: str) -> bool:
     if not checkIfExists(userFolder):
-        if not initRepoFolder(userFolder):
+        # if not initRepoFolder(userFolder):
+        #     return False
+        if not clone_repo(userFolder, token):
             return False
     try:
         docTree = doorstop.build(cwd=userFolder)
