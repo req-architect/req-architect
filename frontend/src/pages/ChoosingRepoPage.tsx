@@ -8,10 +8,12 @@ import { useState } from "react";
 import { postRepo } from "../lib/api/gitService.ts";
 import { setLocalStorageObject } from "../lib/localStorageUtil.ts";
 import { auto } from "@popperjs/core";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function ChoosingRepoPage() {
     const navigate = useNavigate();
     const [chosenRepository, setChosenRepository] = useState<string>();
+    const [mode, setMode] = useState<1 | 2>(1);
 
     const handleRepoSelected = (repo: string) => {
         setChosenRepository(repo);
@@ -22,6 +24,7 @@ export default function ChoosingRepoPage() {
             return;
         }
         setLocalStorageObject("chosenRepositoryName", chosenRepository);
+        setMode(2);
         await postRepo();
         navigate("/main_page");
     };
@@ -52,15 +55,19 @@ export default function ChoosingRepoPage() {
                     Choose your Repository
                 </Typography>
                 <RepoList onRepoSelected={handleRepoSelected} />
-                <Button
-                    size="large"
-                    variant="contained"
-                    color="success"
-                    onClick={handleLoginButtonClick}
-                    sx={{ mb: 10, alignSelf: "center" }}
-                >
-                    CHOOSE
-                </Button>
+                {mode === 1 ? (
+                    <Button
+                        size="large"
+                        variant="contained"
+                        color="success"
+                        onClick={handleLoginButtonClick}
+                        sx={{ mb: 10, alignSelf: "center" }}
+                    >
+                        CHOOSE
+                    </Button>
+                ) : (
+                    <CircularProgress sx={{ alignSelf: "center", mb: 10 }} />
+                )}
             </Box>
         </Box>
     );
