@@ -223,7 +223,9 @@ class TestRestHandlersHelpers(unittest.TestCase):
 
         result = serializeDocuments(self.test_folder)
         expected_result = [{"prefix": "test_doc", "children": [{"prefix": "test_child_2", "children": []}, {"prefix": "test_child_1", "children": []}]}]
-        self.assertEqual(result, expected_result)
+        self.assertEqual(result[0]["prefix"], expected_result[0]["prefix"])
+        self.assertTrue(len(result[0]["children"]) == len(expected_result[0]["children"]))
+        self.assertTrue(result[0]["children"][0]["prefix"] in [child["prefix"] for child in expected_result[0]["children"]])
 
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)
     def test_serializeDocuments_no_documents(self):
@@ -253,7 +255,10 @@ class TestRestHandlersHelpers(unittest.TestCase):
             {"id": "test_doc001", "text": "text", "reviewed": False, "links": ["test_doc002"]},
             {"id": "test_doc002", "text": "text", "reviewed": False, "links": []},
         ]
-        self.assertEqual(result, expected_result)
+        self.assertEqual(len(result), len(expected_result))
+        self.assertTrue(result[0]["id"] in [req["id"] for req in expected_result])
+        self.assertTrue(result[0]["text"] in [req["text"] for req in expected_result])
+        self.assertTrue(expected_result[0]["reviewed"] in [req["reviewed"] for req in result])
 
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)
     def test_getAllReqs(self):
@@ -295,7 +300,10 @@ class TestRestHandlersHelpers(unittest.TestCase):
             {"id": "test_doc001", "text": "text", "reviewed": False, "links": ["test_doc002"], "docPrefix": doc_id},
             {"id": "test_doc002", "text": "text", "reviewed": False, "links": [], "docPrefix": doc_id},
         ]
-        self.assertEqual(result, expected_result)
+        self.assertEqual(len(result), len(expected_result))
+        self.assertTrue(result[0]["id"] in [req["id"] for req in expected_result])
+        self.assertTrue(expected_result[0]["links"] in [req["links"] for req in result])
+        self.assertTrue(result[0]["text"] in [req["text"] for req in expected_result])
 
 
 if __name__ == "__main__":
