@@ -13,12 +13,16 @@ def getReposFromFile() -> dict:
         return repos
 
 
-def stageChanges(repoFolderPath: str, message: str, userName: str) -> bool:
+def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> bool:
     try:
+        print(f"mail: {userMail}")
         repo = git.Repo(repoFolderPath)
         repo.git.config('user.name', userName)
+        repo.git.config('user.email', userMail)
         repo.git.add(repoFolderPath)
         repo.index.commit(message)
+        repo.remote().fetch()
+        repo.git.merge(f'origin/{repo.active_branch.name}')
         repo.remote().push()
         return True
     except git.InvalidGitRepositoryError:

@@ -223,7 +223,7 @@ class GitCommitView(APIView):
     
     def _commitAndPush(self, request, commitText: str):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(self._serverInfo["usersFolder"], request)
-        return MyServer.repoHelpers.stageChanges(repoFolder, commitText, request.auth.userName)
+        return MyServer.repoHelpers.stageChanges(repoFolder, commitText, request.auth.userName, request.auth.userMail)
     
 
 class GetUserReposList(APIView):
