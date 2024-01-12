@@ -15,7 +15,6 @@ def getReposFromFile() -> dict:
 
 def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> bool:
     try:
-        print(f"mail: {userMail}")
         repo = git.Repo(repoFolderPath)
         repo.git.config('user.name', userName)
         repo.git.config('user.email', userMail)
