@@ -16,7 +16,7 @@ pip install -r requirements.txt
 
 ## Ustawienie środowiska
 
-Należy utworzyć plik `.env` w aktualnym katalogu i ustawić w nim zmienne środowiskowe.    
+Należy utworzyć plik `.env` w aktualnym katalogu i ustawić w nim zmienne środowiskowe.  
 Przykładowy plik `.env`:
 
 ```text
@@ -56,7 +56,7 @@ Aby umożliwić autoryzację należy utworzyć aplikacje na serwisie github.com 
 2. Wypełnić formularz:
     - Name: dowolna nazwa
     - Redirect URI: `$BACKEND_URL/MyServer/login_callback/gitlab`
-    - Scopes: read_user, read_repository, write_repository
+    - Scopes: read_user, read_repository, write_repository, read_api
 3. Kliknąć "Save application".
 4. Skopiować wartość "Application ID" do pliku `.env` jako wartość `GITLAB_CLIENT_ID`.
 5. Skopiować wartość "Secret" do pliku `.env` jako wartość `GITLAB_CLIENT_SECRET`.
@@ -69,7 +69,9 @@ Sekret JWT można wygenerować za pomocą polecenia:
 ```bash
 openssl rand -base64 256
 ```
+
 LUB
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
 ```
