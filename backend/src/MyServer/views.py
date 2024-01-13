@@ -243,7 +243,6 @@ class GetUserReposList(APIView):
         return self._postChosenRepo(request)
 
     def _getUserRepos(self, request):
-        print(f" IN USER REPOS. PROVIDER: {request.auth.provider}")
         userRepos = MyServer.authHelpers.AuthProviderAPI(request.auth.provider).get_repos(request.auth.token)
         if not userRepos:
             return JsonResponse([], safe=False)
@@ -259,7 +258,7 @@ class GetUserReposList(APIView):
         if MyServer.repoHelpers.checkIfExists(repoFolder):
             MyServer.repoHelpers.pullRepo(repoFolder, request.auth.token)
         else:
-            MyServer.repoHelpers.cloneRepo(repoFolder, repoUrl, request.auth.token)
+            MyServer.repoHelpers.cloneRepo(repoFolder, repoUrl, request.auth.token, request.auth.provider)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 

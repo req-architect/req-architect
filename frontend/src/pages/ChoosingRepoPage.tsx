@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Grid from "@mui/material/Grid";
 import RepoList from "../components/choosing-repo/RepoList.tsx";
 import Button from "@mui/material/Button";
 import { Typography } from "@mui/material";
@@ -28,16 +27,43 @@ export default function ChoosingRepoPage() {
         await postRepo();
         navigate("/main_page");
     };
+
+    const handleLogOut = () => {
+        setLocalStorageObject("chosenRepositoryName", null);
+        setLocalStorageObject("jwtToken", null);
+        navigate("/");
+    };
+
     return (
         <Box
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
+                justifyContent: "space-between",
                 minHeight: "100vh",
             }}
         >
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    pr: 2,
+                }}
+            >
+                <Button
+                    color="inherit"
+                    sx={{
+                        border: "1px solid green",
+                        color: "green",
+                        minWidth: "150px",
+                        height: "40px",
+                        mt: 2,
+                    }}
+                    onClick={handleLogOut}
+                >
+                    Log out
+                </Button>
+            </Box>
             <Box
                 sx={{
                     minHeight: "450px",
@@ -49,6 +75,7 @@ export default function ChoosingRepoPage() {
                     overflow: auto,
                     display: "flex",
                     flexDirection: "column",
+                    alignSelf: "center",
                 }}
             >
                 <Typography variant="h3" color="black" align="center">

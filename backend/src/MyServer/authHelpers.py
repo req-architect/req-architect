@@ -92,14 +92,24 @@ class AuthProviderAPI:
                                   session.token.get("expires_in"))
 
     def getUserMail(self, token):
-        url = 'https://api.github.com/user/emails'
-        headers = {'Authorization': f'token {token}'}
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            emails = response.json()
-            for email in emails:
-                if email['primary'] and email['verified']:
-                    return email['email']
+        if self._provider == OAuthProvider.GITHUB:
+            url = 'https://api.github.com/user/emails'
+            headers = {'Authorization': f'token {token}'}
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                emails = response.json()
+                for email in emails:
+                    if email['primary'] and email['verified']:
+                        return email['email']
+        else:
+            url = 'https://gitlab.com/api/v4/user/emails'
+            headers = {'Authorization': f'Bearer {token}'}
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                emails = response.json()
+                for email in emails:
+                    if email['primary'] and email['verified']:
+                        return email['email']
 
     def get_identity(self, token: OAuthToken) -> Tuple[str, str]:
         session =  OAuth2Session(token={"access_token": token.token, "token_type":"Bearer"})
@@ -113,7 +123,6 @@ class AuthProviderAPI:
         
     def get_repos(self, token: str):
         if self._provider == OAuthProvider.GITHUB:
-            print("IN GITHUB REPOS")
             headers = {
                 'Accept': 'application/vnd.github+json',
                 'Authorization': f'Bearer {token}',
@@ -127,17 +136,14 @@ class AuthProviderAPI:
             else:
                 return None
         else:
-            print(f"IN GITLAB REPOS, TOKEN: {token}")
             headers = {
                 'Authorization': f'Bearer {token}',
             }
             url = 'https://gitlab.com/api/v4/projects?membership=true&min_access_level=40'
             response = requests.get(url, headers=headers)
-            print(response)
             if response.status_code == 200:
                 repositories = response.json()
                 repo_names = [repo["path_with_namespace"] for repo in repositories]
-                print(repo_names)
                 return repo_names
 
 

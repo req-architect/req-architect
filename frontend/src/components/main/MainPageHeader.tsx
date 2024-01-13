@@ -10,22 +10,38 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { postCommit } from "../../lib/api/gitService";
-
+import { toast } from "react-toastify";
+import { setLocalStorageObject } from "../../lib/localStorageUtil";
 
 export default function MainPageHeader() {
     const navigate = useNavigate();
-    const [commitTextFieldValue, setcommitTextFieldValue] = useState('');
+    const [commitTextFieldValue, setcommitTextFieldValue] = useState("");
+    const [errorState, setErrorState] = useState<string | null>(null);
 
     const handleLogOut = () => {
+        setLocalStorageObject("chosenRepositoryName", null);
+        setLocalStorageObject("jwtToken", null);
         navigate("/");
     };
 
-    const changeCommitFieldValue = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const changeCommitFieldValue = (
+        event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
         setcommitTextFieldValue(event.target.value);
-    }
-    
-    const handleCommit = () => {
-        postCommit(commitTextFieldValue);
+    };
+
+    const handleCommit = async () => {
+        if (!commitTextFieldValue) {
+            setErrorState("Commit message cannot be empty");
+            return;
+        }
+        if (errorState) setErrorState(null);
+        const response = await postCommit(commitTextFieldValue);
+        response.message;
+        if (response.message.includes("Success")) {
+            toast.success("Changes pushed");
+            setcommitTextFieldValue("");
+        }
     };
 
     return (
@@ -55,13 +71,14 @@ export default function MainPageHeader() {
                 >
                     <TextField
                         id="outlined-basic"
-                        label="Comment"
+                        label={errorState ? errorState : "Comment"}
                         multiline
                         variant="outlined"
                         maxRows={1}
                         sx={{ width: "50%", mr: 2, bgcolor: "white" }}
                         value={commitTextFieldValue}
                         onChange={changeCommitFieldValue}
+                        error={!!errorState}
                     ></TextField>
                     <Button
                         sx={{
