@@ -1,11 +1,13 @@
 import fetchAPI from "./fetchAPI.ts";
 
-export async function postCommit(commitText: string) {
-    // console.log("Commit Text: " + commitText);
-    await fetchAPI("POST", "/MyServer/git/commit/", {
+type ResponseCommit = {
+    message: string;
+};
+
+export async function postCommit(commitText: string): Promise<ResponseCommit> {
+    return await fetchAPI("POST", "/MyServer/git/commit/", {
         commitText: commitText,
     });
-    // console.log("Server replied: " + response.message);
 }
 
 export async function getRepos(): Promise<string[]> {
@@ -13,6 +15,6 @@ export async function getRepos(): Promise<string[]> {
     return await response;
 }
 
-export async function postRepo(): Promise<string> {
+export async function postRepo() {
     return await fetchAPI("POST", "/MyServer/git/repos/", {});
 }

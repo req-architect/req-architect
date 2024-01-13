@@ -23,8 +23,16 @@ class OAuthProvider(Enum):
 
 
 PROVIDER_INFO: Dict[OAuthProvider, Dict[str, str]] = {
-    OAuthProvider.GITHUB: {"authorization_url": "https://github.com/login/oauth/authorize", "token_url": "https://github.com/login/oauth/access_token", "scope": ["repo", "user:email", "read:user"]},
-    OAuthProvider.GITLAB: {"authorization_url": "https://gitlab.com/oauth/authorize", "token_url": "https://gitlab.com/oauth/token", "scope": ["read_user", "read_repository", "write_repository"]},
+    OAuthProvider.GITHUB: {
+        "authorization_url": "https://github.com/login/oauth/authorize",
+        "token_url": "https://github.com/login/oauth/access_token",
+        "scope": ["repo", "user:email", "read:user"]
+    },
+    OAuthProvider.GITLAB: {
+        "authorization_url": "https://gitlab.com/oauth/authorize",
+        "token_url": "https://gitlab.com/oauth/token",
+        "scope": ["read_user", "read_repository", "write_repository", "read_api"]
+    }
 }
 
 
@@ -52,7 +60,7 @@ class TokenMap:
 
     def getToken(self, uuid: UUID) -> OAuthTokenWithInfo | None:
         return self._tokenDict.get(uuid)
-
+    
 
 @dataclass
 class OAuthRequestUserInfo:
@@ -71,61 +79,73 @@ class AuthProviderAPI:
         self._provider = provider
 
     def create_access_token(self, request_uri: str):
-        clientId, clientSecret = config(self._provider.name.upper() + "_CLIENT_ID"), config(self._provider.name.upper() + "_CLIENT_SECRET")
+        clientId, clientSecret = config(self._provider.name.upper() + "_CLIENT_ID"), config(
+            self._provider.name.upper() + "_CLIENT_SECRET")
         redirect_uri = self._provider.get_redirect_url()
         session = OAuth2Session(clientId, redirect_uri=redirect_uri)
-        session.fetch_token(PROVIDER_INFO[self._provider]["token_url"], client_secret=clientSecret, authorization_response=request_uri)
-        return OAuthTokenWithInfo(session.access_token, self._provider, session.token.get("refresh_token"), session.token.get("created_at"), session.token.get("expires_in"))
-
+        session.fetch_token(PROVIDER_INFO[self._provider]["token_url"], client_secret=clientSecret,
+                            authorization_response=request_uri)
+        return OAuthTokenWithInfo(session.access_token,
+                                  self._provider,
+                                  session.token.get("refresh_token"),
+                                  session.token.get("created_at"),
+                                  session.token.get("expires_in"))
+    
     def getUserMail(self, token):
-        url = "https://api.github.com/user/emails"
-        headers = {"Authorization": f"token {token}"}
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            emails = response.json()
-            for email in emails:
-                if email["primary"] and email["verified"]:
-                    return email["email"]
+        if self._provider == OAuthProvider.GITHUB:
+            url = 'https://api.github.com/user/emails'
+            headers = {'Authorization': f'token {token}'}
+            response = requests.get(url, headers=headers)  
+            if response.status_code == 200:
+                emails = response.json()
+                for email in emails:
+                    if email['primary'] and email['verified']:
+                        return email['email']
+        else:
+            url = 'https://gitlab.com/api/v4/user/emails'
+            headers = {'Authorization': f'Bearer {token}'}
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                emails = response.json()
+                for email in emails:
+                    if email['primary'] and email['verified']:
+                        return email['email']
 
     def get_identity(self, token: OAuthToken) -> Tuple[str, str]:
-        session = OAuth2Session(token={"access_token": token.token, "token_type": "Bearer"})
+        session =  OAuth2Session(token={"access_token": token.token, "token_type":"Bearer"})
         if self._provider == OAuthProvider.GITHUB:
             r = session.get("https://api.github.com/user").json()
             email = self.getUserMail(token.token)
-            return r["id"], r["login"], email
+            return r['id'], r['login'], email
         else:
             r = session.get("https://gitlab.com/api/v4/user").json()
-            return r["id"], r["username"], r["email"]
-
+            return r['id'], r['username'], r['email']
+        
     def get_repos(self, token: str):
         if self._provider == OAuthProvider.GITHUB:
-            print("IN GITHUB REPOS")
             headers = {
-                "Accept": "application/vnd.github+json",
-                "Authorization": f"Bearer {token}",
+                'Accept': 'application/vnd.github+json',
+                'Authorization': f'Bearer {token}',
             }
-            url = "https://api.github.com/user/repos"
+            url = 'https://api.github.com/user/repos'
             response = requests.get(url, headers=headers)
             if response.status_code == 200:
                 repositories = response.json()
-                write_access_repos = [repo["full_name"] for repo in repositories if repo["permissions"]["push"]]
+                write_access_repos = [repo["full_name"] for repo in repositories if repo['permissions']['push']]
                 return write_access_repos
             else:
                 return None
         else:
-            print(f"IN GITLAB REPOS, TOKEN: {token}")
             headers = {
-                "PRIVATE-TOKEN": token,
+                'Authorization': f'Bearer {token}',
             }
-            url = "https://gitlab.com/api/v4/projects?membership=true&min_access_level=40"
+            url = 'https://gitlab.com/api/v4/projects?membership=true&min_access_level=40'
             response = requests.get(url, headers=headers)
-            print(response)
             if response.status_code == 200:
                 repositories = response.json()
-                print(f"repos: {repositories}")
-                repo_names = [repo["name"] for repo in repositories]
-                # print(repo_names)
+                repo_names = [repo["path_with_namespace"] for repo in repositories]
                 return repo_names
+
 
 
 def generate_frontend_redirect_url(request_uri: str, provider: AuthProviderAPI) -> str:
@@ -135,17 +155,11 @@ def generate_frontend_redirect_url(request_uri: str, provider: AuthProviderAPI) 
     exp = (datetime.now(timezone.utc) + timedelta(minutes=expiration_time_minutes)).timestamp()
     iat = datetime.now(timezone.utc).timestamp()
     jwt_token = jwt.encode({"uuid": str(uuid), "exp": exp, "iat": iat}, config("JWT_SECRET"))
-    return (
-        config("FRONTEND_URL")
-        + "/login_callback?"
-        + urllib.parse.urlencode(
-            {
-                "token": jwt_token,
-                "exp": exp,
-                "iat": iat,
-            }
-        )
-    )
+    return config("FRONTEND_URL") + "/login_callback?" + urllib.parse.urlencode({
+        "token": jwt_token,
+        "exp": exp,
+        "iat": iat,
+    })
 
 
 def generate_authorization_url(provider: OAuthProvider) -> str:
@@ -161,18 +175,18 @@ def requires_jwt_login(func):
     def wrapper(self, request, *args, **kwargs):
         authHeader = request.headers.get("Authorization")
         if not authHeader:
-            return Response({"message": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         auth_type, token = authHeader.split(" ")[:2]
         if auth_type != "Bearer":
-            return Response({"message": "Wrong auth type"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Wrong auth type'}, status=status.HTTP_401_UNAUTHORIZED)
         jwtToken = authHeader.split(" ")[1]
         try:
             payload = jwt.decode(jwtToken, config("JWT_SECRET"), algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
-            return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Token expired'}, status=status.HTTP_401_UNAUTHORIZED)
         oAuthToken = tokenMap.getToken(UUID(payload["uuid"]))
         if not oAuthToken:
-            return Response({"message": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         uid, userName, email = AuthProviderAPI(oAuthToken.provider).get_identity(oAuthToken)
         oAuthRequestUserInfo = OAuthRequestUserInfo(oAuthToken.token, oAuthToken.provider, uid, userName, email)
         request.auth = oAuthRequestUserInfo
