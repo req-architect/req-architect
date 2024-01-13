@@ -109,7 +109,7 @@ class AuthProviderAPI:
             return r['id'], r['login'], email
         else:
             r = session.get("https://gitlab.com/api/v4/user").json()
-            return r['id'], r['username'], ['email']
+            return r['id'], r['username'], r['email']
         
     def get_repos(self, token: str):
         if self._provider == OAuthProvider.GITHUB:
