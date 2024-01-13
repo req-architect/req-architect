@@ -48,9 +48,12 @@ def getRepoInfo(usersFolder: str, request) -> tuple[str, str]:
     return f"{usersFolder}/{repoFolder}", repoName
 
 
-def cloneRepo(repoFolder: str, repoUrl, token):
+def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
     destination = f"{repoFolder}"
-    url = f"https://{token}:@{repoUrl}"
+    if provider == OAuthProvider.GITHUB:
+        url = f"https://{token}:@{repoUrl}"
+    else:
+        url = f"https://oauth2:{token}@{repoUrl}.git"
     os.makedirs(destination)
     repo = git.Repo.clone_from(url, destination)
     return repo
