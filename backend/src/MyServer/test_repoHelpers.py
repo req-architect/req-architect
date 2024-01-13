@@ -20,6 +20,9 @@ class TestRepoHelpers(unittest.TestCase):
             mock_repo.return_value = repo_instance
             repo_instance.remote.return_value = MagicMock()
             result = stageChanges("repo_folder", "commit message", "user_name", "user_email")
+            repo_instance.git.add.assert_called_with("repo_folder")
+            repo_instance.index.commit.assert_called_with("commit message")
+            repo_instance.remote().push.assert_called_once()
             self.assertTrue(result)
 
     def test_stageChanges_invalid_repo(self):
@@ -58,11 +61,21 @@ class TestRepoHelpers(unittest.TestCase):
 
     @patch("MyServer.repoHelpers.git.Repo.clone_from")
     @patch("os.makedirs")
-    def test_cloneRepo(self, mock_makedirs, mock_clone_from):
+    def test_cloneRepo_github(self, mock_makedirs, mock_clone_from):
         mock_repo = MagicMock()
         mock_clone_from.return_value = mock_repo
-        result = cloneRepo("repo_folder", "repo_url", "token")
+        result = cloneRepo("repo_folder", "repo_url", "token", OAuthProvider.GITHUB)
         self.assertEqual(result, mock_repo)
+        mock_clone_from.assert_called_once_with("https://token:@repo_url", "repo_folder")
+
+    @patch("MyServer.repoHelpers.git.Repo.clone_from")
+    @patch("os.makedirs")
+    def test_cloneRepo_gitlab(self, mock_makedirs, mock_clone_from):
+        mock_repo = MagicMock()
+        mock_clone_from.return_value = mock_repo
+        result = cloneRepo("repo_folder", "repo_url", "token", OAuthProvider.GITLAB)
+        self.assertEqual(result, mock_repo)
+        mock_clone_from.assert_called_once_with("https://oauth2:token@repo_url.git", "repo_folder")
 
     @patch("MyServer.repoHelpers.git.Repo")
     def test_pullRepo(self, mock_repo):

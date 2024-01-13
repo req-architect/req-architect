@@ -10,6 +10,7 @@ from MyServer.restHandlersHelpers import (
     addUserRequirement,
     buildDicts,
     deleteUserDocument,
+    deleteUserLink,
     deleteUserRequirement,
     editUserRequirement,
     getAllReqs,
@@ -101,7 +102,7 @@ class TestRestHandlersHelpers(unittest.TestCase):
         self.assertTrue("test_doc001.yml" in os.listdir(self.test_folder + "/" + doc_id))
 
     @patch("doorstop.build")
-    def test_addUserRequirement_typerror(self, mock_buil):
+    def test_addUserRequirement_typerror(self, mock_build):
         doc_id = "test_doc"
         mock_build = doorstop.build
         result = addUserDocument(doc_id, None, self.test_folder)
@@ -119,6 +120,23 @@ class TestRestHandlersHelpers(unittest.TestCase):
         self.assertTrue(result)
 
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_addUserLink_invalid_req(self):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        result = addUserLink("test_doc001", "invalid_req", self.test_folder)
+        self.assertFalse(result)
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_deleteUserLink_invalid_req(self):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        addUserLink("test_doc001", "test_doc002", self.test_folder)
+        result = deleteUserLink("test_doc001", "invalid_req", self.test_folder)
+        self.assertFalse(result)
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
     def test_delete_user_document(self):
         doc_id = "test_doc"
         child_id = "child_doc"
@@ -133,20 +151,22 @@ class TestRestHandlersHelpers(unittest.TestCase):
         self.assertTrue(child_id not in os.listdir(self.test_folder))
         self.assertFalse(deleteUserDocument("", self.test_folder))
 
-    @patch("doorstop.core.vcs.find_root", side_effect=doorstop.DoorstopError)
-    def test_delete_user_document_doorstop_error(self, mock_find_root):
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_delete_user_document_doorstop_error(self):
         doc_id = "test_doc"
         addUserDocument(doc_id, None, self.test_folder)
         addUserRequirement(doc_id, 1, "text", self.test_folder)
-        result = deleteUserDocument(doc_id, self.test_folder)
+        with patch("MyServer.restHandlersHelpers.doorstop.build", side_effect=doorstop.DoorstopError("Mocked DoorstopError")):
+            result = deleteUserDocument(doc_id, self.test_folder)
         self.assertFalse(result)
 
-    @patch("doorstop.core.vcs.find_root", side_effect=FileNotFoundError)
-    def test_delete_user_document_file_not_found_error(self, mock_find_root):
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_delete_user_document_file_not_found_error(self):
         doc_id = "test_doc"
         addUserDocument(doc_id, None, self.test_folder)
         addUserRequirement(doc_id, 1, "text", self.test_folder)
-        result = deleteUserDocument(doc_id, self.test_folder)
+        with patch("MyServer.restHandlersHelpers.doorstop.build", side_effect=FileNotFoundError("Mocked FileNotFoundError")):
+            result = deleteUserDocument(doc_id, self.test_folder)
         self.assertFalse(result)
 
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)
@@ -179,6 +199,15 @@ class TestRestHandlersHelpers(unittest.TestCase):
         self.assertTrue("new_text" in open(self.test_folder + "/" + doc_id + "/test_doc001.yml").read())
 
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_editUserRequirement_doorstoperror(self):
+        doc_id = "test_doc"
+        addUserDocument(doc_id, None, self.test_folder)
+        addUserRequirement(doc_id, 1, "text", self.test_folder)
+        with patch("MyServer.restHandlersHelpers.doorstop.build", side_effect=doorstop.DoorstopError("Mocked DoorstopError")):
+            result = editUserRequirement(doc_id, "test_doc001", "new_text", self.test_folder)
+        self.assertFalse(result)
+
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
     def test_getDocRequirements(self):
         doc_id = "test_doc"
         addUserDocument(doc_id, None, self.test_folder)
@@ -188,20 +217,22 @@ class TestRestHandlersHelpers(unittest.TestCase):
         self.assertTrue(len(result) == 2)
         self.assertTrue("test_doc001" in [str(req.uid) for req in result])
 
-    @patch("doorstop.core.vcs.find_root", side_effect=doorstop.DoorstopError)
-    def test_getDocRequirements_doorstop_error(self, mock_find_root):
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_getDocRequirements_doorstop_error(self):
         doc_id = "test_doc"
         addUserDocument(doc_id, None, self.test_folder)
         addUserRequirement(doc_id, 1, "text", self.test_folder)
-        result = getDocReqs(doc_id, self.test_folder)
+        with patch("MyServer.restHandlersHelpers.doorstop.build", side_effect=doorstop.DoorstopError("Mocked DoorstopError")):
+            result = getDocReqs(doc_id, self.test_folder)
         self.assertEqual(result, [])
 
-    @patch("doorstop.core.vcs.find_root", side_effect=FileNotFoundError)
-    def test_getDocRequirements_file_not_found_error(self, mock_find_root):
+    @patch("doorstop.core.vcs.find_root", new=mock_find_root)
+    def test_getDocRequirements_file_not_found_error(self):
         doc_id = "test_doc"
         addUserDocument(doc_id, None, self.test_folder)
         addUserRequirement(doc_id, 1, "text", self.test_folder)
-        result = getDocReqs(doc_id, self.test_folder)
+        with patch("MyServer.restHandlersHelpers.doorstop.build", side_effect=FileNotFoundError("Mocked FileNotFoundError")):
+            result = getDocReqs(doc_id, self.test_folder)
         self.assertEqual(result, [])
 
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)

@@ -174,7 +174,7 @@ class TestAuthHelpers(unittest.TestCase):
         self.assertEqual(result, existing_token)
 
     @patch("MyServer.authHelpers.requests.get")
-    def test_getUserMail_success(self, mock_requests_get):
+    def test_getUserMail_github(self, mock_requests_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = [{"email": "test@example.com", "primary": True, "verified": True}]
@@ -184,6 +184,19 @@ class TestAuthHelpers(unittest.TestCase):
         email = auth_provider.getUserMail("mocked_token")
 
         mock_requests_get.assert_called_once_with("https://api.github.com/user/emails", headers={"Authorization": "token mocked_token"})
+        self.assertEqual(email, "test@example.com")
+
+    @patch("MyServer.authHelpers.requests.get")
+    def test_getUserMail_gitlab(self, mock_requests_get):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [{"email": "test@example.com", "primary": True, "verified": True}]
+        mock_requests_get.return_value = mock_response
+
+        auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
+        email = auth_provider.getUserMail("mocked_token")
+
+        mock_requests_get.assert_called_once_with("https://gitlab.com/api/v4/user/emails", headers={"Authorization": "Bearer mocked_token"})
         self.assertEqual(email, "test@example.com")
 
     @patch("MyServer.authHelpers.requests.get")
@@ -235,13 +248,13 @@ class TestAuthHelpers(unittest.TestCase):
     def test_get_repos_gitlab(self, mock_requests_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = [{"name": "project1"}, {"name": "project2"}]
+        mock_response.json.return_value = [{"path_with_namespace": "project1"}, {"path_with_namespace": "project2"}]
         mock_requests_get.return_value = mock_response
 
         auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
         repos = auth_provider.get_repos("mocked_token")
 
-        mock_requests_get.assert_called_once_with("https://gitlab.com/api/v4/projects?membership=true&min_access_level=40", headers={"PRIVATE-TOKEN": "mocked_token"})
+        mock_requests_get.assert_called_once_with("https://gitlab.com/api/v4/projects?membership=true&min_access_level=40", headers={"Authorization": "Bearer mocked_token"})
         self.assertEqual(repos, ["project1", "project2"])
 
     @patch("MyServer.authHelpers.requests.get")
