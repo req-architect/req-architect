@@ -31,7 +31,7 @@ PROVIDER_INFO: Dict[OAuthProvider, Dict[str, str]] = {
     OAuthProvider.GITLAB: {
         "authorization_url": "https://gitlab.com/oauth/authorize",
         "token_url": "https://gitlab.com/oauth/token",
-        "scope": ["read_user", "read_repository", "write_repository"]
+        "scope": ["read_user", "read_repository", "write_repository", "read_api"]
     }
 }
 
@@ -129,16 +129,15 @@ class AuthProviderAPI:
         else:
             print(f"IN GITLAB REPOS, TOKEN: {token}")
             headers = {
-                'PRIVATE-TOKEN': token,
+                'Authorization': f'Bearer {token}',
             }
             url = 'https://gitlab.com/api/v4/projects?membership=true&min_access_level=40'
             response = requests.get(url, headers=headers)
             print(response)
             if response.status_code == 200:
                 repositories = response.json()
-                print(f"repos: {repositories}")
-                repo_names = [repo["name"] for repo in repositories]
-                # print(repo_names)
+                repo_names = [repo["path_with_namespace"] for repo in repositories]
+                print(repo_names)
                 return repo_names
 
 
