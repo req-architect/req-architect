@@ -5,7 +5,6 @@ from enum import Enum
 from functools import wraps
 from typing import Dict, Tuple
 from uuid import uuid4, UUID
-import requests
 
 import jwt
 from decouple import config

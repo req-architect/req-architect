@@ -1,11 +1,8 @@
-from typing import Any
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from enum import Enum
+from typing import Any
+
 from django.http import HttpResponse, JsonResponse
-from rest_framework.response import Response
-from rest_framework import status
-import MyServer.restHandlersHelpers
-from rest_framework.views import APIView
+from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from oauthlib.oauth2 import AccessDeniedError
@@ -14,10 +11,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 import MyServer.authHelpers
+import MyServer.repoHelpers
+import MyServer.repoHelpers
+import MyServer.restHandlersHelpers
 import MyServer.restHandlersHelpers
 from MyServer.authHelpers import requires_jwt_login
-
-import MyServer.repoHelpers
 
 
 # Create your views here.
