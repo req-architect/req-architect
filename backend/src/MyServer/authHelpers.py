@@ -30,7 +30,7 @@ PROVIDER_INFO: Dict[OAuthProvider, Dict[str, str]] = {
     OAuthProvider.GITLAB: {
         "authorization_url": "https://gitlab.com/oauth/authorize",
         "token_url": "https://gitlab.com/oauth/token",
-        "scope": ["read_user", "read_repository", "write_repository"]
+        "scope": ["read_user", "read_repository", "write_repository", "read_api"]
     }
 }
 
@@ -59,6 +59,15 @@ class TokenMap:
 
     def getToken(self, uuid: UUID) -> OAuthTokenWithInfo | None:
         return self._tokenDict.get(uuid)
+    
+
+@dataclass
+class OAuthRequestUserInfo:
+    token: str
+    provider: OAuthProvider
+    uid: str
+    userName: str
+    userMail: str
 
 
 tokenMap = TokenMap()
@@ -81,14 +90,50 @@ class AuthProviderAPI:
                                   session.token.get("created_at"),
                                   session.token.get("expires_in"))
 
-    def get_identity(self, token: OAuthToken) -> Tuple[str, str]:
-        session = OAuth2Session(token=token.token)
+    def getUserMail(self, token_str: str) -> str | None:
+        session = OAuth2Session(token={"access_token": token_str, "token_type": "Bearer"})
+        emails = []
+        if self._provider == OAuthProvider.GITHUB:
+            r = session.get('https://api.github.com/user/emails')
+        else:
+            r = session.get('https://gitlab.com/api/v4/user/emails')
+        if r.status_code == 200:
+            emails = r.json()
+        else:
+            raise Exception("Error getting user email")
+        for email in emails:
+            if email['primary'] and email['verified']:
+                return email['email']
+
+    def get_identity(self, token_str: str) -> Tuple[str, str, str]:
+        session = OAuth2Session(token={"access_token": token_str, "token_type": "Bearer"})
         if self._provider == OAuthProvider.GITHUB:
             r = session.get("https://api.github.com/user").json()
-            return r['id'], r['login']
+            email = self.getUserMail(token_str)
+            return r['id'], r['login'], email
         else:
             r = session.get("https://gitlab.com/api/v4/user").json()
-            return r['id'], r['username']
+            return r['id'], r['username'], r['email']
+
+    def get_repos(self, token_str: str) -> list[str] | None:
+        session = OAuth2Session(token={"access_token": token_str, "token_type": "Bearer"})
+        if self._provider == OAuthProvider.GITHUB:
+            r = session.get('https://api.github.com/user/repos', headers={
+                'Accept': 'application/vnd.github+json'
+            })
+            if r.status_code == 200:
+                repositories = r.json()
+                write_access_repos = [repo["full_name"] for repo in repositories if repo['permissions']['push']]
+                return write_access_repos
+            else:
+                return None
+        else:
+            r = session.get('https://gitlab.com/api/v4/projects?membership=true&min_access_level=40')
+            if r.status_code == 200:
+                repositories = r.json()
+                repo_names = [repo["path_with_namespace"] for repo in repositories]
+                return repo_names
+
 
 
 def generate_frontend_redirect_url(request_uri: str, provider: AuthProviderAPI) -> str:
@@ -130,7 +175,9 @@ def requires_jwt_login(func):
         oAuthToken = tokenMap.getToken(UUID(payload["uuid"]))
         if not oAuthToken:
             return Response({'message': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-        request.auth = oAuthToken
+        uid, userName, email = AuthProviderAPI(oAuthToken.provider).get_identity(oAuthToken.token)
+        oAuthRequestUserInfo = OAuthRequestUserInfo(oAuthToken.token, oAuthToken.provider, uid, userName, email)
+        request.auth = oAuthRequestUserInfo
         return func(self, request, *args, **kwargs)
 
     return wrapper

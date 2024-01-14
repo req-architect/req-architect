@@ -1,48 +1,18 @@
-import doorstop
-import os
-import git
 from shutil import rmtree
 
-
-def readServerInfo(filename: str):
-    serverInfo = {}
-    try:
-        with open(filename, "r") as filehandle:
-            for line in filehandle:
-                info = line.split()
-                serverInfo[info[0]] = info[1]
-        return serverInfo
-    except FileNotFoundError:
-        return None
-    except IndexError:
-        return None
-
-
-def checkIfExists(userFolder: str) -> bool:
-    if os.path.exists(userFolder):
-        return True
-    return False
-
-
-def initRepoFolder(userFolder: str) -> git.Repo:
-    os.makedirs(userFolder)
-    # git.Repo.working_dir = userFolder
-    repo = git.Repo.init(path=userFolder)
-    return repo
+import doorstop
 
 
 def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
-    if not checkIfExists(userFolder):
-        if not initRepoFolder(userFolder):
-            return False
     try:
         docTree = doorstop.build(cwd=userFolder)
         if len(docTree.documents) >= 1 and not parentId:
             return False
         if len(docTree.documents) == 0 and parentId:
             return False
+        docName = userFolder + "/" + docId
         docTree.create_document(
-            userFolder + "/" + docId, docId, parent=parentId)
+            docName, docId, parent=parentId)
         return True
     except doorstop.DoorstopError:
         return False
@@ -229,7 +199,6 @@ def getAllReqsWithChildren(userFolder: str, doc):
 
 def serializeAllReqs(reqs):
     data = []
-    print(reqs)
     for reqlist in reqs:
         req = reqlist[0]
         data.append({})

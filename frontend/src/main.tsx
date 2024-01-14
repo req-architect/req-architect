@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import AuthCallbackPage from "./pages/AuthCallbackPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
+import ChoosingRepoPage from "./pages/ChoosingRepoPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
     {
         path: "/",
         element: <LoginPage />,
+    },
+    {
+        path: "/repo",
+        element: <ChoosingRepoPage />,
     },
 ]);
 
