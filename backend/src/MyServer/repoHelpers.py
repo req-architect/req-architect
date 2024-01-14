@@ -67,6 +67,4 @@ def pullRepo(repoFolder: str, token):
 
 
 def checkIfExists(repoFolder: str) -> bool:
-    if os.path.exists(repoFolder):
-        return True
-    return False
+    return os.path.exists(repoFolder)
