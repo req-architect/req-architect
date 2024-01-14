@@ -33,7 +33,7 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
 
 
 def getUserFolderName(uid: str, provider: OAuthProvider) -> str:
-    prefix = "github" if provider == OAuthProvider.GITHUB else "gitlab"
+    prefix = provider.name.lower()
     return f"{prefix}-{uid}"
 
 
