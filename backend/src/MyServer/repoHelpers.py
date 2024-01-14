@@ -2,6 +2,7 @@ from MyServer.authHelpers import OAuthProvider
 import git
 import os
 import csv
+from decouple import config
 
 
 def getReposFromFile() -> dict:
@@ -32,20 +33,16 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
         return False
 
 
-def getUserFolderName(uid: str, provider: OAuthProvider) -> str:
-    prefix = provider.name.lower()
-    return f"{prefix}-{uid}"
+def repoName2DirName(repoName: str) -> str:
+    return repoName.replace('/', '-')
 
 
-def repoName2DirName(userFolder: str, repoName: str) -> str:
-    return f"{userFolder}/{repoName.replace('/', '-')}"
-
-
-def getRepoInfo(usersFolder: str, request) -> tuple[str, str]:
+def getRepoInfo(request) -> tuple[str, str]:
     repoName = request.GET.get('repositoryName')
-    userFolder = getUserFolderName(request.auth.uid, request.auth.provider)
-    repoFolder = repoName2DirName(userFolder, repoName)
-    return f"{usersFolder}/{repoFolder}", repoName
+    userId = request.auth.uid
+    repoFolder = repoName2DirName(repoName)
+    provider_prefix = request.auth.provider.name.lower()
+    return f"{config('REPOS_FOLDER')}/{provider_prefix}/{userId}/{repoFolder}", repoName
 
 
 def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
