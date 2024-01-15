@@ -100,8 +100,6 @@ class AuthProviderAPI:
             emails = r.json()
         else:
             raise Exception("Error getting user email")
-        with open("/app/src/emails.txt", "w") as file:
-            json.dump(emails, file)
         for email in emails:
             if email['primary'] and email['verified']:
                 return email['email']

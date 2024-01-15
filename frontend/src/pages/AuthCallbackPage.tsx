@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { JWTToken } from "../types.ts";
-import { setLocalStorageObject } from "../lib/localStorageUtil.ts";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuthContext.ts";
+import useLoginRedirect from "../hooks/useLoginRedirect.ts";
 
 export default function AuthCallbackPage() {
     const [error, setError] = useState<boolean>(false);
-    const navigate = useNavigate();
+    const authTools = useAuth();
+    const { login } = authTools;
+    useLoginRedirect(true, "/repo");
     useEffect(() => {
         const url = new URL(window.location.href);
         const token = url.searchParams.get("token");
@@ -15,12 +16,11 @@ export default function AuthCallbackPage() {
             setError(true);
             return;
         }
-        setLocalStorageObject("jwtToken", {
+        login({
             token: token,
             exp: parseInt(exp),
             iat: parseInt(iat),
-        } as JWTToken);
-        navigate("/repo");
-    }, [navigate]);
+        });
+    }, [login]);
     return error ? <div>Something went wrong</div> : <></>;
 }
