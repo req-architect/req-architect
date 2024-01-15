@@ -192,8 +192,13 @@ class GitCommitView(APIView):
             return Response({'message': 'Could not publish changes in repository'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def _commitAndPush(self, request, commitText: str):
+        authInfo: MyServer.authHelpers.AuthInfo = request.auth
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        return MyServer.repoHelpers.stageChanges(repoFolder, commitText, request.auth.userName, request.auth.userMail)
+        providerAPI = MyServer.authHelpers.AuthProviderAPI(authInfo.provider)
+        _, userName, userMail = providerAPI.get_identity(authInfo.token)
+        if not userMail:
+            userMail = providerAPI.getUserMail(authInfo.token)
+        return MyServer.repoHelpers.stageChanges(repoFolder, commitText, userName, userMail)
 
 
 class GetUserReposList(APIView):
@@ -210,7 +215,8 @@ class GetUserReposList(APIView):
         return self._postChosenRepo(request)
 
     def _getUserRepos(self, request):
-        userRepos = MyServer.authHelpers.AuthProviderAPI(request.auth.provider).get_repos(request.auth.token)
+        authInfo: MyServer.authHelpers.AuthInfo = request.auth
+        userRepos = MyServer.authHelpers.AuthProviderAPI(authInfo.provider).get_repos(authInfo.token)
         if not userRepos:
             return JsonResponse([], safe=False)
         serverUserRepos = []
@@ -220,12 +226,13 @@ class GetUserReposList(APIView):
         return JsonResponse(serverUserRepos, safe=False)
 
     def _postChosenRepo(self, request):
+        authInfo: MyServer.authHelpers.AuthInfo = request.auth
         repoFolder, repoName = MyServer.repoHelpers.getRepoInfo(request)
         repoUrl = self._serverRepos.get(repoName)
         if MyServer.repoHelpers.checkIfExists(repoFolder):
-            MyServer.repoHelpers.pullRepo(repoFolder, request.auth.token)
+            MyServer.repoHelpers.pullRepo(repoFolder, authInfo.token)
         else:
-            MyServer.repoHelpers.cloneRepo(repoFolder, repoUrl, request.auth.token, request.auth.provider)
+            MyServer.repoHelpers.cloneRepo(repoFolder, repoUrl, authInfo.token, authInfo.provider)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -248,6 +255,23 @@ class AllReqsView(APIView):
             return JsonResponse([], safe=False)
         serialized = MyServer.restHandlersHelpers.serializeAllReqs(reqs)
         return JsonResponse(serialized, safe=False)
+
+
+class IdentityView(APIView):
+    @requires_jwt_login
+    def get(self, request, *args, **kwargs):
+        return self._getIdentity(request)
+
+    def _getIdentity(self, request):
+        authInfo: MyServer.authHelpers.AuthInfo = request.auth
+        providerAPI = MyServer.authHelpers.AuthProviderAPI(authInfo.provider)
+        uid, login, email = providerAPI.get_identity(authInfo.token)
+        if not email:
+            email = providerAPI.getUserMail(authInfo.token)
+        return JsonResponse({"uid": uid,
+                             "login": login,
+                             "email": email,
+                             "provider": authInfo.provider.name.lower()})
 
 
 def seyHello(request) -> HttpResponse:

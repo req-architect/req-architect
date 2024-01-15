@@ -1,4 +1,4 @@
-from MyServer.authHelpers import OAuthProvider
+from MyServer.authHelpers import OAuthProvider, AuthInfo
 import git
 import os
 import csv
@@ -38,10 +38,11 @@ def repoName2DirName(repoName: str) -> str:
 
 
 def getRepoInfo(request) -> tuple[str, str]:
+    authInfo: AuthInfo = request.auth
     repoName = request.GET.get('repositoryName')
-    userId = request.auth.uid
+    userId = authInfo.uid
     repoFolder = repoName2DirName(repoName)
-    provider_prefix = request.auth.provider.name.lower()
+    provider_prefix = authInfo.provider.name.lower()
     return f"{config('REPOS_FOLDER')}/{provider_prefix}/{userId}/{repoFolder}", repoName
 
 

@@ -3,16 +3,24 @@ import RepoList from "../components/choosing-repo/RepoList.tsx";
 import Button from "@mui/material/Button";
 import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { postRepo } from "../lib/api/gitService.ts";
 import { setLocalStorageObject } from "../lib/localStorageUtil.ts";
 import { auto } from "@popperjs/core";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useAuth } from "../hooks/useAuthContext.ts";
 
 export default function ChoosingRepoPage() {
     const navigate = useNavigate();
     const [chosenRepository, setChosenRepository] = useState<string>();
     const [mode, setMode] = useState<1 | 2>(1);
+    const authTools = useAuth();
+    useEffect(() => {
+        if (!authTools.user) {
+            navigate("/login");
+            return;
+        }
+    }, [navigate, authTools.user]);
 
     const handleRepoSelected = (repo: string) => {
         setChosenRepository(repo);
@@ -25,13 +33,13 @@ export default function ChoosingRepoPage() {
         setLocalStorageObject("chosenRepositoryName", chosenRepository);
         setMode(2);
         await postRepo();
-        navigate("/main_page");
+        navigate("/");
     };
 
     const handleLogOut = () => {
         setLocalStorageObject("chosenRepositoryName", null);
         setLocalStorageObject("jwtToken", null);
-        navigate("/");
+        navigate("/login");
     };
 
     return (
