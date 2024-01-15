@@ -2,26 +2,32 @@ import MainPageHeader from "../components/main/MainPageHeader.tsx";
 import { createContext } from "react";
 import useMainContext, { MainContextTools } from "../hooks/useMainContext.ts";
 import DocumentEditor from "../components/main/DocumentEditor.tsx";
+import useLoginRedirect from "../hooks/useLoginRedirect.ts";
+import { useAuth } from "../hooks/useAuthContext.ts";
 
 export const MainContext = createContext<MainContextTools | null>(null);
 
 export default function MainPage() {
     const mainContextTools = useMainContext();
+    useLoginRedirect(false, "/login");
+    const authTools = useAuth();
     return (
-        <MainContext.Provider value={mainContextTools}>
-            <div
-                style={{
-                    width: "100%",
-                    minWidth: 1200,
-                    height: "100vh",
-                    minHeight: 700,
-                    display: "flex",
-                    flexDirection: "column",
-                }}
-            >
-                <MainPageHeader />
-                <DocumentEditor />
-            </div>
-        </MainContext.Provider>
+        !authTools.initialLoading && (
+            <MainContext.Provider value={mainContextTools}>
+                <div
+                    style={{
+                        width: "100%",
+                        minWidth: 1200,
+                        height: "100vh",
+                        minHeight: 700,
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
+                    <MainPageHeader />
+                    <DocumentEditor />
+                </div>
+            </MainContext.Provider>
+        )
     );
 }

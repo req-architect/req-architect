@@ -17,7 +17,12 @@ export enum CUSTOM_ERROR_MESSAGES {
     link_cycle_attempt = "could not build document tree",
 }
 
-export default function fetchAPI(method: Method, uri: string, body?: object) {
+export default function fetchAPI(
+    method: Method,
+    uri: string,
+    body?: object,
+    abortController?: AbortController,
+) {
     const token = getLocalStorageObject<JWTToken>("jwtToken");
     if (!token) {
         throw new Error("fetchAPI called without jwtToken");
@@ -37,6 +42,7 @@ export default function fetchAPI(method: Method, uri: string, body?: object) {
             Authorization: `Bearer ${token.token}`,
         },
         body: JSON.stringify(body),
+        signal: abortController?.signal,
     })
         .then(async (response) => {
             if (!response.ok) {

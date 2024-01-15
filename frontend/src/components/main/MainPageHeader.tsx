@@ -7,21 +7,20 @@ import {
     Box,
 } from "@mui/material";
 
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { postCommit } from "../../lib/api/gitService";
 import { toast } from "react-toastify";
 import { setLocalStorageObject } from "../../lib/localStorageUtil";
+import { useAuth } from "../../hooks/useAuthContext.ts";
 
 export default function MainPageHeader() {
-    const navigate = useNavigate();
     const [commitTextFieldValue, setcommitTextFieldValue] = useState("");
     const [errorState, setErrorState] = useState<string | null>(null);
+    const authTools = useAuth();
 
     const handleLogOut = () => {
         setLocalStorageObject("chosenRepositoryName", null);
-        setLocalStorageObject("jwtToken", null);
-        navigate("/");
+        authTools.logout();
     };
 
     const changeCommitFieldValue = (

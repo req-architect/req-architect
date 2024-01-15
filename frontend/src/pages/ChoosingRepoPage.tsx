@@ -8,11 +8,15 @@ import { postRepo } from "../lib/api/gitService.ts";
 import { setLocalStorageObject } from "../lib/localStorageUtil.ts";
 import { auto } from "@popperjs/core";
 import CircularProgress from "@mui/material/CircularProgress";
+import useLoginRedirect from "../hooks/useLoginRedirect.ts";
+import { useAuth } from "../hooks/useAuthContext.ts";
 
 export default function ChoosingRepoPage() {
     const navigate = useNavigate();
+    const authTools = useAuth();
     const [chosenRepository, setChosenRepository] = useState<string>();
     const [mode, setMode] = useState<1 | 2>(1);
+    useLoginRedirect(false, "/login");
 
     const handleRepoSelected = (repo: string) => {
         setChosenRepository(repo);
@@ -25,77 +29,80 @@ export default function ChoosingRepoPage() {
         setLocalStorageObject("chosenRepositoryName", chosenRepository);
         setMode(2);
         await postRepo();
-        navigate("/main_page");
+        navigate("/");
     };
 
     const handleLogOut = () => {
         setLocalStorageObject("chosenRepositoryName", null);
-        setLocalStorageObject("jwtToken", null);
-        navigate("/");
+        authTools.logout();
     };
 
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                minHeight: "100vh",
-            }}
-        >
+        !authTools.initialLoading && (
             <Box
                 sx={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    pr: 2,
-                }}
-            >
-                <Button
-                    color="inherit"
-                    sx={{
-                        border: "1px solid green",
-                        color: "green",
-                        minWidth: "150px",
-                        height: "40px",
-                        mt: 2,
-                    }}
-                    onClick={handleLogOut}
-                >
-                    Log out
-                </Button>
-            </Box>
-            <Box
-                sx={{
-                    minHeight: "450px",
-                    minWidth: "450px",
-                    backgroundColor: "#f5f5f5",
-                    margin: "auto",
-                    p: 8,
-                    boxShadow: "0px 15px 12px -1px rgba(136, 136, 142, 1)",
-                    overflow: auto,
                     display: "flex",
                     flexDirection: "column",
-                    alignSelf: "center",
+                    justifyContent: "space-between",
+                    minHeight: "100vh",
                 }}
             >
-                <Typography variant="h3" color="black" align="center">
-                    Choose your Repository
-                </Typography>
-                <RepoList onRepoSelected={handleRepoSelected} />
-                {mode === 1 ? (
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        pr: 2,
+                    }}
+                >
                     <Button
-                        size="large"
-                        variant="contained"
-                        color="success"
-                        onClick={handleLoginButtonClick}
-                        sx={{ mb: 10, alignSelf: "center" }}
+                        color="inherit"
+                        sx={{
+                            border: "1px solid green",
+                            color: "green",
+                            minWidth: "150px",
+                            height: "40px",
+                            mt: 2,
+                        }}
+                        onClick={handleLogOut}
                     >
-                        CHOOSE
+                        Log out
                     </Button>
-                ) : (
-                    <CircularProgress sx={{ alignSelf: "center", mb: 10 }} />
-                )}
+                </Box>
+                <Box
+                    sx={{
+                        minHeight: "450px",
+                        minWidth: "450px",
+                        backgroundColor: "#f5f5f5",
+                        margin: "auto",
+                        p: 8,
+                        boxShadow: "0px 15px 12px -1px rgba(136, 136, 142, 1)",
+                        overflow: auto,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignSelf: "center",
+                    }}
+                >
+                    <Typography variant="h3" color="black" align="center">
+                        Choose your Repository
+                    </Typography>
+                    <RepoList onRepoSelected={handleRepoSelected} />
+                    {mode === 1 ? (
+                        <Button
+                            size="large"
+                            variant="contained"
+                            color="success"
+                            onClick={handleLoginButtonClick}
+                            sx={{ mb: 10, alignSelf: "center" }}
+                        >
+                            CHOOSE
+                        </Button>
+                    ) : (
+                        <CircularProgress
+                            sx={{ alignSelf: "center", mb: 10 }}
+                        />
+                    )}
+                </Box>
             </Box>
-        </Box>
+        )
     );
 }
