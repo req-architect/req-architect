@@ -12,8 +12,7 @@ class TestViews(SimpleTestCase):
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.restHandlersHelpers.deleteUserRequirement")
-    @patch("MyServer.restHandlersHelpers.readServerInfo", return_value={"usersFolder": "app"})
-    def test_deleteRequirement(self, mock_read_server_info, mock_delete_user_requirement, mock_repo_info, mock_get_repos_from_file):
+    def test_deleteRequirement(self, mock_delete_user_requirement, mock_repo_info, mock_get_repos_from_file):
         mock_delete_user_requirement.return_value = True
         url = reverse("req")
         data = {
@@ -29,9 +28,8 @@ class TestViews(SimpleTestCase):
         mock_delete_user_requirement.assert_called_once_with(data["docId"], data["reqId"], "repo_folder")
 
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.readServerInfo", return_value={"usersFolder": "app"})
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    def test_deleteRequirement_ServerProblem(self, mock_get_repo_info, mock_server_info, mock_get_repos_from_file):
+    def test_deleteRequirement_ServerProblem(self, mock_get_repo_info, mock_get_repos_from_file):
         url = reverse("req")
         data = {
             "docId": "your_doc_id",
@@ -45,8 +43,7 @@ class TestViews(SimpleTestCase):
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.restHandlersHelpers.deleteUserRequirement")
-    @patch("MyServer.restHandlersHelpers.readServerInfo", return_value={"usersFolder": "app"})
-    def test_deleteRequirement_cantBuild(self, mock_read_server_info, mock_delete_user_requirement, mock_get_repos_from_file, mock_repo_info):
+    def test_deleteRequirement_cantBuild(self, mock_delete_user_requirement, mock_get_repos_from_file, mock_repo_info):
         mock_delete_user_requirement.return_value = False
         url = reverse("req")
         data = {
@@ -61,10 +58,8 @@ class TestViews(SimpleTestCase):
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.restHandlersHelpers.editUserRequirement")
-    @patch("MyServer.restHandlersHelpers.readServerInfo")
-    def test_editRequirement(self, mock_read_server_info, mock_edit_user_requirement, mock_get_repos_from_file, mock_repo_info):
+    def test_editRequirement(self, mock_edit_user_requirement, mock_get_repos_from_file, mock_repo_info):
         mock_edit_user_requirement.return_value = True
-        mock_read_server_info.return_value = {"usersFolder": "app"}
         url = reverse("req")
         data = {
             "docId": "your_doc_id",
@@ -80,25 +75,9 @@ class TestViews(SimpleTestCase):
 
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    def test_editRequirement_ServerProblem(self, mock_get_repos_from_file, mock_repo_info):
-        url = reverse("req")
-        data = {
-            "docId": "your_doc_id",
-            "reqId": "your_req_id",
-            "reqText": "your_req_text",
-        }
-        edit_url = f"{url}?docId={data['docId']}"
-        response_delete = self.client.put(edit_url, data=json.dumps(data), content_type="application/json")
-
-        self.assertEqual(response_delete.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
-
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.restHandlersHelpers.editUserRequirement")
-    @patch("MyServer.restHandlersHelpers.readServerInfo")
-    def test_editRequirement_canBuild(self, mock_read_server_info, mock_edit_user_requirement, mock_get_repos_from_file, mock_repo_info):
+    def test_editRequirement_canBuild(self, mock_edit_user_requirement, mock_get_repos_from_file, mock_repo_info):
         mock_edit_user_requirement.return_value = False
-        mock_read_server_info.return_value = {"usersFolder": "app"}
         url = reverse("req")
         data = {
             "docId": "your_doc_id",
@@ -114,10 +93,8 @@ class TestViews(SimpleTestCase):
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.restHandlersHelpers.addUserRequirement")
-    @patch("MyServer.restHandlersHelpers.readServerInfo")
-    def test_addRequirement(self, mock_read_server_info, mock_add_user_requirement, mock_get_repos_from_file, mock_repo_info):
+    def test_addRequirement(self, mock_add_user_requirement, mock_get_repos_from_file, mock_repo_info):
         mock_add_user_requirement.return_value = True
-        mock_read_server_info.return_value = {"usersFolder": "app"}
         url = reverse("req")
         data = {
             "docId": "your_doc_id",
@@ -148,10 +125,8 @@ class TestViews(SimpleTestCase):
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.restHandlersHelpers.addUserRequirement")
-    @patch("MyServer.restHandlersHelpers.readServerInfo")
-    def test_addRequirement_cantBuild(self, mock_read_server_info, mock_add_user_requirement, mock_get_repos_from_file, mock_repo_info):
+    def test_addRequirement_cantBuild(self, mock_add_user_requirement, mock_get_repos_from_file, mock_repo_info):
         mock_add_user_requirement.return_value = False
-        mock_read_server_info.return_value = {"usersFolder": "app"}
         url = reverse("req")
         data = {
             "docId": "your_doc_id",
@@ -167,10 +142,8 @@ class TestViews(SimpleTestCase):
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.restHandlersHelpers.serializeDocReqs")
     @patch("MyServer.restHandlersHelpers.getDocReqs")
-    @patch("MyServer.restHandlersHelpers.readServerInfo")
-    def test_getRequirements(self, mock_read_server_info, mock_get_user_requirement, mock_serialize_doc_reqs, mock_get_repos_from_file, mock_repo_info):
+    def test_getRequirements(self, mock_get_user_requirement, mock_serialize_doc_reqs, mock_get_repos_from_file, mock_repo_info):
         mock_get_user_requirement.return_value = ["req1", "req2"]
-        mock_read_server_info.return_value = {"usersFolder": "app"}
         mock_serialize_doc_reqs.return_value = [{"id": "1", "text": "Req 1", "reviewed": True, "links": ["link1", "link2"]}]
         data = {"docId": "your_doc_id"}
         url = reverse("req") + f'?docId={data["docId"]}'
@@ -187,13 +160,11 @@ class TestViews(SimpleTestCase):
         url = reverse("req")
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.readServerInfo")
-    def test_getRequirements_noDocId(self, mock_read_server_info, mock_get_repos_from_file, mock_repo_info):
-        mock_read_server_info.return_value = {"usersFolder": "app"}
+    def test_getRequirements_noDocId(self, mock_get_repos_from_file, mock_repo_info):
         url = reverse("req")
         response = self.client.get(url)
 
@@ -202,10 +173,8 @@ class TestViews(SimpleTestCase):
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.restHandlersHelpers.getDocReqs")
-    @patch("MyServer.restHandlersHelpers.readServerInfo")
-    def test_getRequirements_noReqs(self, mock_read_server_info, mock_get_user_requirement, mock_get_repos_from_file, mock_repo_info):
+    def test_getRequirements_noReqs(self, mock_get_user_requirement, mock_get_repos_from_file, mock_repo_info):
         mock_get_user_requirement.return_value = None
-        mock_read_server_info.return_value = {"usersFolder": "app"}
         data = {"docId": "your_doc_id"}
         url = reverse("req") + f'?docId={data["docId"]}'
         response = self.client.get(url)

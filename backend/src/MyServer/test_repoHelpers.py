@@ -4,7 +4,7 @@ import tempfile
 import unittest
 import git
 from unittest.mock import patch, MagicMock
-from MyServer.repoHelpers import getReposFromFile, stageChanges, getUserFolderName, repoName2DirName, getRepoInfo, cloneRepo, pullRepo, checkIfExists, OAuthProvider
+from MyServer.repoHelpers import getReposFromFile, stageChanges, repoName2DirName, getRepoInfo, cloneRepo, pullRepo, checkIfExists, OAuthProvider
 
 
 class TestRepoHelpers(unittest.TestCase):
@@ -40,23 +40,19 @@ class TestRepoHelpers(unittest.TestCase):
         result = stageChanges("repo_folder", "commit message", "user_name", "user_email")
         self.assertFalse(result)
 
-    def test_getUserFolderName(self):
-        result_github = getUserFolderName("123", OAuthProvider.GITHUB)
-        result_gitlab = getUserFolderName("456", OAuthProvider.GITLAB)
-        self.assertEqual(result_github, "github-123")
-        self.assertEqual(result_gitlab, "gitlab-456")
-
     def test_repoName2DirName(self):
-        result = repoName2DirName("user_folder", "user/repo")
-        self.assertEqual(result, "user_folder/user-repo")
+        result = repoName2DirName("user_folder/repo")
+        self.assertEqual(result, "user_folder-repo")
 
-    def test_getRepoInfo(self):
+    @patch("MyServer.repoHelpers.config") 
+    def test_getRepoInfo(self, mock_config):
+        mock_config.return_value = "/default/repos/folder"
         request_mock = MagicMock()
         request_mock.GET.get.return_value = "user/repo"
         request_mock.auth.uid = "123"
         request_mock.auth.provider = OAuthProvider.GITHUB
-        result = getRepoInfo("users_folder", request_mock)
-        expected_result = ("users_folder/github-123/user-repo", "user/repo")
+        result = getRepoInfo(request_mock)
+        expected_result = ("/default/repos/folder/github/123/user-repo", "user/repo")
         self.assertEqual(result, expected_result)
 
     @patch("MyServer.repoHelpers.git.Repo.clone_from")

@@ -49,7 +49,8 @@ class TestAuthHelpers(unittest.TestCase):
         mock_session_instance = mock_session.return_value
         mock_session_instance.fetch_token.return_value = {"access_token": "mocked_access_token"}
 
-        redirect_url = generate_frontend_redirect_url("/callback", AuthProviderAPI(OAuthProvider.GITHUB))
+        with patch("MyServer.authHelpers.AuthProviderAPI.get_identity", return_value=("mocked_uid", "mocked_user_name", "mocked_user_mail")):
+            redirect_url = generate_frontend_redirect_url("/callback", AuthProviderAPI(OAuthProvider.GITHUB))
 
         mock_session.assert_called_once_with("mocked_client_id", redirect_uri="https://backend.example.com/MyServer/login_callback/github")
         mock_session_instance.fetch_token.assert_called_once_with("https://github.com/login/oauth/access_token", client_secret="mocked_client_secret", authorization_response="/callback")
@@ -77,7 +78,7 @@ class TestAuthHelpers(unittest.TestCase):
         }[key]
         mock_get_identity.return_value = ("mocked_uid", "mocked_user_name", "mocked_user_mail")
 
-        mock_jwt_decode.side_effect = lambda *args, **kwargs: {"uuid": str(valid_uuid)}
+        mock_jwt_decode.side_effect = lambda *args, **kwargs: {"uuid": str(valid_uuid), "user_id": "mocked_uid"}
 
         mock_get_token.return_value = valid_oauth_token
 
@@ -173,7 +174,7 @@ class TestAuthHelpers(unittest.TestCase):
 
         self.assertEqual(result, existing_token)
 
-    @patch("MyServer.authHelpers.requests.get")
+    @patch("MyServer.authHelpers.OAuth2Session.get")
     def test_getUserMail_github(self, mock_requests_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -183,10 +184,10 @@ class TestAuthHelpers(unittest.TestCase):
         auth_provider = AuthProviderAPI(OAuthProvider.GITHUB)
         email = auth_provider.getUserMail("mocked_token")
 
-        mock_requests_get.assert_called_once_with("https://api.github.com/user/emails", headers={"Authorization": "token mocked_token"})
+        mock_requests_get.assert_called_once_with("https://api.github.com/user/emails")
         self.assertEqual(email, "test@example.com")
 
-    @patch("MyServer.authHelpers.requests.get")
+    @patch("MyServer.authHelpers.OAuth2Session.get")
     def test_getUserMail_gitlab(self, mock_requests_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -196,26 +197,25 @@ class TestAuthHelpers(unittest.TestCase):
         auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
         email = auth_provider.getUserMail("mocked_token")
 
-        mock_requests_get.assert_called_once_with("https://gitlab.com/api/v4/user/emails", headers={"Authorization": "Bearer mocked_token"})
+        mock_requests_get.assert_called_once_with("https://gitlab.com/api/v4/user/emails")
         self.assertEqual(email, "test@example.com")
 
-    @patch("MyServer.authHelpers.requests.get")
+    @patch("MyServer.authHelpers.OAuth2Session.get")
     @patch("MyServer.authHelpers.OAuth2Session")
     def test_get_identity_github(self, mock_oauth_session, mock_requests_get):
         mock_oauth_session_instance = mock_oauth_session.return_value
-        mock_oauth_session_instance.get.return_value.json.return_value = {"id": "mocked_id", "login": "mocked_login"}
+        mock_oauth_session_instance.get.return_value.json.return_value = {"id": "mocked_id", "login": "mocked_login", "email": "mocked_email"}
         mock_requests_get.return_value.status_code = 200
 
         auth_provider = AuthProviderAPI(OAuthProvider.GITHUB)
         token = OAuthToken("mocked_token", OAuthProvider.GITHUB)
         identity = auth_provider.get_identity(token)
 
-        mock_oauth_session.assert_called_once_with(token={"access_token": "mocked_token", "token_type": "Bearer"})
+        mock_oauth_session.assert_called_once_with(token={"access_token": token, "token_type": "Bearer"})
         mock_oauth_session_instance.get.assert_called_once_with("https://api.github.com/user")
-        mock_requests_get.assert_called_once_with("https://api.github.com/user/emails", headers={"Authorization": "token mocked_token"})
-        self.assertEqual(identity, ("mocked_id", "mocked_login", None))
+        self.assertEqual(identity, ("mocked_id", "mocked_login", 'mocked_email'))
 
-    @patch("MyServer.authHelpers.requests.get")
+    @patch("MyServer.authHelpers.OAuth2Session.get")
     @patch("MyServer.authHelpers.OAuth2Session")
     def test_get_identity_gitlab(self, mock_oauth_session, mock_requests_get):
         mock_oauth_session_instance = mock_oauth_session.return_value
@@ -226,12 +226,11 @@ class TestAuthHelpers(unittest.TestCase):
         token = OAuthToken("mocked_token", OAuthProvider.GITLAB)
         identity = auth_provider.get_identity(token)
 
-        mock_oauth_session.assert_called_once_with(token={"access_token": "mocked_token", "token_type": "Bearer"})
+        mock_oauth_session.assert_called_once_with(token={"access_token": token, "token_type": "Bearer"})
         mock_oauth_session_instance.get.assert_called_once_with("https://gitlab.com/api/v4/user")
-        # mock_requests_get.assert_called_once_with("https://api.gitlab.com/user/emails", headers={"Authorization": "token mocked_token"})
         self.assertEqual(identity, ("mocked_id", "mocked_login", "mocked_email"))
 
-    @patch("MyServer.authHelpers.requests.get")
+    @patch("MyServer.authHelpers.OAuth2Session.get")
     def test_get_repos_github(self, mock_requests_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -241,10 +240,10 @@ class TestAuthHelpers(unittest.TestCase):
         auth_provider = AuthProviderAPI(OAuthProvider.GITHUB)
         repos = auth_provider.get_repos("mocked_token")
 
-        mock_requests_get.assert_called_once_with("https://api.github.com/user/repos", headers={"Accept": "application/vnd.github+json", "Authorization": "Bearer mocked_token"})
+        mock_requests_get.assert_called_once_with("https://api.github.com/user/repos", headers={'Accept': 'application/vnd.github+json'})
         self.assertEqual(repos, ["user/repo1"])
 
-    @patch("MyServer.authHelpers.requests.get")
+    @patch("MyServer.authHelpers.OAuth2Session.get")
     def test_get_repos_gitlab(self, mock_requests_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -254,10 +253,10 @@ class TestAuthHelpers(unittest.TestCase):
         auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
         repos = auth_provider.get_repos("mocked_token")
 
-        mock_requests_get.assert_called_once_with("https://gitlab.com/api/v4/projects?membership=true&min_access_level=40", headers={"Authorization": "Bearer mocked_token"})
+        mock_requests_get.assert_called_once_with("https://gitlab.com/api/v4/projects?membership=true&min_access_level=40")
         self.assertEqual(repos, ["project1", "project2"])
 
-    @patch("MyServer.authHelpers.requests.get")
+    @patch("MyServer.authHelpers.OAuth2Session.get")
     def test_get_repos_github_status_401(self, mock_requests_get):
         mock_response = MagicMock()
         mock_response.status_code = 401
@@ -267,5 +266,5 @@ class TestAuthHelpers(unittest.TestCase):
         auth_provider = AuthProviderAPI(OAuthProvider.GITHUB)
         repos = auth_provider.get_repos("mocked_token")
 
-        mock_requests_get.assert_called_once_with("https://api.github.com/user/repos", headers={"Accept": "application/vnd.github+json", "Authorization": "Bearer mocked_token"})
+        mock_requests_get.assert_called_once_with("https://api.github.com/user/repos", headers={'Accept': 'application/vnd.github+json'})
         self.assertEqual(repos, None)

@@ -15,7 +15,6 @@ from MyServer.restHandlersHelpers import (
     editUserRequirement,
     getAllReqs,
     getDocReqs,
-    readServerInfo,
     serializeAllReqs,
     serializeDocReqs,
     serializeDocuments,
@@ -38,31 +37,6 @@ class TestRestHandlersHelpers(unittest.TestCase):
     @staticmethod
     def mock_find_root(cwd):
         return cwd
-
-    @patch("builtins.open", new_callable=unittest.mock.mock_open, read_data="HOST 127.0.0.1\nPORT 8080")
-    def test_readServerInfo(self, mock_open):
-        result = readServerInfo("sample_server_info.txt")
-
-        expected_result = {"HOST": "127.0.0.1", "PORT": "8080"}
-        self.assertEqual(result, expected_result)
-
-        mock_open.assert_called_once_with("sample_server_info.txt", "r")
-
-    @patch("builtins.open", side_effect=FileNotFoundError)
-    def test_readServerInfo_FileNotFound(self, mock_open):
-        result = readServerInfo("sample_server_info.txt")
-
-        self.assertIsNone(result)
-
-        mock_open.assert_called_once_with("sample_server_info.txt", "r")
-
-    @patch("builtins.open", new_callable=unittest.mock.mock_open, read_data="INVALID_DATA")
-    def test_readServerInfo_index_error(self, mock_open):
-        result = readServerInfo("sample_server_info.txt")
-
-        self.assertIsNone(result)
-
-        mock_open.assert_called_once_with("sample_server_info.txt", "r")
 
     @patch("doorstop.core.vcs.find_root", new=mock_find_root)
     def test_add_user_document(self):
