@@ -128,5 +128,10 @@ if not DEBUG:
     REST_FRAMEWORK = {
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
-        )
+        ),
+        'EXCEPTION_HANDLER': 'MyServer.error.custom_exception_handler'
+    }
+else:
+    REST_FRAMEWORK = {
+        'EXCEPTION_HANDLER': 'MyServer.error.custom_exception_handler'
     }

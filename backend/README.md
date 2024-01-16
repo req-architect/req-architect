@@ -28,6 +28,7 @@ GITHUB_CLIENT_SECRET: "**********"
 GITLAB_CLIENT_ID: "**********"
 GITLAB_CLIENT_SECRET: "**********"
 JWT_SECRET: "**********"
+REPOS_FOLDER="/repos"
 ```
 
 Zmienna 'CORS_ALLOWED_ORIGINS' może przyjąć formę listy adresów oddzielonych znakiem `|`, np

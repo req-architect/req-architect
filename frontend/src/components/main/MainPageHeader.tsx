@@ -7,21 +7,21 @@ import {
     Box,
 } from "@mui/material";
 
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { postCommit } from "../../lib/api/gitService";
 import { toast } from "react-toastify";
-import { setLocalStorageObject } from "../../lib/localStorageUtil";
+import { useAuth } from "../../hooks/useAuthContext.ts";
+import useRepoContext from "../../hooks/useRepoContext.ts";
 
 export default function MainPageHeader() {
-    const navigate = useNavigate();
     const [commitTextFieldValue, setcommitTextFieldValue] = useState("");
     const [errorState, setErrorState] = useState<string | null>(null);
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
 
     const handleLogOut = () => {
-        setLocalStorageObject("chosenRepositoryName", null);
-        setLocalStorageObject("jwtToken", null);
-        navigate("/");
+        repoTools.setRepositoryName(null);
+        authTools.logout();
     };
 
     const changeCommitFieldValue = (
@@ -35,8 +35,15 @@ export default function MainPageHeader() {
             setErrorState("Commit message cannot be empty");
             return;
         }
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
         if (errorState) setErrorState(null);
-        const response = await postCommit(commitTextFieldValue);
+        const response = await postCommit(
+            authTools.tokenStr,
+            repoTools.repositoryName,
+            commitTextFieldValue,
+        );
         response.message;
         if (response.message.includes("Success")) {
             toast.success("Changes pushed");

@@ -12,11 +12,15 @@ import {
 import { useMainContextTools } from "../../../hooks/useMainContext.ts";
 import useRequirementContext from "../../../hooks/useRequirementContext.ts";
 import { defaultConfirm } from "../../../lib/defaultConfirm.ts";
+import useRepoContext from "../../../hooks/useRepoContext.ts";
+import { useAuth } from "../../../hooks/useAuthContext.ts";
 
 export default function RequirementEditMode() {
     const { requirement, refreshRequirements } = useRequirementContext();
     const [editedText, setEditedText] = useState(requirement.text);
     const contextTools = useMainContextTools();
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
     function handleAbort() {
         if (editedText !== requirement.text) {
             // confirm abort
@@ -32,13 +36,28 @@ export default function RequirementEditMode() {
         }
     }
     async function handleSave() {
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
         contextTools.updateSelectedRequirement(null);
-        await putRequirement(requirement.id, editedText);
+        await putRequirement(
+            authTools.tokenStr,
+            repoTools.repositoryName,
+            requirement.id,
+            editedText,
+        );
         refreshRequirements();
     }
     async function handleDelete() {
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
         contextTools.updateSelectedRequirement(null);
-        await deleteRequirement(requirement.id);
+        await deleteRequirement(
+            authTools.tokenStr,
+            repoTools.repositoryName,
+            requirement.id,
+        );
         refreshRequirements();
     }
     return (

@@ -7,6 +7,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Requirement } from "../../types.ts";
 import { fetchRequirements } from "../../lib/api/requirementService.ts";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
+import { useAuth } from "../../hooks/useAuthContext.ts";
+import useRepoContext from "../../hooks/useRepoContext.ts";
 
 function findRequirement(requirements: Requirement[], id: string | null) {
     return requirements.find((req) => req.id === id) || null;
@@ -16,16 +18,22 @@ export default function RequirementsEditor() {
     const [fetchedRequirements, setFetchedRequirements] = useState<
         Requirement[]
     >([]);
-
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
     const refreshRequirements = useCallback(async () => {
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
         if (mainContextTools.data.selectedDocumentPrefix !== null) {
             const data = await fetchRequirements(
+                authTools.tokenStr,
+                repoTools.repositoryName,
                 mainContextTools.data.selectedDocumentPrefix,
             );
             console.log("Fetched requirements:", data);
             setFetchedRequirements(data);
         }
-    }, [mainContextTools.data.selectedDocumentPrefix]);
+    }, [authTools, repoTools, mainContextTools.data.selectedDocumentPrefix]);
 
     useEffect(() => {
         refreshRequirements().then();

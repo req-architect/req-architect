@@ -11,6 +11,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useMemo, useState } from "react";
 import { postDocument } from "../../lib/api/documentService.ts";
 import { ReqDocumentWithChildren } from "../../types.ts";
+import { useAuth } from "../../hooks/useAuthContext.ts";
+import useRepoContext from "../../hooks/useRepoContext.ts";
 
 type AddDocumentMode = "add" | "select";
 
@@ -37,6 +39,8 @@ export default function AddDocument({
     rootDocument: ReqDocumentWithChildren | null;
     refreshDocuments: () => void;
 }) {
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
     const [mode, setMode] = useState<AddDocumentMode>("add");
     const [formData, setFormData] = useState<{
         text: string;
@@ -64,6 +68,9 @@ export default function AddDocument({
 
     const handleAddDocument = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); //prevent: localhost/:1 Form submission canceled because the form is not connected
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
         let newErrorState: ErrorState = {
             prefixError: null,
             parentPrefixError: null,
@@ -95,9 +102,18 @@ export default function AddDocument({
         }
         setErrorState(newErrorState);
         if (formData.selectedOption === null) {
-            await postDocument(formData.text);
+            await postDocument(
+                authTools.tokenStr,
+                repoTools.repositoryName,
+                formData.text,
+            );
         } else {
-            await postDocument(formData.text, formData.selectedOption);
+            await postDocument(
+                authTools.tokenStr,
+                repoTools.repositoryName,
+                formData.text,
+                formData.selectedOption,
+            );
         }
         //setMode("add");
         refreshDocuments();

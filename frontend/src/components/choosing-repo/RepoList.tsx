@@ -2,36 +2,32 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { getRepos } from "../../lib/api/gitService";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../hooks/useAuthContext.ts";
 
 export default function RepoList({
-    onRepoSelected,
+    chosenRepository,
+    setChosenRepository,
 }: {
-    onRepoSelected: (repo: string) => void;
+    chosenRepository: string | null;
+    setChosenRepository: (repo: string | null) => void;
 }) {
     const [repositories, setRepositories] = useState<string[]>([]);
-    const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
+    const authTools = useAuth();
 
     useEffect(() => {
-        async function fetchUserRepos() {
-            try {
-                const repos = await getRepos();
-                setRepositories(repos);
-            } catch (error) {
-                console.error("Error fetching repositories:", error);
-            }
+        if (!authTools.tokenStr) {
+            return;
         }
-        fetchUserRepos();
-        onRepoSelected(repositories[0]);
-    }, []);
+        getRepos(authTools.tokenStr).then(setRepositories);
+    }, [authTools]);
 
     return (
         <Autocomplete
-            value={selectedRepo}
+            value={chosenRepository}
             disablePortal
             onChange={(_, value) => {
                 if (value) {
-                    setSelectedRepo(value);
-                    onRepoSelected(value);
+                    setChosenRepository(value);
                 }
             }}
             renderInput={(params) => (

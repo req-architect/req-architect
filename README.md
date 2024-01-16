@@ -123,7 +123,8 @@ BACKEND_URL="https://kukiwakobackend.serveo.net"
 ```
 
 ```bash
-docker-compose up
+docker-compose build
+docker-compose up -d
 ```
 
 w jednym terminalu:
@@ -137,3 +138,15 @@ w drugim:
 ```bash
  ssh -R kukiwako.serveo.net:80:localhost:3000 serveo.net
 ```
+
+lub jednym poleceniem:
+```bash
+ ssh -R kukiwakobackend.serveo.net:80:localhost:8000 -R kukiwako.serveo.net:80:localhost:3000 serveo.net
+```
+
+### Uwaga przy korzystaniu z bigubu
+Zanim zrobimy docker compose itd, należy zmienić nazwę katalogu:
+```bash
+mv pzsp2-kukiwako z121-pzsp2-kukiwako
+```
+aby kontenery zaczynały się od z121.   

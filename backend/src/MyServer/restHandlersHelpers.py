@@ -1,22 +1,6 @@
-import doorstop
-import os
-import git
 from shutil import rmtree
-import MyServer.repoHelpers
 
-
-def readServerInfo(filename: str):
-    serverInfo = {}
-    try:
-        with open(filename, "r") as filehandle:
-            for line in filehandle:
-                info = line.split()
-                serverInfo[info[0]] = info[1]
-        return serverInfo
-    except FileNotFoundError:
-        return None
-    except IndexError:
-        return None
+import doorstop
 
 
 def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:

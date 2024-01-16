@@ -1,6 +1,4 @@
 import { toast } from "react-toastify";
-import { JWTToken } from "../../types.ts";
-import { getLocalStorageObject } from "../localStorageUtil.ts";
 
 type Method = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -17,12 +15,14 @@ export enum CUSTOM_ERROR_MESSAGES {
     link_cycle_attempt = "could not build document tree",
 }
 
-export default function fetchAPI(method: Method, uri: string, body?: object) {
-    const token = getLocalStorageObject<JWTToken>("jwtToken");
-    if (!token) {
-        throw new Error("fetchAPI called without jwtToken");
-    }
-    const repositoryName = getLocalStorageObject("chosenRepositoryName");
+export default function fetchAPI(
+    tokenStr: string,
+    repositoryName: string | null,
+    method: Method,
+    uri: string,
+    body?: object,
+    abortController?: AbortController,
+) {
     if (repositoryName) {
         if (uri.includes("?")) {
             uri = uri + "&repositoryName=" + repositoryName;
@@ -34,9 +34,10 @@ export default function fetchAPI(method: Method, uri: string, body?: object) {
         method,
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token.token}`,
+            Authorization: `Bearer ${tokenStr}`,
         },
         body: JSON.stringify(body),
+        signal: abortController?.signal,
     })
         .then(async (response) => {
             if (!response.ok) {

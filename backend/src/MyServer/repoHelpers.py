@@ -1,7 +1,8 @@
-from MyServer.authHelpers import OAuthProvider
+from MyServer.authHelpers import OAuthProvider, AuthInfo
 import git
 import os
 import csv
+from decouple import config
 
 
 def getReposFromFile() -> dict:
@@ -32,20 +33,17 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
         return False
 
 
-def getUserFolderName(uid: str, provider: OAuthProvider) -> str:
-    prefix = "github" if provider == OAuthProvider.GITHUB else "gitlab"
-    return f"{prefix}-{uid}"
+def repoName2DirName(repoName: str) -> str:
+    return repoName.replace('/', '-')
 
 
-def repoName2DirName(userFolder: str, repoName: str) -> str:
-    return f"{userFolder}/{repoName.replace('/', '-')}"
-
-
-def getRepoInfo(usersFolder: str, request) -> tuple[str, str]:
+def getRepoInfo(request) -> tuple[str, str]:
+    authInfo: AuthInfo = request.auth
     repoName = request.GET.get('repositoryName')
-    userFolder = getUserFolderName(request.auth.uid, request.auth.provider)
-    repoFolder = repoName2DirName(userFolder, repoName)
-    return f"{usersFolder}/{repoFolder}", repoName
+    userId = authInfo.uid
+    repoFolder = repoName2DirName(repoName)
+    provider_prefix = authInfo.provider.name.lower()
+    return f"{config('REPOS_FOLDER')}/{provider_prefix}/{userId}/{repoFolder}", repoName
 
 
 def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
@@ -67,6 +65,4 @@ def pullRepo(repoFolder: str, token):
 
 
 def checkIfExists(repoFolder: str) -> bool:
-    if os.path.exists(repoFolder):
-        return True
-    return False
+    return os.path.exists(repoFolder)

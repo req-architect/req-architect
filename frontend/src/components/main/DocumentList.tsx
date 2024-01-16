@@ -12,6 +12,8 @@ import { IconButtonStyles } from "../../lib/styles.ts";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
 import React from "react";
 import { defaultConfirm } from "../../lib/defaultConfirm.ts";
+import { useAuth } from "../../hooks/useAuthContext.ts";
+import useRepoContext from "../../hooks/useRepoContext.ts";
 
 export default function DocumentList({
     rootDocument,
@@ -21,13 +23,25 @@ export default function DocumentList({
     refreshDocuments: () => void;
 }) {
     const mainContextTools = useMainContextTools();
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
     const handleDelete = async (event: React.MouseEvent, itemName: string) => {
         event.stopPropagation();
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
         defaultConfirm(
             "Delete confirmation",
             `Are you sure you want to delete ${itemName}?`,
             async () => {
-                await deleteDocument(itemName);
+                if (!authTools.tokenStr || !repoTools.repositoryName) {
+                    return;
+                }
+                await deleteDocument(
+                    authTools.tokenStr,
+                    repoTools.repositoryName,
+                    itemName,
+                );
                 refreshDocuments();
             },
         );
