@@ -16,13 +16,11 @@ import MyServer.repoHelpers
 import MyServer.restHandlersHelpers
 import MyServer.restHandlersHelpers
 from MyServer.authHelpers import requires_jwt_login
+from MyServer.error import LinkCycleException
 
 
 # Create your views here.
 # Views - they are really request handlers, byt Django has weird naming style
-
-class STATUS_CODES(Enum):
-    LINK_CYCLE_ATTEMPT = 409
 
 
 class ReqView(APIView):
@@ -131,14 +129,10 @@ class LinkView(APIView):
     def put(self, request, *args, **kwargs):
         return self._addLink(request)
 
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super(LinkView, self).dispatch(*args, **kwargs)
-
     def _addLink(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
         if not MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder):
-            return Response({'message': 'Unable to link requirements. At least one invalid requirement id or could not build document tree.'}, status=STATUS_CODES.LINK_CYCLE_ATTEMPT.value)
+            raise LinkCycleException()
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 

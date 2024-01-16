@@ -16,6 +16,7 @@ services:
       GITLAB_CLIENT_SECRET: ${GITLAB_CLIENT_SECRET}
       JWT_SECRET: ${JWT_SECRET}
       REPOS_FOLDER: /repos
+      PYTHONUNBUFFERED: 1
     volumes:
       - ./backend/src:/app/src
   frontend:
