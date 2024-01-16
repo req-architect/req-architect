@@ -10,16 +10,17 @@ import {
 import { useState } from "react";
 import { postCommit } from "../../lib/api/gitService";
 import { toast } from "react-toastify";
-import { setLocalStorageObject } from "../../lib/localStorageUtil";
 import { useAuth } from "../../hooks/useAuthContext.ts";
+import useRepoContext from "../../hooks/useRepoContext.ts";
 
 export default function MainPageHeader() {
     const [commitTextFieldValue, setcommitTextFieldValue] = useState("");
     const [errorState, setErrorState] = useState<string | null>(null);
     const authTools = useAuth();
+    const repoTools = useRepoContext();
 
     const handleLogOut = () => {
-        setLocalStorageObject("chosenRepositoryName", null);
+        repoTools.setRepositoryName(null);
         authTools.logout();
     };
 
@@ -34,8 +35,15 @@ export default function MainPageHeader() {
             setErrorState("Commit message cannot be empty");
             return;
         }
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
         if (errorState) setErrorState(null);
-        const response = await postCommit(commitTextFieldValue);
+        const response = await postCommit(
+            authTools.tokenStr,
+            repoTools.repositoryName,
+            commitTextFieldValue,
+        );
         response.message;
         if (response.message.includes("Success")) {
             toast.success("Changes pushed");

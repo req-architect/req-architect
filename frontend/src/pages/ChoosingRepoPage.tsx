@@ -5,35 +5,33 @@ import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useState } from "react";
 import { postRepo } from "../lib/api/gitService.ts";
-import { setLocalStorageObject } from "../lib/localStorageUtil.ts";
 import { auto } from "@popperjs/core";
 import CircularProgress from "@mui/material/CircularProgress";
 import useLoginRedirect from "../hooks/useLoginRedirect.ts";
 import { useAuth } from "../hooks/useAuthContext.ts";
+import useRepoContext from "../hooks/useRepoContext.ts";
 
 export default function ChoosingRepoPage() {
     const navigate = useNavigate();
     const authTools = useAuth();
-    const [chosenRepository, setChosenRepository] = useState<string>();
+    const [chosenRepository, setChosenRepository] = useState<string | null>(
+        null,
+    );
     const [mode, setMode] = useState<1 | 2>(1);
+    const repoContext = useRepoContext();
     useLoginRedirect(false, "/login");
 
-    const handleRepoSelected = (repo: string) => {
-        setChosenRepository(repo);
-    };
-
-    const handleLoginButtonClick = async () => {
-        if (!chosenRepository) {
+    const handleChooseRepo = async () => {
+        if (!chosenRepository || !authTools.tokenStr) {
             return;
         }
-        setLocalStorageObject("chosenRepositoryName", chosenRepository);
+        repoContext.setRepositoryName(chosenRepository);
         setMode(2);
-        await postRepo();
+        await postRepo(authTools.tokenStr, chosenRepository);
         navigate("/");
     };
 
     const handleLogOut = () => {
-        setLocalStorageObject("chosenRepositoryName", null);
         authTools.logout();
     };
 
@@ -85,13 +83,16 @@ export default function ChoosingRepoPage() {
                     <Typography variant="h3" color="black" align="center">
                         Choose your Repository
                     </Typography>
-                    <RepoList onRepoSelected={handleRepoSelected} />
+                    <RepoList
+                        chosenRepository={chosenRepository}
+                        setChosenRepository={setChosenRepository}
+                    />
                     {mode === 1 ? (
                         <Button
                             size="large"
                             variant="contained"
                             color="success"
-                            onClick={handleLoginButtonClick}
+                            onClick={handleChooseRepo}
                             sx={{ mb: 10, alignSelf: "center" }}
                         >
                             CHOOSE

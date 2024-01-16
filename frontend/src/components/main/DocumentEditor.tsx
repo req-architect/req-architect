@@ -6,6 +6,8 @@ import { ReqDocumentWithChildren } from "../../types.ts";
 import { fetchDocuments } from "../../lib/api/documentService.ts";
 import RequirementsEditor from "./RequirementsEditor.tsx";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
+import useRepoContext from "../../hooks/useRepoContext.ts";
+import { useAuth } from "../../hooks/useAuthContext.ts";
 
 function isInTree(root: ReqDocumentWithChildren, prefix: string): boolean {
     if (root.prefix === prefix) {
@@ -24,17 +26,25 @@ function isInTree(root: ReqDocumentWithChildren, prefix: string): boolean {
 
 export default function DocumentEditor() {
     const mainContextTools = useMainContextTools();
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
     const [fetchedRootDocument, setFetchedRootDocument] =
         useState<ReqDocumentWithChildren | null>(null);
 
     const refreshDocuments = useCallback(async () => {
-        const data = await fetchDocuments();
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
+        const data = await fetchDocuments(
+            authTools.tokenStr,
+            repoTools.repositoryName,
+        );
         if (data.length > 0) {
             setFetchedRootDocument(data[0]);
         } else {
             setFetchedRootDocument(null);
         }
-    }, []);
+    }, [authTools, repoTools]);
 
     useEffect(() => {
         refreshDocuments().then();

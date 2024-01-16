@@ -6,6 +6,8 @@ import {
 } from "../../../lib/api/requirementService";
 import { Requirement, RequirementWithDoc } from "../../../types";
 import { CUSTOM_ERROR_MESSAGES } from "../../../lib/api/fetchAPI";
+import useRepoContext from "../../../hooks/useRepoContext.ts";
+import { useAuth } from "../../../hooks/useAuthContext.ts";
 
 interface RequirementsAndKey {
     allRequirements: RequirementWithDoc[];
@@ -19,6 +21,8 @@ export default function RequirementAddLink({
     requirement: Requirement;
     refreshRequirements: () => void;
 }) {
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
     const [selectedRequirement, setSelectedRequirement] =
         useState<Requirement>();
 
@@ -45,7 +49,13 @@ export default function RequirementAddLink({
 
     const fetchData = useCallback(async () => {
         try {
-            const allReqs = await getAllRequirements();
+            if (!authTools.tokenStr || !repoTools.repositoryName) {
+                return;
+            }
+            const allReqs = await getAllRequirements(
+                authTools.tokenStr,
+                repoTools.repositoryName,
+            );
             const filteredReqs = filterRequirements(allReqs.flat());
             setAllRequirementsAndKey((prevAllRequirementsAndKey) => ({
                 allRequirements: filteredReqs,
@@ -54,7 +64,7 @@ export default function RequirementAddLink({
         } catch (error) {
             console.error("Error fetching requirements:", error);
         }
-    }, [filterRequirements]);
+    }, [authTools, repoTools, filterRequirements]);
 
     useEffect(() => {
         fetchData().then();
@@ -66,8 +76,16 @@ export default function RequirementAddLink({
             setErrorState("No requirement selected");
             return;
         }
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
         try {
-            await linkRequirement(requirement.id, selectedRequirement.id);
+            await linkRequirement(
+                authTools.tokenStr,
+                repoTools.repositoryName,
+                requirement.id,
+                selectedRequirement.id,
+            );
             refreshRequirements();
         } catch (error) {
             if (

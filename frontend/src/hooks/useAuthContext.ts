@@ -6,6 +6,7 @@ import { AuthContext } from "../App.tsx";
 import { toast } from "react-toastify";
 
 export type AuthContextTools = {
+    tokenStr: string | null;
     user: AppUser | null;
     initialLoading: boolean;
     logout: () => void;
@@ -34,7 +35,7 @@ export default function useAuthContext() {
             });
             return;
         }
-        fetchIdentity(abortController)
+        fetchIdentity(token.token, abortController)
             .then((user) => {
                 setAuthState({
                     user,
@@ -72,6 +73,7 @@ export default function useAuthContext() {
     return {
         user: authState.user,
         initialLoading: authState.initialLoading,
+        tokenStr: authState.user ? token?.token : null,
         logout,
         login,
         isLoggedIn,

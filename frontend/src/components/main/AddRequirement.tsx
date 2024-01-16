@@ -2,6 +2,8 @@ import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { postRequirement } from "../../lib/api/requirementService.ts";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
+import useRepoContext from "../../hooks/useRepoContext.ts";
+import { useAuth } from "../../hooks/useAuthContext.ts";
 
 export default function AddRequirement({
     refreshRequirements,
@@ -9,9 +11,18 @@ export default function AddRequirement({
     refreshRequirements: () => void;
 }) {
     const mainContextTools = useMainContextTools();
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
     async function handleClick() {
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
         if (mainContextTools.data.selectedDocumentPrefix !== null) {
-            await postRequirement(mainContextTools.data.selectedDocumentPrefix);
+            await postRequirement(
+                authTools.tokenStr,
+                repoTools.repositoryName,
+                mainContextTools.data.selectedDocumentPrefix,
+            );
             refreshRequirements();
         }
     }

@@ -5,7 +5,8 @@ import LoginPage from "./pages/LoginPage.tsx";
 import ChoosingRepoPage from "./pages/ChoosingRepoPage.tsx";
 import { ToastContainer } from "react-toastify";
 import useAuthContext, { AuthContextTools } from "./hooks/useAuthContext.ts";
-import { createContext } from "react";
+import { createContext, useState } from "react";
+import { RepoContextType } from "./hooks/useRepoContext.ts";
 
 const router = createBrowserRouter([
     {
@@ -28,12 +29,17 @@ const router = createBrowserRouter([
 
 export const AuthContext = createContext<AuthContextTools | null>(null);
 
+export const RepoContext = createContext<RepoContextType | null>(null);
+
 export default function App() {
     const authTools = useAuthContext();
+    const [repositoryName, setRepositoryName] = useState<string | null>(null);
     return (
         <AuthContext.Provider value={authTools}>
-            <RouterProvider router={router} />
-            <ToastContainer />
+            <RepoContext.Provider value={{ repositoryName, setRepositoryName }}>
+                <RouterProvider router={router} />
+                <ToastContainer />
+            </RepoContext.Provider>
         </AuthContext.Provider>
     );
 }
