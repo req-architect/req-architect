@@ -131,8 +131,7 @@ class LinkView(APIView):
 
     def _addLink(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        if not MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder):
-            raise LinkCycleException()
+        MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 

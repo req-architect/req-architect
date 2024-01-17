@@ -1,5 +1,5 @@
 from shutil import rmtree
-
+import MyServer.error
 import doorstop
 
 
@@ -120,10 +120,10 @@ def deleteUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
         docTree = doorstop.build(userFolder)
         docTree.unlink_items(req1UID, req2UID)
         return True
-    except doorstop.DoorstopError:
-        return False
+    except doorstop.DoorstopError as d:
+        raise MyServer.error.DoorstopException(str(d))
     except FileNotFoundError:
-        return False
+        raise MyServer.error.LinkCycleException()
 
 
 def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list or None:
