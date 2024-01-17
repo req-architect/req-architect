@@ -58,27 +58,9 @@ class TestViews(SimpleTestCase):
         delete_url = f"{url}?docId={data['docId']}"
         response_delete = self.client.delete(delete_url, data=json.dumps(data), content_type="application/json")
 
-        self.assertEqual(response_delete.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response_delete.status_code, status.HTTP_404_NOT_FOUND)
         mock_get_repo_info.assert_called_once()
         mock_get_repos_from_file.assert_called_once()
-
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.deleteUserRequirement")
-    def test_ReqView_DELETE_cantBuild(self, mock_delete_user_requirement, mock_get_repos_from_file, mock_repo_info):
-        mock_delete_user_requirement.return_value = False
-        url = reverse("req")
-        data = {
-            "docId": "your_doc_id",
-            "reqId": "your_req_id",
-        }
-        delete_url = f"{url}?docId={data['docId']}"
-        response_delete = self.client.delete(delete_url, data=json.dumps(data), content_type="application/json")
-
-        self.assertEqual(response_delete.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
-        mock_delete_user_requirement.assert_called_once_with(data["docId"], data["reqId"], "repo_folder")
-        mock_get_repos_from_file.assert_called_once()
-        mock_repo_info.assert_called_once()
 
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
@@ -96,26 +78,6 @@ class TestViews(SimpleTestCase):
 
         self.assertEqual(response_delete.status_code, status.HTTP_200_OK)
         self.assertEqual(response_delete.data["message"], "OK")
-        mock_edit_user_requirement.assert_called_once_with(data["docId"], data["reqId"], data["reqText"], "repo_folder")
-        mock_get_repos_from_file.assert_called_once()
-        mock_repo_info.assert_called_once()
-
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.editUserRequirement")
-    def test_ReqView_PUT_cannotBuild(self, mock_edit_user_requirement, mock_get_repos_from_file, mock_repo_info):
-        mock_edit_user_requirement.return_value = False
-        url = reverse("req")
-        data = {
-            "docId": "your_doc_id",
-            "reqId": "your_req_id",
-            "reqText": "your_req_text",
-        }
-
-        edit_url = f"{url}?docId={data['docId']}"
-        response_delete = self.client.put(edit_url, data=json.dumps(data), content_type="application/json")
-
-        self.assertEqual(response_delete.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         mock_edit_user_requirement.assert_called_once_with(data["docId"], data["reqId"], data["reqText"], "repo_folder")
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
@@ -140,40 +102,6 @@ class TestViews(SimpleTestCase):
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
 
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    def test_ReqView_POST_ServerProblem(self, mock_get_repos_from_file, mock_repo_info):
-        url = reverse("req")
-        data = {
-            "docId": "your_doc_id",
-            "reqNumberId": "your_req_id",
-            "reqText": "your_req_text",
-        }
-        add_url = f"{url}?docId={data['docId']}"
-        response_delete = self.client.post(add_url, data=json.dumps(data), content_type="application/json")
-
-        self.assertEqual(response_delete.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
-        mock_get_repos_from_file.assert_called_once()
-        mock_repo_info.assert_called_once()
-
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.addUserRequirement")
-    def test_ReqView_POST_cannotBuild(self, mock_add_user_requirement, mock_get_repos_from_file, mock_repo_info):
-        mock_add_user_requirement.return_value = False
-        url = reverse("req")
-        data = {
-            "docId": "your_doc_id",
-            "reqNumberId": "your_req_id",
-            "reqText": "your_req_text",
-        }
-        add_url = f"{url}?docId={data['docId']}"
-        response_delete = self.client.post(add_url, data=json.dumps(data), content_type="application/json")
-
-        self.assertEqual(response_delete.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
-        mock_add_user_requirement.assert_called_once_with(data["docId"], data["reqNumberId"], data["reqText"], "repo_folder")
-        mock_get_repos_from_file.assert_called_once()
-        mock_repo_info.assert_called_once()
 
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
@@ -220,7 +148,7 @@ class TestViews(SimpleTestCase):
         response = self.client.get(url)
 
         mock_get_user_requirement.assert_called_once_with("your_doc_id", "repo_folder")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.content, b"[]")
         self.assertEqual(type(response), JsonResponse)
         mock_get_repos_from_file.assert_called_once()
@@ -261,23 +189,6 @@ class TestViews(SimpleTestCase):
 
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.addUserDocument", return_value=False)
-    def test_DocView_POST_cannotBuild(self, mock_add_user_document, mock_get_repos_from_file, mock_repo_info):
-        url = reverse("doc")
-        data = {
-            "docId": "your_doc_id",
-            "parentId": "parent",
-        }
-        response = self.client.post(url, data=json.dumps(data), content_type="application/json")
-
-        mock_add_user_document.assert_called_once_with(data["docId"], data["parentId"], "repo_folder")
-        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
-        self.assertEqual(type(response), rest_framework.response.Response)
-        mock_get_repos_from_file.assert_called_once()
-        mock_repo_info.assert_called_once()
-
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.restHandlersHelpers.deleteUserDocument", return_value=True)
     def test_DocView_DELETE(self, mock_delete_document, mock_get_repos_from_file, mock_repo_info):
         url = reverse("doc")
@@ -289,22 +200,6 @@ class TestViews(SimpleTestCase):
         mock_delete_document.assert_called_once_with(data["docId"], "repo_folder")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.content, b'{"message":"OK"}')
-        self.assertEqual(type(response), rest_framework.response.Response)
-        mock_get_repos_from_file.assert_called_once()
-        mock_repo_info.assert_called_once()
-
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.deleteUserDocument", return_value=False)
-    def test_DocView_DELETE_cannotBuild(self, mock_delete_document, mock_get_repos_from_file, mock_repo_info):
-        url = reverse("doc")
-        data = {
-            "docId": "your_doc_id",
-        }
-        response = self.client.delete(url, data=json.dumps(data), content_type="application/json")
-
-        mock_delete_document.assert_called_once_with(data["docId"], "repo_folder")
-        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         self.assertEqual(type(response), rest_framework.response.Response)
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
@@ -328,40 +223,6 @@ class TestViews(SimpleTestCase):
 
     @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
     @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.addUserLink", return_value=False)
-    def test_LinkView_PUT_cannotBuild(self, mock_link, mock_get_repos_from_file, mock_repo_info):
-        url = reverse("linkView")
-        data = {
-            "req1Id": "my_req1Id",
-            "req2Id": "my_req2Id",
-        }
-        response = self.client.put(url, data=json.dumps(data), content_type="application/json")
-        mock_link.assert_called_once_with(data["req1Id"], data["req2Id"], "repo_folder")
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertEqual(type(response), JsonResponse)
-        mock_get_repos_from_file.assert_called_once()
-        mock_repo_info.assert_called_once()
-
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.addUserLink", return_value=False)
-    def test_LinkView_PUT_raises(self, mock_link, mock_get_repos_from_file, mock_repo_info):
-        data = {
-            "req1Id": "my_req1Id",
-            "req2Id": "my_req2Id",
-        }
-        view = views.LinkView()
-        factory = APIRequestFactory()
-        url = reverse("linkView")
-        demo_request = factory.put(url, json.dumps(data), content_type="application/json")
-        request = rest_framework.request.Request(demo_request, parsers=[JSONParser()])
-        self.assertRaises(LinkCycleException, view._addLink, request)
-        mock_link.assert_called_once_with(data["req1Id"], data["req2Id"], "repo_folder")
-        mock_get_repos_from_file.assert_called_once()
-        mock_repo_info.assert_called_once()
-
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
     @patch("MyServer.restHandlersHelpers.deleteUserLink", return_value=True)
     def test_UnlinkView_PUT(self, mock_unlink, mock_get_repos_from_file, mock_repo_info):
         url = reverse("unlinkView")
@@ -373,22 +234,6 @@ class TestViews(SimpleTestCase):
         mock_unlink.assert_called_once_with(data["req1Id"], data["req2Id"], "repo_folder")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.content, b'{"message":"OK"}')
-        self.assertEqual(type(response), rest_framework.response.Response)
-        mock_get_repos_from_file.assert_called_once()
-        mock_repo_info.assert_called_once()
-
-    @patch("MyServer.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("MyServer.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("MyServer.restHandlersHelpers.deleteUserLink", return_value=False)
-    def test_UnlinkView_PUT_cannotBuild(self, mock_unlink, mock_get_repos_from_file, mock_repo_info):
-        url = reverse("unlinkView")
-        data = {
-            "req1Id": "my_req1Id",
-            "req2Id": "my_req2Id",
-        }
-        response = self.client.put(url, data=json.dumps(data), content_type="application/json")
-        mock_unlink.assert_called_once_with(data["req1Id"], data["req2Id"], "repo_folder")
-        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         self.assertEqual(type(response), rest_framework.response.Response)
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
