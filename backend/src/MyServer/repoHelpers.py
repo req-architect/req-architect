@@ -35,11 +35,18 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
         repo.git.config('user.email', userMail)
         repo.git.add(repoFolderPath)
         repo.index.commit(message)
-        repo.remote().fetch()
+        fetchInfo = repo.remote().fetch()
+        for info in fetchInfo:
+            if info.REJECTED:
+                raise MyServer.error.FetchRejectedException()
         try:
             repo.git.merge(f'origin/{repo.active_branch.name}')
         except git.GitCommandError:
             raise MyServer.error.MergeRejectedException(f"Merge was rejected after fetching results from remote repo.")
+        # pullInfo = repo.remote().pull()
+        # for info in pullInfo:
+        #     if info.REJECTED:
+        #         raise MyServer.error.PullRejectedException("Pull was rejected.") 
         pushInfo = repo.remote().push()
         try:
             pushInfo.raise_if_error()
@@ -51,8 +58,6 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
     except git.NoSuchPathError:
         return False
     except OSError:
-        return False
-    except git.GitCommandError:
         return False
 
 
@@ -87,9 +92,9 @@ def pullRepo(repoFolder: str, token):
     repo = git.Repo(repoFolder)
     repo.git.update_environment(GIT_TERMINAL_PROMPT='0', GIT_USERNAME='x-access-token', GIT_PASSWORD=token)
     origin = repo.remote()
-    fetchInfo = origin.pull()
-    for info in fetchInfo:
-        if info.ERROR or info.REJECTED:
+    pullInfo = origin.pull()
+    for info in pullInfo:
+        if info.REJECTED:
             raise MyServer.error.PullRejectedException("Pull was rejected.")
 
 

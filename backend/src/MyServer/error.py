@@ -24,6 +24,15 @@ class PullRejectedException(CustomAPIException):
     def __init__(self, detail='Pull was rejected.'):
         super().__init__(detail)
 
+
+class FetchRejectedException(CustomAPIException):
+    status_code = status.HTTP_409_CONFLICT
+    api_error_code = 'Fetch rejected.'
+
+    def __init__(self, detail='Fetch was rejected.'):
+        super().__init__(detail)
+
+
 class MergeRejectedException(CustomAPIException):
     status_code = status.HTTP_409_CONFLICT
     api_error_code = 'Merge rejected.'
