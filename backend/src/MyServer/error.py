@@ -17,9 +17,16 @@ class DoorstopException(CustomAPIException):
         super().__init__(detail)
 
 
+class DocNotFoundException(CustomAPIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    api_error_code = 'Doc not found'
+
+    def __init__(self, detail='Req not found'):
+        super().__init__(detail)
+
 class ReqNotFoundException(CustomAPIException):
     status_code = status.HTTP_404_NOT_FOUND
-    api_error_code = 'Doorstop internal error'
+    api_error_code = 'Req not found'
 
     def __init__(self, detail='Req not found'):
         super().__init__(detail)
