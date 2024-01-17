@@ -1,6 +1,3 @@
-import os
-import shutil
-import tempfile
 import unittest
 import git
 from unittest.mock import patch, MagicMock
@@ -13,32 +10,40 @@ class TestRepoHelpers(unittest.TestCase):
         result = getReposFromFile()
         expected_result = {"repo1": "https://github.com/user1/repo1.git", "repo2": "https://gitlab.com/user2/repo2.git"}
         self.assertEqual(result, expected_result)
+        mock_open.assert_called_once()
 
-    def test_stageChanges_successful(self):
-        with patch("MyServer.repoHelpers.git.Repo") as mock_repo:
-            repo_instance = MagicMock()
-            mock_repo.return_value = repo_instance
-            repo_instance.remote.return_value = MagicMock()
-            result = stageChanges("repo_folder", "commit message", "user_name", "user_email")
-            repo_instance.git.add.assert_called_with("repo_folder")
-            repo_instance.index.commit.assert_called_with("commit message")
-            repo_instance.remote().push.assert_called_once()
-            self.assertTrue(result)
+    @patch("MyServer.repoHelpers.git.Repo")
+    def test_stageChanges_successful(self, mock_repo):
+        repo_instance = MagicMock()
+        mock_repo.return_value = repo_instance
+        repo_instance.remote.return_value = MagicMock()
+        result = stageChanges("repo_folder", "commit message", "user_name", "user_email")
+        repo_instance.git.add.assert_called_with("repo_folder")
+        repo_instance.index.commit.assert_called_with("commit message")
+        repo_instance.remote().push.assert_called_once()
+        self.assertTrue(result)
+        mock_repo.assert_called_once_with("repo_folder")
 
-    def test_stageChanges_invalid_repo(self):
-        with patch("MyServer.repoHelpers.git.Repo", side_effect=git.InvalidGitRepositoryError):
-            result = stageChanges("invalid_repo_folder", "commit message", "user_name", "user_email")
-            self.assertFalse(result)
+    @patch("MyServer.repoHelpers.git.Repo", side_effect=git.InvalidGitRepositoryError)
+    def test_stageChanges_invalid_repo(self, mock_repo):
+        result = stageChanges("invalid_repo_folder", "commit message", "user_name", "user_email")
+        self.assertFalse(result)
+        mock_repo.assert_called_once_with("invalid_repo_folder")
+        mock_repo.return_value.git.add.assert_not_called()
 
     @patch("MyServer.repoHelpers.git.Repo", side_effect=git.NoSuchPathError)
-    def test_stageChanges_no_such_path(self, mock_os):
+    def test_stageChanges_no_such_path(self, mock_repo):
         result = stageChanges("nonexistent_folder", "commit message", "user_name", "user_email")
         self.assertFalse(result)
+        mock_repo.assert_called_once_with("nonexistent_folder")
+        mock_repo.return_value.git.add.assert_not_called()
 
     @patch("MyServer.repoHelpers.git.Repo", side_effect=OSError)
-    def test_stageChanges_os_error(self, mock_os):
+    def test_stageChanges_os_error(self, mock_repo):
         result = stageChanges("repo_folder", "commit message", "user_name", "user_email")
         self.assertFalse(result)
+        mock_repo.assert_called_once_with("repo_folder")
+        mock_repo.return_value.git.add.assert_not_called()
 
     def test_repoName2DirName(self):
         result = repoName2DirName("user_folder/repo")
@@ -54,6 +59,8 @@ class TestRepoHelpers(unittest.TestCase):
         result = getRepoInfo(request_mock)
         expected_result = ("/default/repos/folder/github/123/user-repo", "user/repo")
         self.assertEqual(result, expected_result)
+        mock_config.assert_called_once()
+        request_mock.GET.get.assert_called_once_with("repositoryName")
 
     @patch("MyServer.repoHelpers.git.Repo.clone_from")
     @patch("os.makedirs")
@@ -63,6 +70,7 @@ class TestRepoHelpers(unittest.TestCase):
         result = cloneRepo("repo_folder", "repo_url", "token", OAuthProvider.GITHUB)
         self.assertEqual(result, mock_repo)
         mock_clone_from.assert_called_once_with("https://token:@repo_url", "repo_folder")
+        mock_makedirs.assert_called_once_with("repo_folder")
 
     @patch("MyServer.repoHelpers.git.Repo.clone_from")
     @patch("os.makedirs")
@@ -72,6 +80,7 @@ class TestRepoHelpers(unittest.TestCase):
         result = cloneRepo("repo_folder", "repo_url", "token", OAuthProvider.GITLAB)
         self.assertEqual(result, mock_repo)
         mock_clone_from.assert_called_once_with("https://oauth2:token@repo_url.git", "repo_folder")
+        mock_makedirs.assert_called_once_with("repo_folder")
 
     @patch("MyServer.repoHelpers.git.Repo")
     def test_pullRepo(self, mock_repo):
@@ -82,12 +91,15 @@ class TestRepoHelpers(unittest.TestCase):
         mock_instance.remote().pull.assert_called_once()
         self.assertIsNone(result)
 
-    def test_checkIfExists_exists(self):
-        with patch("os.path.exists", return_value=True):
-            result = checkIfExists("existing_folder")
-            self.assertTrue(result)
+    @patch("os.path.exists", return_value=True)  
+    def test_checkIfExists_exists(self, mock_os):
+        result = checkIfExists("existing_folder")
+        self.assertTrue(result)
+        mock_os.assert_called_once_with("existing_folder")
 
-    def test_checkIfExists_not_exists(self):
-        with patch("os.path.exists", return_value=False):
-            result = checkIfExists("non_existing_folder")
-            self.assertFalse(result)
+    @patch("os.path.exists", return_value=False)  
+    def test_checkIfExists_not_exists(self, mock_os):
+        result = checkIfExists("non_existing_folder")
+        self.assertFalse(result)
+        mock_os.assert_called_once_with("non_existing_folder")
+
