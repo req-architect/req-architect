@@ -1,3 +1,5 @@
+import { APP_API_URL } from "../../constants.ts";
+
 type Method = "GET" | "POST" | "PUT" | "DELETE";
 
 export class APIError extends Error {
@@ -30,7 +32,7 @@ export default function fetchAPI(
             uri = uri + "?repositoryName=" + repositoryName;
         }
     }
-    return fetch(`${import.meta.env.VITE_APP_API_URL}${uri}`, {
+    return fetch(`${APP_API_URL}${uri}`, {
         method,
         headers: {
             "Content-Type": "application/json",

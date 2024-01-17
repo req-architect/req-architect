@@ -14,6 +14,11 @@ describe("integration tests", () => {
                 SERVER_TEST_MODE: "1",
             })
             .start();
+        jest.mock("../../constants", () => ({
+            APP_API_URL: `http://${container.getHost()}:${container.getMappedPort(
+                8000,
+            )}`,
+        }));
     }, 60000);
 
     afterEach(async () => {
