@@ -17,6 +17,14 @@ class DoorstopException(CustomAPIException):
         super().__init__(detail)
 
 
+class NoParentSpecifiedException(CustomAPIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    api_error_code = 'No parent specified'
+
+    def __init__(self, detail='Parent document must be specified for the one that is about to be added.'):
+        super().__init__(detail)
+
+
 class EmptyDocumentTreeException(CustomAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
     api_error_code = 'No documents created'

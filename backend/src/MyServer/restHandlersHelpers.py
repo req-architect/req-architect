@@ -7,17 +7,17 @@ def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
     try:
         docTree = doorstop.build(cwd=userFolder)
         if len(docTree.documents) >= 1 and not parentId:
-            return False
+            raise MyServer.error.NoParentSpecifiedException(f"parentID must be specified for the given document.")
         if len(docTree.documents) == 0 and parentId:
-            return False
+            pass
+            # return False
         docName = userFolder + "/" + docId
         docTree.create_document(
             docName, docId, parent=parentId)
-        return True
     except doorstop.DoorstopError:
-        return False
-    except FileNotFoundError:
-        return False
+        raise MyServer.error.DoorstopException(f"Could not build document tree.")
+    # except FileNotFoundError:
+    #     return False
 
 
 def removeDocTree(tree: doorstop.Tree, docId: str, userFolder: str, rootTree: doorstop.Tree):
