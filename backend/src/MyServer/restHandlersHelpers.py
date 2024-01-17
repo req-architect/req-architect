@@ -42,15 +42,17 @@ def deleteUserDocument(docId: str, userFolder: str) -> bool:
         numberOfDocuments = len(docTree.documents)
         if numberOfDocuments == 0:
             raise MyServer.error.EmptyDocumentTreeException(f"No documents were created yet.")
+        try:
+            doc = docTree.find_document(docId)
+        except FileNotFoundError:
+            raise MyServer.error.DocNotFoundException(f"Document of given UID: {docId} was not found.")
         removeDocTree(docTree, docId, userFolder, docTree)
-        docTree = doorstop.build(userFolder)
         # if len(docTree.documents) < numberOfDocuments:
         #     return True
         # return False
     except doorstop.DoorstopError:
         raise MyServer.error.DoorstopException(f"Could not build document tree.")
-    except FileNotFoundError:
-        raise MyServer.error.DocNotFoundException(f"Document of given UID: {docId} was not found.")
+        
 
 
 def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: str) -> bool:
