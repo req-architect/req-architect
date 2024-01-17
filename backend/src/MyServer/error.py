@@ -17,6 +17,14 @@ class DoorstopException(CustomAPIException):
         super().__init__(detail)
 
 
+class InvalidReqIDException(CustomAPIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    api_error_code = 'Doc not found'
+
+    def __init__(self, detail='Given Req ID is invalid.'):
+        super().__init__(detail)
+
+
 class DocNotFoundException(CustomAPIException):
     status_code = status.HTTP_404_NOT_FOUND
     api_error_code = 'Doc not found'

@@ -57,17 +57,18 @@ def deleteUserDocument(docId: str, userFolder: str) -> bool:
 def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: str) -> bool:
     try:
         docTree = doorstop.build(userFolder)
-        doc = docTree.find_document(docId)
-        req = doc.add_item(number=reqNumberId)
+        try:
+            doc = docTree.find_document(docId)
+        except FileNotFoundError:
+            raise MyServer.error.DocNotFoundException(f"Document of given UID: {docId} was not found.")
+        try:
+            req = doc.add_item(number=reqNumberId)
+        except TypeError:
+            raise MyServer.error.InvalidReqIDException(f"Given Req ID: {reqNumberId} is invalid.")
         if reqText:
             req.text = reqText
-        return True
     except doorstop.DoorstopError:
-        return False
-    except TypeError:
-        return False
-    except FileNotFoundError:
-        return False
+        raise MyServer.error.DoorstopException(f"Could not build document tree.")
 
 
 def RemoveLinksToReq(reqId: str, documents: list[doorstop.Document], userFolder: str):
@@ -86,11 +87,10 @@ def deleteUserRequirement(docId: str, reqUID: str, userFolder: str) -> bool:
         RemoveLinksToReq(reqUID, docTree.documents, userFolder)
         req.delete()
         # os.remove(req.path)
-        return True
     except doorstop.DoorstopError:
-        return False
+        MyServer.error.DoorstopException(f"Could not build doorstop tree in the given user folder {userFolder}.")
     except FileNotFoundError:
-        return False
+        raise MyServer.error.ReqNotFoundException(f"{reqUID} does not exist or {docId} does not exist.")
 
 
 def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str) -> bool:
@@ -99,18 +99,16 @@ def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str) 
         doc = docTree.find_document(docId)
         req = doc.find_item(reqUID)
         req.text = reqText
-        return True
     except doorstop.DoorstopError:
         raise MyServer.error.DoorstopException(f"Could not build doorstop tree in the given user folder {userFolder}.")
     except FileNotFoundError:
-        raise MyServer.error.ResourceNotFoundException(f"{reqUID} does not exist or {docId} does not exist.")
+        raise MyServer.error.ReqNotFoundException(f"{reqUID} does not exist or {docId} does not exist.")
 
 
 def addUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
     try:
         docTree = doorstop.build(userFolder)
         docTree.link_items(req1UID, req2UID)
-        return True
     except doorstop.DoorstopError:
         raise MyServer.error.LinkCycleException(f"Attempted to create link cycle.")
     except FileNotFoundError:
@@ -121,7 +119,6 @@ def deleteUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
     try:
         docTree = doorstop.build(userFolder)
         docTree.unlink_items(req1UID, req2UID)
-        return True
     except doorstop.DoorstopError:
         raise MyServer.error.DoorstopException(f"Could not build doorstop tree in the given user folder {userFolder}.")
     except FileNotFoundError:
@@ -159,9 +156,9 @@ def serializeDocuments(userFolder: str):
         data.append(buildDicts(rootTree))
         return data
     except doorstop.DoorstopError:
-        return []
-    except FileNotFoundError:
-        return []
+        raise MyServer.error.DoorstopException(f"Could not build document tree.")
+    # except FileNotFoundError:
+    #     return []
 
 
 def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
@@ -187,9 +184,9 @@ def getAllReqs(userFolder: str):
         reqs = getAllReqsWithChildren(userFolder, doc)
         return reqs
     except doorstop.DoorstopError:
-        return []
-    except FileNotFoundError:
-        return []
+        raise MyServer.error.DoorstopException(f"Could not build document tree.")
+    # except FileNotFoundError:
+    #     return []
 
 def getAllReqsWithChildren(userFolder: str, doc):
     reqs = []
