@@ -50,27 +50,23 @@ class ReqView(APIView):
 
     def _deleteRequirement(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        if not MyServer.restHandlersHelpers.deleteUserRequirement(request.data.get("docId"), request.data.get("reqId"), repoFolder):
-            return Response({'message': 'Unable to delete requirement. Specified requirement does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        MyServer.restHandlersHelpers.deleteUserRequirement(request.data.get("docId"), request.data.get("reqId"), repoFolder)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _editRequirement(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        if not MyServer.restHandlersHelpers.editUserRequirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), repoFolder):
-            return Response({'message': 'Unable to modify requirement. At least one of specified uids is invalid or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        MyServer.restHandlersHelpers.editUserRequirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), repoFolder)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _addRequirement(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        if not MyServer.restHandlersHelpers.addUserRequirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), repoFolder):
-            return Response({'message': 'Unable to add requirement. Invalid document uid or invalid req number or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        MyServer.restHandlersHelpers.addUserRequirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), repoFolder)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _getReqs(self, request):
         doc_id = request.GET.get('docId', '')  # Get docId from query parameters
         if not doc_id:
             return Response({'message': 'Missing docId parameter in the request'}, status=status.HTTP_400_BAD_REQUEST)
-
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
         reqs = MyServer.restHandlersHelpers.getDocReqs(
             request.GET.get("docId"), repoFolder)
@@ -103,14 +99,12 @@ class DocView(APIView):
 
     def _addDocument(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        if not MyServer.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), repoFolder):
-            return Response({'message': 'Unable to add document. Could not build documents tree or root document exists and you need to specify the parent document or root document does not exist and you must not specify parentId.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        MyServer.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), repoFolder)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _deleteDocument(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        if not MyServer.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), repoFolder):
-            return Response({'message': 'Unable to delete document. Specified document does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        MyServer.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), repoFolder)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _getDocuments(self, request):
@@ -131,8 +125,7 @@ class LinkView(APIView):
 
     def _addLink(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        if not MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder):
-            raise LinkCycleException()
+        MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -151,8 +144,7 @@ class UnlinkView(APIView):
 
     def _removeLink(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        if not MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder):
-            return Response({'message': 'Unable to unlink requirements. At least one invalid requirement id or could not build document tree.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
