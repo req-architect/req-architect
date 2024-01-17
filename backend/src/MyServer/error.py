@@ -17,9 +17,17 @@ class DoorstopException(CustomAPIException):
         super().__init__(detail)
 
 
+class EmptyDocumentTreeException(CustomAPIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    api_error_code = 'No documents created'
+
+    def __init__(self, detail='No documents were created yet.'):
+        super().__init__(detail)
+
+
 class InvalidReqIDException(CustomAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    api_error_code = 'Doc not found'
+    api_error_code = 'Invalid Req ID'
 
     def __init__(self, detail='Given Req ID is invalid.'):
         super().__init__(detail)

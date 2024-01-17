@@ -105,8 +105,7 @@ class DocView(APIView):
 
     def _deleteDocument(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        if not MyServer.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), repoFolder):
-            return Response({'message': 'Unable to delete document. Specified document does not exist or could not build document tree'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        MyServer.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), repoFolder)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _getDocuments(self, request):
