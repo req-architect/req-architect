@@ -1,10 +1,16 @@
+import os
 import unittest
 import git
 from unittest.mock import patch, MagicMock
-from MyServer.repoHelpers import getReposFromFile, stageChanges, repoName2DirName, getRepoInfo, cloneRepo, pullRepo, checkIfExists, OAuthProvider
+from MyServer.repoHelpers import getReposFromFile, getUserServerRepos, stageChanges, repoName2DirName, getRepoInfo, cloneRepo, pullRepo, checkIfExists, OAuthProvider
+import MyServer.error as my_errors
 
 
 class TestRepoHelpers(unittest.TestCase):
+    def tearDown(self):
+        # Clean up the test environment
+        os.environ.pop("SERVER_TEST_MODE", None)
+        
     @patch("builtins.open", new_callable=unittest.mock.mock_open, read_data="repo1 https://github.com/user1/repo1.git\nrepo2 https://gitlab.com/user2/repo2.git")
     def test_getReposFromFile(self, mock_open):
         result = getReposFromFile()
@@ -103,3 +109,34 @@ class TestRepoHelpers(unittest.TestCase):
         self.assertFalse(result)
         mock_os.assert_called_once_with("non_existing_folder")
 
+    def test_getUserServerRepos(self):
+        user_repos = ["repo1", "repo2", "repo3"]
+        server_repos = {"repo1": "url1", "repo2": "url2", "repo4": "url4"}
+        result = getUserServerRepos(user_repos, server_repos)
+        expected_result = ["repo1", "repo2"]
+        self.assertEqual(result, expected_result)
+        result_2 = getUserServerRepos([], server_repos)
+        self.assertEqual(result_2, [])
+
+#    SERVER_TEST_MODE is True   
+
+    @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})
+    def test_get_repos_from_file_server_mode(self):
+        result = getReposFromFile()
+        self.assertEqual(result,  {'test_repo_1': 'url_1', 'test_repo_2': 'url_2'})
+    
+    @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})
+    def test_stage_changes_server_mode(self):
+        result = stageChanges("repo_folder", "commit message", "user_name", "user_email")
+        self.assertTrue(result)
+    
+    @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})
+    @patch("os.makedirs")
+    def test_clone_repo_server_mode(self, mock_makedirs):
+        result = cloneRepo("repo_folder", "repo_url", "token", OAuthProvider.GITHUB)
+        self.assertIsNotNone(result)
+    
+    @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})
+    def test_pull_repo_server_mode(self):
+        result = pullRepo("repo_folder", "token")
+        self.assertIsNone(result)

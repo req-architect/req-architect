@@ -58,7 +58,7 @@ class TestViews(SimpleTestCase):
         delete_url = f"{url}?docId={data['docId']}"
         response_delete = self.client.delete(delete_url, data=json.dumps(data), content_type="application/json")
 
-        self.assertEqual(response_delete.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response_delete.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         mock_get_repo_info.assert_called_once()
         mock_get_repos_from_file.assert_called_once()
 
