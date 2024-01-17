@@ -13,6 +13,9 @@ from requests_oauthlib import OAuth2Session
 from rest_framework import status
 from rest_framework.response import Response
 
+# for integrations tests
+from MyServer.testHelpers import server_test_mode, MockedAuthInfo, TEST_USERNAME, TEST_UID, TEST_MAIL, TEST_TOKEN, TEST_REPOS
+
 
 class OAuthProvider(Enum):
     GITHUB = 0
@@ -90,6 +93,9 @@ class AuthProviderAPI:
                                   session.token.get("expires_in"))
 
     def getUserMail(self, token_str: str) -> str | None:
+        if server_test_mode():
+            return TEST_MAIL
+
         session = OAuth2Session(token={"access_token": token_str, "token_type": "Bearer"})
         emails = []
         if self._provider == OAuthProvider.GITHUB:
@@ -106,6 +112,9 @@ class AuthProviderAPI:
         return None
 
     def get_identity(self, token_str: str) -> Tuple[str, str, str | None]:
+        if server_test_mode():
+            return TEST_UID, TEST_USERNAME, TEST_MAIL
+
         session = OAuth2Session(token={"access_token": token_str, "token_type": "Bearer"})
         if self._provider == OAuthProvider.GITHUB:
             r = session.get("https://api.github.com/user").json()
@@ -115,6 +124,9 @@ class AuthProviderAPI:
             return r['id'], r['username'], r['email']
 
     def get_repos(self, token_str: str) -> list[str] | None:
+        if server_test_mode():
+            return TEST_REPOS
+
         session = OAuth2Session(token={"access_token": token_str, "token_type": "Bearer"})
         if self._provider == OAuthProvider.GITHUB:
             r = session.get('https://api.github.com/user/repos', headers={
@@ -178,5 +190,12 @@ def requires_jwt_login(func):
         authInfo = AuthInfo(oAuthToken.token, oAuthToken.provider, user_id)
         request.auth = authInfo
         return func(self, request, *args, **kwargs)
-
+    
+    @wraps(func)
+    def test_wrapper(self, request, *args, **kwargs):
+        request.auth = MockedAuthInfo(OAuthProvider.GITHUB)
+        return func(self, request, *args, **kwargs)
+    
+    if server_test_mode():
+        return test_wrapper
     return wrapper

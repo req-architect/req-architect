@@ -35,6 +35,7 @@ GITHUB_CLIENT_SECRET="*************"
 GITLAB_CLIENT_ID="*************"
 GITLAB_CLIENT_SECRET="*************"
 JWT_SECRET="*************"
+SERVER_TEST_MODE=0
 ```
 
 Aby umożliwić autoryzację należy utworzyć aplikacje na serwisie github.com oraz gitlab.com i wygenerować sekret JWT.
@@ -143,6 +144,9 @@ lub jednym poleceniem:
 ```bash
  ssh -R kukiwakobackend.serveo.net:80:localhost:8000 -R kukiwako.serveo.net:80:localhost:3000 serveo.net
 ```
+
+## Uruchomienie serwera w trybie testowym  
+Aby uruchomić serwer w trybie testowym (służącym do przeprowadzenia testów integracyjnych) należy ustawić zmienną środowiskową `SERVER_TEST_MODE=1`. Tryb testowy całkowicie ingoruje integracje z gitem (autoryzację, operacje na zdalnym repozytorium).
 
 ### Uwaga przy korzystaniu z bigubu
 Zanim zrobimy docker compose itd, należy zmienić nazwę katalogu:
