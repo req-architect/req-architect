@@ -17,6 +17,35 @@ class DoorstopException(CustomAPIException):
         super().__init__(detail)
 
 
+class PullRejectedException(CustomAPIException):
+    status_code = status.HTTP_409_CONFLICT
+    api_error_code = 'Pull rejected.'
+
+    def __init__(self, detail='Pull was rejected.'):
+        super().__init__(detail)
+
+class MergeRejectedException(CustomAPIException):
+    status_code = status.HTTP_409_CONFLICT
+    api_error_code = 'Merge rejected.'
+
+    def __init__(self, detail='Merge was rejected.'):
+        super().__init__(detail)
+
+class CloneRejectedException(CustomAPIException):
+    status_code = status.HTTP_409_CONFLICT
+    api_error_code = 'Clone rejected.'
+
+    def __init__(self, detail='Clone was rejected.'):
+        super().__init__(detail)
+
+class PushRejectedException(CustomAPIException):
+    status_code = status.HTTP_409_CONFLICT
+    api_error_code = 'Push rejected.'
+
+    def __init__(self, detail='Push was rejected.'):
+        super().__init__(detail)
+
+
 class ParentOfEmptyTreeSpecifiedException(CustomAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
     api_error_code = 'Parent document when tree is empty was specified'
