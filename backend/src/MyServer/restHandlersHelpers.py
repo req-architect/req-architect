@@ -9,8 +9,7 @@ def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
         if len(docTree.documents) >= 1 and not parentId:
             raise MyServer.error.NoParentSpecifiedException(f"parentID must be specified for the given document.")
         if len(docTree.documents) == 0 and parentId:
-            pass
-            # return False
+            raise MyServer.error.ParentOfEmptyTreeSpecifiedException()
         docName = userFolder + "/" + docId
         docTree.create_document(
             docName, docId, parent=parentId)
