@@ -16,6 +16,15 @@ class DoorstopException(CustomAPIException):
     def __init__(self, detail='Internal Doorstop error'):
         super().__init__(detail)
 
+
+class ReqNotFoundException(CustomAPIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    api_error_code = 'Doorstop internal error'
+
+    def __init__(self, detail='Req not found'):
+        super().__init__(detail)
+
+
 class LinkCycleException(CustomAPIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = 'Link cycle attempt detected.'

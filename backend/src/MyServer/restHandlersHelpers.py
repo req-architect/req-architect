@@ -110,7 +110,7 @@ def addUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
         docTree.link_items(req1UID, req2UID)
         return True
     except doorstop.DoorstopError:
-        return False
+        raise MyServer.error.LinkCycleException(f"Attempted to create link cycle.")
     except FileNotFoundError:
         return False
 
@@ -120,10 +120,10 @@ def deleteUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
         docTree = doorstop.build(userFolder)
         docTree.unlink_items(req1UID, req2UID)
         return True
-    except doorstop.DoorstopError as d:
-        raise MyServer.error.DoorstopException(str(d))
+    except doorstop.DoorstopError:
+        raise MyServer.error.DoorstopException(f"Could not build doorstop tree in the given user folder {userFolder}.")
     except FileNotFoundError:
-        raise MyServer.error.LinkCycleException()
+        raise MyServer.error.ReqNotFoundException(f"{req1UID} does not exist or {req2UID} does not exist.")
 
 
 def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list or None:
