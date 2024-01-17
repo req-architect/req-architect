@@ -66,3 +66,9 @@ def pullRepo(repoFolder: str, token):
 
 def checkIfExists(repoFolder: str) -> bool:
     return os.path.exists(repoFolder)
+
+
+def getUserServerRepos(userRepos: list, serverRepos: dict):
+    if not userRepos:
+        return []
+    return [repoName for repoName in userRepos if repoName in serverRepos.keys()]
