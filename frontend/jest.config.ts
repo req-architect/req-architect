@@ -1,8 +1,12 @@
+import { defaults } from "jest-config";
+
 export default {
-    preset: "ts-jest",
-    testEnvironment: "jest-environment-jsdom",
+    bail: true,
+    moduleFileExtensions: [...defaults.moduleFileExtensions, "ts", "tsx"],
+    roots: ["src"],
+    testMatch: ["<rootDir>/src/**/?(*.)test.{ts,tsx}"],
     transform: {
         "^.+\\.tsx?$": "ts-jest",
     },
-    reporters: ["default", "jest-junit"],
+    verbose: true,
 };

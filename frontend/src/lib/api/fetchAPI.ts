@@ -1,13 +1,13 @@
-import { toast } from "react-toastify";
-
 type Method = "GET" | "POST" | "PUT" | "DELETE";
 
 export class APIError extends Error {
     constructor(
         message: string,
         public status: number,
+        public api_error_code?: string,
     ) {
         super(message);
+        this.api_error_code = api_error_code;
     }
 }
 
@@ -38,33 +38,21 @@ export default function fetchAPI(
         },
         body: JSON.stringify(body),
         signal: abortController?.signal,
-    })
-        .then(async (response) => {
-            if (!response.ok) {
-                const data = await response.json().catch(() => {
-                    throw new APIError(response.statusText, response.status);
-                });
-                if (data.message) {
-                    throw new APIError(data.message, response.status);
-                } else {
-                    throw new APIError(response.statusText, response.status);
-                }
+    }).then(async (response) => {
+        if (!response.ok) {
+            const data = await response.json().catch(() => {
+                throw new APIError(response.statusText, response.status);
+            });
+            if (data.message) {
+                throw new APIError(
+                    data.message,
+                    response.status,
+                    data.get("api_error_code"),
+                );
+            } else {
+                throw new APIError(response.statusText, response.status);
             }
-            return response.json();
-        })
-        .catch((error) => {
-            if (
-                error instanceof APIError &&
-                !(
-                    error.status === 409 &&
-                    error.message.includes(
-                        CUSTOM_ERROR_MESSAGES.link_cycle_attempt,
-                    )
-                )
-            ) {
-                console.log(error);
-                toast.error(error.message);
-            }
-            throw error;
-        });
+        }
+        return response.json();
+    });
 }
