@@ -18,7 +18,7 @@ frontend_test:
   image: node:18-alpine
   script:
     - cd frontend
-    - npm run test
+    - npm run test src/test/unit
   dependencies:
     - frontend_build
   artifacts:

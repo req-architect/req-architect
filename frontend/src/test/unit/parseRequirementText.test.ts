@@ -1,7 +1,7 @@
 import { expect, test, describe } from "@jest/globals";
 import parseRequirementText, {
     RequirementParseError,
-} from "../lib/parseRequirementText.ts";
+} from "../../lib/parseRequirementText.ts";
 
 describe("test parseRequirementText", () => {
     test("empty string", () => {
