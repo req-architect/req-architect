@@ -64,7 +64,7 @@ def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: s
         return True
     except doorstop.DoorstopError:
         return False
-    except TypeError:
+    except TypeError as e:
         return False
     except FileNotFoundError:
         return False

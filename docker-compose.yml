@@ -17,6 +17,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       REPOS_FOLDER: /repos
       PYTHONUNBUFFERED: 1
+      SERVER_TEST_MODE: ${SERVER_TEST_MODE}
     volumes:
       - ./backend/src:/app/src
   frontend:
