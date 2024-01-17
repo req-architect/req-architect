@@ -37,7 +37,7 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
         repo.index.commit(message)
         fetchInfo = repo.remote().fetch()
         for info in fetchInfo:
-            if info.REJECTED:
+            if info.flags == info.REJECTED:
                 raise MyServer.error.FetchRejectedException()
         try:
             repo.git.merge(f'origin/{repo.active_branch.name}')
@@ -94,7 +94,7 @@ def pullRepo(repoFolder: str, token):
     origin = repo.remote()
     pullInfo = origin.pull()
     for info in pullInfo:
-        if info.REJECTED:
+        if info.flags == info.REJECTED:
             raise MyServer.error.PullRejectedException("Pull was rejected.")
 
 
