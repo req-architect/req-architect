@@ -131,8 +131,9 @@ class TestRepoHelpers(unittest.TestCase):
         self.assertTrue(result)
     
     @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})
+    @patch("MyServer.repoHelpers.git.Repo.init")
     @patch("os.makedirs")
-    def test_clone_repo_server_mode(self, mock_makedirs):
+    def test_clone_repo_server_mode(self, mock_makedirs, mock_init):
         result = cloneRepo("repo_folder", "repo_url", "token", OAuthProvider.GITHUB)
         self.assertIsNotNone(result)
     
