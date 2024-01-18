@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import os
 import unittest
 from unittest.mock import MagicMock, patch
 from uuid import UUID, uuid4
@@ -13,6 +14,7 @@ from MyServer.authHelpers import (
     generate_authorization_url,
     requires_jwt_login,
 )
+from MyServer.testHelpers import server_test_mode, MockedAuthInfo, TEST_USERNAME, TEST_UID, TEST_MAIL, TEST_TOKEN, TEST_REPOS 
 
 @requires_jwt_login
 def dummy_view(self, request):
@@ -290,3 +292,24 @@ class TestAuthHelpers(unittest.TestCase):
 
         mock_requests_get.assert_called_once_with("https://api.github.com/user/repos", headers={"Accept": "application/vnd.github+json"})
         self.assertIsNone(repos)
+
+#    SERVER_TEST_MODE is True   
+
+    @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})
+    def test_getUserMail_server_test_mode(self):
+        auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
+        email = auth_provider.getUserMail("mocked_token")
+        self.assertEqual(email, TEST_MAIL) 
+    
+    @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})
+    def test_get_identity_server_test_mode(self):
+        auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
+        identity = auth_provider.get_identity("mocked_token")
+        self.assertEqual(identity, (TEST_UID, TEST_USERNAME, TEST_MAIL))
+    
+    @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})
+    def test_get_repos_server_test_mode(self):
+        auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
+        repos = auth_provider.get_repos("mocked_token")
+        self.assertEqual(repos, TEST_REPOS)
+    

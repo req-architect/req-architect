@@ -5,11 +5,7 @@ from unittest.mock import patch, MagicMock, call
 from MyServer.repoHelpers import getReposFromFile, getUserServerRepos, stageChanges, repoName2DirName, getRepoInfo, cloneRepo, pullRepo, checkIfExists, OAuthProvider
 
 
-class TestRepoHelpers(unittest.TestCase):
-    def tearDown(self):
-        # Clean up the test environment
-        os.environ.pop("SERVER_TEST_MODE", None)
-        
+class TestRepoHelpers(unittest.TestCase):  
     @patch("builtins.open", new_callable=unittest.mock.mock_open, read_data="repo1 https://github.com/user1/repo1.git\nrepo2 https://gitlab.com/user2/repo2.git")
     def test_getReposFromFile(self, mock_open):
         result = getReposFromFile()
