@@ -3,6 +3,7 @@ import { GenericContainer, StartedTestContainer } from "testcontainers";
 // import { fetchIdentity } from "../../lib/api/authService.ts";
 import { getRepos, postRepo, postCommit } from "../../lib/api/gitService";
 import { fetchDocuments, postDocument, deleteDocument } from "../../lib/api/documentService";
+import { fetchRequirements, postRequirement } from "../../lib/api/requirementService";
 
 const TEST_TOKEN = "test_token";
 const TEST_REPOS = ["test_repo_1", "test_repo_2"];
@@ -107,5 +108,29 @@ describe("integration tests", () => {
 
         const docs = await fetchDocuments(TEST_TOKEN, repo);
         expect(docs).toEqual([]);
+    }, 120000);
+
+    test("testFetchRequirements", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+
+        const reqs = await fetchRequirements(TEST_TOKEN, repo, "root");
+        expect(reqs).toEqual([]);
+    }, 120000);
+
+    test("testAddRequirements", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        await postRequirement(TEST_TOKEN, repo, "root");
+
+        const reqs = await fetchRequirements(TEST_TOKEN, repo, "root");
+        expect(reqs.length).toBe(1);
+        const req = reqs[0];
+        expect(req.id).toBe("root001");
+        expect(req.text).toBe("");
+        expect(req.links).toEqual([]);
+        expect(req.reviewed).toBe(false);
     }, 120000);
 });
