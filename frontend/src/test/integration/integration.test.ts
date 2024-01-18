@@ -22,7 +22,7 @@ jest.mock("../../constants.ts", () => {
     };
 });
 
-describe("integration tests", () => {
+describe("GitServiceTest", () => {
     let container: StartedTestContainer;
     beforeEach(async () => {
         const genericContainer =
@@ -43,14 +43,6 @@ describe("integration tests", () => {
     afterEach(async () => {
         await container.stop();
     });
-    // test("healthcheck", async () => {
-    //     const port = container.getMappedPort(8000);
-    //     const host = container.getHost();
-    //     const response = await fetch(`http://${host}:${port}/healthcheck`);
-    //     expect(response.status).toBe(200);
-    //     const text = await response.text();
-    //     expect(text).toBe("OK");
-    // }, 120000);
 
     test("testGetRepos", async () => {
         const repos = await getRepos(TEST_TOKEN);
@@ -66,6 +58,29 @@ describe("integration tests", () => {
         const response = await postCommit(TEST_TOKEN, TEST_REPOS[0], "Some commit text");
         expect(response.message).toBe("Successfully staged changes in repository!");
     }, 120000);
+});
+
+describe("documentServiceTest", () => {
+    let container: StartedTestContainer;
+    beforeEach(async () => {
+        const genericContainer =
+            await GenericContainer.fromDockerfile("../backend").build();
+        container = await genericContainer
+            .withExposedPorts(8000)
+            .withEnvironment({
+                CORS_ALLOWED_ORIGINS: "http://localhost:3000",
+                REPOS_FOLDER: "/repos",
+                SERVER_TEST_MODE: "1",
+            })
+            .start();
+        TEST_API_URL = `http://${container.getHost()}:${container.getMappedPort(
+            8000,
+        )}`;
+    }, 120000);
+
+    afterEach(async () => {
+        await container.stop();
+    });
 
     test("testFetchDocuments", async () => {
         await postRepo(TEST_TOKEN, TEST_REPOS[0]);
@@ -109,7 +124,31 @@ describe("integration tests", () => {
         const docs = await fetchDocuments(TEST_TOKEN, repo);
         expect(docs).toEqual([]);
     }, 120000);
+});
 
+
+describe("ReqServiceTest", () => {
+    let container: StartedTestContainer;
+    beforeEach(async () => {
+        const genericContainer =
+            await GenericContainer.fromDockerfile("../backend").build();
+        container = await genericContainer
+            .withExposedPorts(8000)
+            .withEnvironment({
+                CORS_ALLOWED_ORIGINS: "http://localhost:3000",
+                REPOS_FOLDER: "/repos",
+                SERVER_TEST_MODE: "1",
+            })
+            .start();
+        TEST_API_URL = `http://${container.getHost()}:${container.getMappedPort(
+            8000,
+        )}`;
+    }, 120000);
+
+    afterEach(async () => {
+        await container.stop();
+    });
+    
     test("testFetchRequirements", async () => {
         const repo = TEST_REPOS[0];
         await postRepo(TEST_TOKEN, repo);
