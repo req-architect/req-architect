@@ -5,7 +5,7 @@ import {
     linkRequirement,
 } from "../../../lib/api/requirementService";
 import { Requirement, RequirementWithDoc } from "../../../types";
-import { CUSTOM_ERROR_MESSAGES } from "../../../lib/api/fetchAPI";
+import { APIError } from "../../../lib/api/fetchAPI";
 import useRepoContext from "../../../hooks/useRepoContext.ts";
 import { useAuth } from "../../../hooks/useAuthContext.ts";
 
@@ -89,8 +89,8 @@ export default function RequirementAddLink({
             refreshRequirements();
         } catch (error) {
             if (
-                error instanceof Error &&
-                error.message.includes(CUSTOM_ERROR_MESSAGES.link_cycle_attempt)
+                error instanceof APIError &&
+                error.api_error_code == "LINK_CYCLE_ATTEMPT"
             ) {
                 setErrorState(
                     "Can't link this requirement - you mustn't build a cycle",
