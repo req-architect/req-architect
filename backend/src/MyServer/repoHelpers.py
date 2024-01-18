@@ -69,7 +69,7 @@ def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
     os.makedirs(destination)
 
     if server_test_mode():
-        repo = git.Repo.init(destination)
+        repo = git.Repo.init(destination + "/req")
         return repo
 
     if provider == OAuthProvider.GITHUB:
