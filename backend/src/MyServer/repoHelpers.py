@@ -7,15 +7,6 @@ from decouple import config
 import MyServer.error
 
 
-class ConflictDetector(git.RemoteProgress):
-    def update(self, op_code, cur_count, max_count=None, message=''):
-        if 'CONFLICT' in message:
-            print("Merge resulted in conflicts")
-            # Dodatkowo, możesz wydobyć informacje o konfliktach
-            # z e.message, na przykład:
-            # print(message)
-
-
 def getReposFromFile() -> dict:
     if server_test_mode():
         return TEST_SERVER_REPOS
@@ -26,10 +17,6 @@ def getReposFromFile() -> dict:
         for row in reader:
             repos[row[0]] = row[1]
         return repos
-
-
-def checkGitOperationStatus(operationState: git.RemoteProgress):
-    pass
 
 
 def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> bool:
@@ -50,10 +37,6 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
             repo.git.merge(f'origin/{repo.active_branch.name}')
         except git.GitCommandError:
             raise MyServer.error.MergeRejectedException(f"Merge was rejected after fetching results from remote repo.")
-        # pullInfo = repo.remote().pull()
-        # for info in pullInfo:
-        #     if info.REJECTED:
-        #         raise MyServer.error.PullRejectedException("Pull was rejected.")
         pushInfo = repo.remote().push()
         try:
             pushInfo.raise_if_error()
