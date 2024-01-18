@@ -1,4 +1,4 @@
-import { APP_API_URL } from "../../constants.ts";
+import { constant } from "../../constants.ts";
 
 type Method = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -32,7 +32,7 @@ export default function fetchAPI(
             uri = uri + "?repositoryName=" + repositoryName;
         }
     }
-    return fetch(`${APP_API_URL}${uri}`, {
+    return fetch(`${constant("VITE_APP_API_URL")}${uri}`, {
         method,
         headers: {
             "Content-Type": "application/json",

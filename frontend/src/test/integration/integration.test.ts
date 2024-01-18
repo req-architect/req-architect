@@ -1,5 +1,19 @@
 import { test, describe, beforeEach, afterEach } from "@jest/globals";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
+import { fetchIdentity } from "../../lib/api/authService.ts";
+
+let TEST_API_URL = "http://localhost:8000";
+
+function constant(constant: string) {
+    constant;
+    return TEST_API_URL;
+}
+
+jest.mock("../../constants.ts", () => {
+    return {
+        constant,
+    };
+});
 
 describe("integration tests", () => {
     let container: StartedTestContainer;
@@ -14,11 +28,9 @@ describe("integration tests", () => {
                 SERVER_TEST_MODE: "1",
             })
             .start();
-        jest.mock("../../constants", () => ({
-            APP_API_URL: `http://${container.getHost()}:${container.getMappedPort(
-                8000,
-            )}`,
-        }));
+        TEST_API_URL = `http://${container.getHost()}:${container.getMappedPort(
+            8000,
+        )}`;
     }, 60000);
 
     afterEach(async () => {
@@ -32,4 +44,7 @@ describe("integration tests", () => {
         const text = await response.text();
         expect(text).toBe("OK");
     }, 60000);
+    test("test", async () => {
+        fetchIdentity("test", new AbortController());
+    });
 });
