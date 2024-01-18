@@ -53,7 +53,7 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
         # pullInfo = repo.remote().pull()
         # for info in pullInfo:
         #     if info.REJECTED:
-        #         raise MyServer.error.PullRejectedException("Pull was rejected.") 
+        #         raise MyServer.error.PullRejectedException("Pull was rejected.")
         pushInfo = repo.remote().push()
         try:
             pushInfo.raise_if_error()
@@ -97,6 +97,8 @@ def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
         repo = git.Repo.clone_from(url, destination)
     except git.GitCommandError:
         raise MyServer.error.CloneRejectedException(f"Clone was rejected.")
+    # ensure /req exists
+    os.makedirs(f"{destination}/req", exist_ok=True)
     return repo
 
 
