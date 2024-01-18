@@ -50,17 +50,17 @@ class ReqView(APIView):
 
     def _deleteRequirement(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        MyServer.restHandlersHelpers.deleteUserRequirement(request.data.get("docId"), request.data.get("reqId"), repoFolder)
+        MyServer.restHandlersHelpers.deleteUserRequirement(request.data.get("docId"), request.data.get("reqId"), repoFolder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _editRequirement(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        MyServer.restHandlersHelpers.editUserRequirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), repoFolder)
+        MyServer.restHandlersHelpers.editUserRequirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), repoFolder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _addRequirement(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        MyServer.restHandlersHelpers.addUserRequirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), repoFolder)
+        MyServer.restHandlersHelpers.addUserRequirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), repoFolder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _getReqs(self, request):
@@ -69,7 +69,7 @@ class ReqView(APIView):
             return Response({'message': 'Missing docId parameter in the request'}, status=status.HTTP_400_BAD_REQUEST)
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
         reqs = MyServer.restHandlersHelpers.getDocReqs(
-            request.GET.get("docId"), repoFolder)
+            request.GET.get("docId"), repoFolder + "/req")
         if not reqs:
             return JsonResponse([], safe=False)
         serialized = MyServer.restHandlersHelpers.serializeDocReqs(reqs)
@@ -99,18 +99,18 @@ class DocView(APIView):
 
     def _addDocument(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        MyServer.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), repoFolder)
+        MyServer.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), repoFolder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _deleteDocument(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        MyServer.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), repoFolder)
+        MyServer.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), repoFolder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
     def _getDocuments(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
         serialized = MyServer.restHandlersHelpers.serializeDocuments(
-            repoFolder)
+            repoFolder + "/req")
         return JsonResponse(serialized, safe=False)
 
 
@@ -125,7 +125,7 @@ class LinkView(APIView):
 
     def _addLink(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder)
+        MyServer.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -144,7 +144,7 @@ class UnlinkView(APIView):
 
     def _removeLink(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder)
+        MyServer.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -231,7 +231,7 @@ class AllReqsView(APIView):
 
     def _getAllReqs(self, request):
         repoFolder, _ = MyServer.repoHelpers.getRepoInfo(request)
-        reqs = MyServer.restHandlersHelpers.getAllReqs(repoFolder)
+        reqs = MyServer.restHandlersHelpers.getAllReqs(repoFolder + "/req")
         if not reqs:
             return JsonResponse([], safe=False)
         serialized = MyServer.restHandlersHelpers.serializeAllReqs(reqs)

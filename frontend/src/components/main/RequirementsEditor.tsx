@@ -30,7 +30,6 @@ export default function RequirementsEditor() {
                 repoTools.repositoryName,
                 mainContextTools.data.selectedDocumentPrefix,
             );
-            console.log("Fetched requirements:", data);
             setFetchedRequirements(data);
         }
     }, [authTools, repoTools, mainContextTools.data.selectedDocumentPrefix]);

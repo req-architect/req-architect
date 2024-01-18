@@ -13,10 +13,6 @@ export class APIError extends Error {
     }
 }
 
-export enum CUSTOM_ERROR_MESSAGES {
-    link_cycle_attempt = "could not build document tree",
-}
-
 export default function fetchAPI(
     tokenStr: string,
     repositoryName: string | null,
@@ -49,7 +45,7 @@ export default function fetchAPI(
                 throw new APIError(
                     data.message,
                     response.status,
-                    data.get("api_error_code"),
+                    data["api_error_code"],
                 );
             } else {
                 throw new APIError(response.statusText, response.status);

@@ -7,3 +7,4 @@ doorstop
 gitpython
 requests-oauthlib
 pyjwt
+coverage
