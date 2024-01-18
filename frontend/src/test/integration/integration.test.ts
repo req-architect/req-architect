@@ -124,6 +124,17 @@ describe("documentServiceTest", () => {
         const docs = await fetchDocuments(TEST_TOKEN, repo);
         expect(docs).toEqual([]);
     }, 120000);
+
+    test("testDeleteWithChildren", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        await postDocument(TEST_TOKEN, repo, "SYSREQ", "root");
+        await deleteDocument(TEST_TOKEN, repo, "root");
+
+        const docs = await fetchDocuments(TEST_TOKEN, repo);
+        expect(docs).toEqual([]);
+    }, 120000);
 });
 
 
@@ -218,6 +229,33 @@ describe("ReqServiceTest", () => {
         expect(reqs.length).toBe(1);
         const req = reqs[0];
         expect(req.id).toBe("root002");
+    }, 120000);
+
+    test("testDeleteDeletedDocumentReqs", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        await postRequirement(TEST_TOKEN, repo, "root");
+        await postRequirement(TEST_TOKEN, repo, "root");
+        await deleteDocument(TEST_TOKEN, repo, "root");
+
+        const reqs = await getAllRequirements(TEST_TOKEN, repo);
+        expect(reqs.length).toBe(0);
+    }, 120000);
+
+    test("testDeleteDeletedDocumentReqs-multipleDocumentsInRepo", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        await postDocument(TEST_TOKEN, repo, "SYSREQ", "root");
+        await postRequirement(TEST_TOKEN, repo, "root");
+        await postRequirement(TEST_TOKEN, repo, "SYSREQ");
+        await deleteDocument(TEST_TOKEN, repo, "SYSREQ");
+
+        const reqs = await getAllRequirements(TEST_TOKEN, repo);
+        expect(reqs.length).toBe(1);
+        const req = reqs[0];
+        expect(req.docPrefix).toBe("root");
     }, 120000);
     
     test("testPutRequirement", async () => {
