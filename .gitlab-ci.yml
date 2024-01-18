@@ -37,5 +37,5 @@ backend_test:
     - pip install -r requirements.txt
   script:
     - cd src
-    - CORS_ALLOWED_ORIGINS="http://localhost:3000" coverage run --branch src/manage.py test
+    - CORS_ALLOWED_ORIGINS="http://localhost:3000" coverage run --branch manage.py test
     - coverage report
