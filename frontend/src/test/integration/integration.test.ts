@@ -2,7 +2,7 @@ import { test, describe, beforeEach, afterEach } from "@jest/globals";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 // import { fetchIdentity } from "../../lib/api/authService.ts";
 import { getRepos, postRepo, postCommit } from "../../lib/api/gitService";
-import { fetchDocuments, postDocument } from "../../lib/api/documentService";
+import { fetchDocuments, postDocument, deleteDocument } from "../../lib/api/documentService";
 
 const TEST_TOKEN = "test_token";
 const TEST_REPOS = ["test_repo_1", "test_repo_2"];
@@ -99,13 +99,13 @@ describe("integration tests", () => {
         }
     }, 120000);
 
-    // test("testDeleteDocument", async () => {
-    //     const repo = TEST_REPOS[0];
-    //     await postRepo(TEST_TOKEN, repo);
-    //     await postDocument(TEST_TOKEN, repo, "root");
-    //     const docs = await fetchDocuments(TEST_TOKEN, repo);
-    //     expect(docs.length).toBe(1);
-    //     expect(docs[0].prefix).toBe("root");
-    //     expect(docs[0].children).toEqual([]);
-    // }, 120000);
+    test("testDeleteDocument", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        await deleteDocument(TEST_TOKEN, repo, "root");
+
+        const docs = await fetchDocuments(TEST_TOKEN, repo);
+        expect(docs).toEqual([]);
+    }, 120000);
 });
