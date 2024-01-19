@@ -3,17 +3,17 @@ import MyServer.error
 import doorstop
 
 """
-Moduł do obsługi komunikacji z API Doorstop w celu modyfikacji wymagań i dokumnetów projetków oraz ich dodawania i usuwania.
+Module to handle communication with the Doorstop API for modifying, adding and deleting requirements and project documents.
 
-Zawiera funkcje do dodawnia i usuwania dokumnetów i wymagań oraz do modyfikacji wymagań a także funkcje opakowujące logikę przygotowywania
-reprezentacji istniejących dokumentów i wymagań do klientów.
+It contains functions for adding and removing documents and requirements and for modifying requirements, as well as functions for wrapping the logic for preparing
+representation of existing documents and requirements to customers.
 """
 
 def addUserDocument(docId: str, parentId: str, userFolder: str):
     """
-    Funkcja zawierająca logikę dodawania dokumnetu. Korzysta z drzewa dokumnetów z API Doorstop do zarządzania procesem dodawnia nowego dokumentu wywołując
-    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
-    pośrednictwem odpowiednich wyjątków.
+    Function containing the logic for adding a document. It uses the document tree from the Doorstop API to manage the process of adding a new document by calling the
+    appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client via the
+    appropriate exceptions.
     """
     try:
         docTree = doorstop.build(cwd=userFolder)
@@ -31,8 +31,8 @@ def addUserDocument(docId: str, parentId: str, userFolder: str):
 
 def removeDocTree(tree: doorstop.Tree, docId: str, userFolder: str, rootTree: doorstop.Tree):
     """
-    Funkcja zawierająca logikę usuwania konkretnego poddrzewa z drzewa dokumentów projektu. Korzysta z drzewa z API Doorstop do zarządzania procesem usuwania istniejącego poddrzewa wywołując
-    odpowiednie funkcje Doorstopa.
+    Function containing the logic for removing a specific subtree from the project document tree. It uses the tree from the Doorstop API to manage the process of deleting an existing subtree by calling the
+    appropriate Doorstop functions.
     """
     doc = tree.document
     if doc.prefix == docId:
@@ -52,9 +52,9 @@ def removeDocTree(tree: doorstop.Tree, docId: str, userFolder: str, rootTree: do
 
 def deleteUserDocument(docId: str, userFolder: str):
     """
-    Funkcja zawierająca logikę usuwania dokumentu. Korzysta z drzewa dokumentów z API Doorstop do zarządzania procesem usuwania istniejącego dokumentu wywołując
-    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
-    pośrednictwem odpowiednich wyjątków.
+    Function containing the logic for deleting a document. Uses the document tree from the Doorstop API to manage the process of deleting an existing document by calling the
+    appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
+    via appropriate exceptions.
     """
     try:
         docTree = doorstop.build(userFolder)
@@ -73,9 +73,9 @@ def deleteUserDocument(docId: str, userFolder: str):
 
 def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: str):
     """
-    Funkcja zawierająca logikę dodawania wymagania. Korzysta z drzewa dokumentów z API Doorstop do zarządzania procesem dodawnia nowego wymagania wywołując
-    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
-    pośrednictwem odpowiednich wyjątków.
+    Function containing the logic for adding a requirement. It uses the document tree from the Doorstop API to manage the process of adding a new requirement by calling the
+    appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
+    via appropriate exceptions.
     """
     try:
         docTree = doorstop.build(userFolder)
@@ -95,8 +95,8 @@ def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: s
 
 def RemoveLinksToReq(reqId: str, documents: list[doorstop.Document], userFolder: str):
     """
-    Funkcja zawierająca logikę usuwania odniesień do danego wymagania poddrzewa z drzewa dokumentów projektu. Korzysta z drzewa dokumentów z API Doorstop do zarządzania procesem usuwania istniejącego poddrzewa wywołując
-    odpowiednie funkcje Doorstopa.
+    Function containing logic for removing references to a given subtree requirement from the project document tree. It uses the document tree from the Doorstop API to manage the process of removing an existing subtree by calling the
+    relevant Doorstop functions.
     """
     for doc in documents:
         reqs = doc.items
@@ -107,9 +107,9 @@ def RemoveLinksToReq(reqId: str, documents: list[doorstop.Document], userFolder:
 
 def deleteUserRequirement(docId: str, reqUID: str, userFolder: str):
     """
-    Funkcja zawierająca logikę usuwania wymagania. Korzysta z drzewa z API Doorstop do zarządzania procesem usuwania istniejącego wymagania wywołując
-    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
-    pośrednictwem odpowiednich wyjątków.
+    Function containing the logic for removing a requirement. It uses the tree from the Doorstop API to manage the process of removing an existing requirement by calling the
+    appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
+    via appropriate exceptions.
     """
     try:
         docTree = doorstop.build(userFolder)
@@ -125,9 +125,9 @@ def deleteUserRequirement(docId: str, reqUID: str, userFolder: str):
 
 def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str):
     """
-    Funkcja zawierająca logikę modyfikacji istniejącego wymagania (modyfikacja tekstu wymagania). Korzysta z drzewa dokumentów z API Doorstop do zarządzania procesem modyfikacji istniejącego wymagania wywołując
-    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
-    pośrednictwem odpowiednich wyjątków.
+    Function containing the logic for modifying an existing requirement (modifying the requirement text). It uses the document tree from the Doorstop API to manage the process of modifying an existing requirement by calling the
+    appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
+    via appropriate exceptions.
     """
     try:
         docTree = doorstop.build(userFolder)
@@ -143,9 +143,9 @@ def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str):
 
 def addUserLink(req1UID: str, req2UID: str, userFolder: str):
     """
-    Funkcja zawierająca logikę dodawnia odniesienia w istniejącym wymaganiu do innego istniejącego wymagania. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
-    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
-    pośrednictwem odpowiednich wyjątków.
+    Function containing the logic to add a reference in an existing requirement to another existing requirement. It uses the document tree from the Doorstop API to manage this process by calling the
+    appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
+    via appropriate exceptions.
     """
     try:
         docTree = doorstop.build(userFolder)
@@ -155,9 +155,9 @@ def addUserLink(req1UID: str, req2UID: str, userFolder: str):
 
 def deleteUserLink(req1UID: str, req2UID: str, userFolder: str):
     """
-    Funkcja zawierająca logikę usuwania odniesienia w istniejącym wymaganiu do innego istniejącego wymagania. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
-    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
-    pośrednictwem odpowiednich wyjątków.
+    Function containing the logic to remove a reference in an existing requirement to another existing requirement. It uses the document tree from the Doorstop API to manage this process by calling the
+    appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
+    via appropriate exceptions.
     """
     try:
         docTree = doorstop.build(userFolder)
@@ -168,9 +168,9 @@ def deleteUserLink(req1UID: str, req2UID: str, userFolder: str):
 
 def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list:
     """
-    Funkcja zawierająca logikę znajdowania wymagań istniejącego dokumentu. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
-    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
-    pośrednictwem odpowiednich wyjątków.
+    Function containing the logic for finding the requirements of an existing document. It uses the document tree from the Doorstop API to manage this process by calling the
+    appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
+    via appropriate exceptions.
     """
     try:
         docTree = doorstop.build(userFolder)
@@ -185,8 +185,8 @@ def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list:
 
 def buildDicts(tree: doorstop.Tree):
     """
-    Funkcja pomocnicza zawierająca logikę budowy poszczególnych słowników dokumentów wchodzących w skład reprezentacji dokumentów zwracanej do klienta. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
-    odpowiednie funkcje Doorstopa.
+    Helper function containing the logic for building the individual document dictionaries included in the document representation returned to the customer. It uses the document tree from the Doorstop API to manage this process by calling the
+    relevant Doorstop functions.
     """
     doc = tree.document
     dict = {}
@@ -199,8 +199,8 @@ def buildDicts(tree: doorstop.Tree):
 
 def serializeDocuments(userFolder: str):
     """
-    Funkcja zawierająca logikę budowy reprezentacji dokumentów zwracanej do klienta. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
-    odpowiednie funkcje Doorstopa.
+    Function containing the logic for building the document representation returned to the client. It uses the document tree from the Doorstop API to manage this process by calling the
+    relevant Doorstop functions.
     """
     try:
         data = []
@@ -215,8 +215,8 @@ def serializeDocuments(userFolder: str):
 
 def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
     """
-    Funkcja zawierająca logikę budowy słowników wymagań wchodzących w skład reprezentacji wymagań zwracanej do klienta. Korzysta z API Doorstop do zarządzania tym procesem wywołując
-    odpowiednie funkcje Doorstopa.
+    Function containing the logic for building the requirements dictionaries included in the requirements representation returned to the customer. It uses the Doorstop API to manage this process by calling the
+    relevant Doorstop functions.
     """
     data = []
     for req in reqs:
@@ -233,8 +233,8 @@ def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
 
 def getAllReqs(userFolder: str):
     """
-    Funkcja zawierająca logikę budowy reprezentacji wymagań zwracanej do klienta. Korzysta z API Doorstop do zarządzania tym procesem wywołując
-    odpowiednie funkcje Doorstopa.
+    Function containing the logic for building the requirements representation returned to the client. It uses the Doorstop API to manage this process by calling the
+    relevant Doorstop functions.
     """
     try:
         rootTree = doorstop.build(userFolder)
@@ -248,8 +248,8 @@ def getAllReqs(userFolder: str):
 
 def getAllReqsWithChildren(userFolder: str, doc):
     """
-    Funkcja zawierająca logikę budowy reprezentacji wymagań zwracanej do klienta. Korzysta z API Doorstop do zarządzania tym procesem wywołując
-    odpowiednie funkcje Doorstopa.
+    Function containing the logic for building the requirements representation returned to the client. It uses the Doorstop API to manage this process by calling the
+    relevant Doorstop functions.
     """
     reqs = []
     req = getDocReqs(doc["prefix"], userFolder)
@@ -260,8 +260,8 @@ def getAllReqsWithChildren(userFolder: str, doc):
 
 def serializeAllReqs(reqs):
     """
-    Funkcja zawierająca logikę budowy słowników wymagań wchodzących w skład reprezentacji wymagań zwracanej do klienta. Korzysta z API Doorstop do zarządzania tym procesem wywołując
-    odpowiednie funkcje Doorstopa.
+    Function containing the logic for building the requirements dictionaries included in the requirements representation returned to the customer. It uses the Doorstop API to manage this process by calling the
+    relevant Doorstop functions.
     """
     data = []
     for reqlist in reqs:

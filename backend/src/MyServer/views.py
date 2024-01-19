@@ -24,14 +24,14 @@ from MyServer.error import LinkCycleException
 
 
 """
-Moduł do obsługi żądań klientów odnoszących się do pracy z dokumentami, wymaganiami, repozytoriami i logowaniem.
+A module for handling client requests relating to working with documents, requirements, repositories and logging.
 
-Poszczególne klasy obsługują typy żądań odnoszące się do zasobów serwera opisanych w nazwie każdej klasy osobno.
+The individual classes support the types of requests relating to server resources described in the name of each class separately.
 
-Klasy zawierają metody do bsługi konkretnych metod HTTP - typ obsługiwanej metody HTTP jest zawarty w nazwie metody obecnej w danej klasie.
+Classes contain methods to bservice specific HTTP methods - the type of HTTP method supported is contained in the name of the method present in the class.
 
-Jeżeli nie wystąpią błędy opisane w module error.py to na żądania klientów zwracane są komunikaty zawierające zasoby serwera (reprezentacje dokumentów, wymagań bądź repozytoriów użytkowników),
-komunikaty o statusie 200 potwierdzające poprawne wykonanie operacji.
+If no errors described in the error.py module occur, messages containing server resources (representations of documents, requirements or user repositories) are returned to client requests,
+status 200 messages confirming the correct execution of the operation.
 """
 
 class ReqView(APIView):
