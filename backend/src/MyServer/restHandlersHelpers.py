@@ -2,8 +2,19 @@ from shutil import rmtree
 import MyServer.error
 import doorstop
 
+"""
+Moduł do obsługi komunikacji z API Doorstop w celu modyfikacji wymagań i dokumnetów projetków oraz ich dodawania i usuwania.
 
-def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
+Zawiera funkcje do dodawnia i usuwania dokumnetów i wymagań oraz do modyfikacji wymagań a także funkcje opakowujące logikę przygotowywania
+reprezentacji istniejących dokumentów i wymagań do klientów.
+"""
+
+def addUserDocument(docId: str, parentId: str, userFolder: str):
+    """
+    Funkcja zawierająca logikę dodawania dokumnetu. Korzysta z drzewa dokumnetów z API Doorstop do zarządzania procesem dodawnia nowego dokumentu wywołując
+    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
+    pośrednictwem odpowiednich wyjątków.
+    """
     try:
         docTree = doorstop.build(cwd=userFolder)
         if len(docTree.documents) >= 1 and not parentId:
@@ -19,6 +30,10 @@ def addUserDocument(docId: str, parentId: str, userFolder: str) -> bool:
         raise MyServer.error.DoorstopException(f"User folder {userFolder} was not found.")
 
 def removeDocTree(tree: doorstop.Tree, docId: str, userFolder: str, rootTree: doorstop.Tree):
+    """
+    Funkcja zawierająca logikę usuwania konkretnego poddrzewa z drzewa dokumentów projektu. Korzysta z drzewa z API Doorstop do zarządzania procesem usuwania istniejącego poddrzewa wywołując
+    odpowiednie funkcje Doorstopa.
+    """
     doc = tree.document
     if doc.prefix == docId:
         ToBeRemoved = tree.documents
@@ -35,7 +50,12 @@ def removeDocTree(tree: doorstop.Tree, docId: str, userFolder: str, rootTree: do
     return
 
 
-def deleteUserDocument(docId: str, userFolder: str) -> bool:
+def deleteUserDocument(docId: str, userFolder: str):
+    """
+    Funkcja zawierająca logikę usuwania dokumentu. Korzysta z drzewa dokumentów z API Doorstop do zarządzania procesem usuwania istniejącego dokumentu wywołując
+    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
+    pośrednictwem odpowiednich wyjątków.
+    """
     try:
         docTree = doorstop.build(userFolder)
         numberOfDocuments = len(docTree.documents)
@@ -51,7 +71,12 @@ def deleteUserDocument(docId: str, userFolder: str) -> bool:
         
 
 
-def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: str) -> bool:
+def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: str):
+    """
+    Funkcja zawierająca logikę dodawania wymagania. Korzysta z drzewa dokumentów z API Doorstop do zarządzania procesem dodawnia nowego wymagania wywołując
+    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
+    pośrednictwem odpowiednich wyjątków.
+    """
     try:
         docTree = doorstop.build(userFolder)
         try:
@@ -69,6 +94,10 @@ def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: s
 
 
 def RemoveLinksToReq(reqId: str, documents: list[doorstop.Document], userFolder: str):
+    """
+    Funkcja zawierająca logikę usuwania odniesień do danego wymagania poddrzewa z drzewa dokumentów projektu. Korzysta z drzewa dokumentów z API Doorstop do zarządzania procesem usuwania istniejącego poddrzewa wywołując
+    odpowiednie funkcje Doorstopa.
+    """
     for doc in documents:
         reqs = doc.items
         for req in reqs:
@@ -76,7 +105,12 @@ def RemoveLinksToReq(reqId: str, documents: list[doorstop.Document], userFolder:
                 deleteUserLink(str(req.uid), reqId, userFolder)
 
 
-def deleteUserRequirement(docId: str, reqUID: str, userFolder: str) -> bool:
+def deleteUserRequirement(docId: str, reqUID: str, userFolder: str):
+    """
+    Funkcja zawierająca logikę usuwania wymagania. Korzysta z drzewa z API Doorstop do zarządzania procesem usuwania istniejącego wymagania wywołując
+    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
+    pośrednictwem odpowiednich wyjątków.
+    """
     try:
         docTree = doorstop.build(userFolder)
         doc = docTree.find_document(docId)
@@ -89,7 +123,12 @@ def deleteUserRequirement(docId: str, reqUID: str, userFolder: str) -> bool:
         raise MyServer.error.ReqNotFoundException(f"{reqUID} does not exist or {docId} does not exist.")
 
 
-def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str) -> bool:
+def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str):
+    """
+    Funkcja zawierająca logikę modyfikacji istniejącego wymagania (modyfikacja tekstu wymagania). Korzysta z drzewa dokumentów z API Doorstop do zarządzania procesem modyfikacji istniejącego wymagania wywołując
+    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
+    pośrednictwem odpowiednich wyjątków.
+    """
     try:
         docTree = doorstop.build(userFolder)
         doc = docTree.find_document(docId)
@@ -102,14 +141,24 @@ def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str) 
         raise MyServer.error.ReqNotFoundException(f"{reqUID} does not exist or {docId} does not exist.")
 
 
-def addUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
+def addUserLink(req1UID: str, req2UID: str, userFolder: str):
+    """
+    Funkcja zawierająca logikę dodawnia odniesienia w istniejącym wymaganiu do innego istniejącego wymagania. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
+    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
+    pośrednictwem odpowiednich wyjątków.
+    """
     try:
         docTree = doorstop.build(userFolder)
         docTree.link_items(req1UID, req2UID)
     except doorstop.DoorstopError:
         raise MyServer.error.LinkCycleException(f"Attempted to create link cycle.")
 
-def deleteUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
+def deleteUserLink(req1UID: str, req2UID: str, userFolder: str):
+    """
+    Funkcja zawierająca logikę usuwania odniesienia w istniejącym wymaganiu do innego istniejącego wymagania. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
+    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
+    pośrednictwem odpowiednich wyjątków.
+    """
     try:
         docTree = doorstop.build(userFolder)
         docTree.unlink_items(req1UID, req2UID)
@@ -117,7 +166,12 @@ def deleteUserLink(req1UID: str, req2UID: str, userFolder: str) -> bool:
         raise MyServer.error.ReqNotFoundException(f"{req1UID} does not exist or {req2UID} does not exist.")
 
 
-def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list or None:
+def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list:
+    """
+    Funkcja zawierająca logikę znajdowania wymagań istniejącego dokumentu. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
+    odpowiednie funkcje Doorstopa. W przypadku wystąpienia błędu podczas tego procesu tworzony jest i zwracany odpowiedni komunikat do klienta za
+    pośrednictwem odpowiednich wyjątków.
+    """
     try:
         docTree = doorstop.build(userFolder)
         doc = docTree.find_document(docId)
@@ -130,6 +184,10 @@ def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list or No
 
 
 def buildDicts(tree: doorstop.Tree):
+    """
+    Funkcja pomocnicza zawierająca logikę budowy poszczególnych słowników dokumentów wchodzących w skład reprezentacji dokumentów zwracanej do klienta. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
+    odpowiednie funkcje Doorstopa.
+    """
     doc = tree.document
     dict = {}
     dict["prefix"] = str(doc.prefix)
@@ -140,6 +198,10 @@ def buildDicts(tree: doorstop.Tree):
 
 
 def serializeDocuments(userFolder: str):
+    """
+    Funkcja zawierająca logikę budowy reprezentacji dokumentów zwracanej do klienta. Korzysta z drzewa dokumentów z API Doorstop do zarządzania tym procesem wywołując
+    odpowiednie funkcje Doorstopa.
+    """
     try:
         data = []
         rootTree = doorstop.build(userFolder)
@@ -152,6 +214,10 @@ def serializeDocuments(userFolder: str):
 
 
 def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
+    """
+    Funkcja zawierająca logikę budowy słowników wymagań wchodzących w skład reprezentacji wymagań zwracanej do klienta. Korzysta z API Doorstop do zarządzania tym procesem wywołując
+    odpowiednie funkcje Doorstopa.
+    """
     data = []
     for req in reqs:
         data.append({})
@@ -166,6 +232,10 @@ def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
 
 
 def getAllReqs(userFolder: str):
+    """
+    Funkcja zawierająca logikę budowy reprezentacji wymagań zwracanej do klienta. Korzysta z API Doorstop do zarządzania tym procesem wywołując
+    odpowiednie funkcje Doorstopa.
+    """
     try:
         rootTree = doorstop.build(userFolder)
         if len(rootTree.documents) == 0:
@@ -177,6 +247,10 @@ def getAllReqs(userFolder: str):
         raise MyServer.error.DoorstopException(f"Could not build document tree.")
 
 def getAllReqsWithChildren(userFolder: str, doc):
+    """
+    Funkcja zawierająca logikę budowy reprezentacji wymagań zwracanej do klienta. Korzysta z API Doorstop do zarządzania tym procesem wywołując
+    odpowiednie funkcje Doorstopa.
+    """
     reqs = []
     req = getDocReqs(doc["prefix"], userFolder)
     reqs.extend([(r, doc["prefix"]) for r in req])
@@ -185,6 +259,10 @@ def getAllReqsWithChildren(userFolder: str, doc):
     return reqs
 
 def serializeAllReqs(reqs):
+    """
+    Funkcja zawierająca logikę budowy słowników wymagań wchodzących w skład reprezentacji wymagań zwracanej do klienta. Korzysta z API Doorstop do zarządzania tym procesem wywołując
+    odpowiednie funkcje Doorstopa.
+    """
     data = []
     for reqlist in reqs:
         req = reqlist[0]

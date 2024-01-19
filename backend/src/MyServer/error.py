@@ -4,6 +4,11 @@ from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.views import exception_handler
 
+"""
+Moduł do obsługi błędów występujących w trakcie pracy z API Doorstop oraz w trakcie pracy z modułem Gita przygotowanym dla Pythona.
+
+Każdy wyjątek ma opisową nazwę, zawiera kod błędu i komunikat błędu. Wystąpienie wyjątku powoduje zwrócenie odpowiedniego komunikatu do klienta (przeglądarki).
+"""
 
 class CustomAPIException(APIException):
     api_error_code = 'CUSTOM_API_EXCEPTION'
@@ -109,6 +114,9 @@ class LinkCycleException(CustomAPIException):
 
 
 def custom_exception_handler(exc, context):
+    """
+    funckja do obsługi wyłapanego wyjątku, tworzy komunikat błędu zwracany do klienta.
+    """
     response = exception_handler(exc, context)
     if response is not None and isinstance(exc, CustomAPIException):
         response = JsonResponse({
