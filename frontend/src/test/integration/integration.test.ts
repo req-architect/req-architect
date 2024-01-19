@@ -102,17 +102,28 @@ describe("documentServiceTest", () => {
         expect(docs[0].children).toEqual([]);
     }, 120000);
 
-    test("testPostDocument-multipleRoots", async () => {
+    test("ERRORtestPostDocument-multipleRoots", async () => {
         const repo = TEST_REPOS[0];
         await postRepo(TEST_TOKEN, repo);
         await postDocument(TEST_TOKEN, repo, "root");
         try {
             await postDocument(TEST_TOKEN, repo, "root2");
         } catch (error) {
-            // expect(() => { throw error; }).toThrow(APIError);
             expect(error).toBeInstanceOf(APIError);
             let castedError = error as APIError;
             expect(castedError.message).toBe("parentID must be specified for the given document.");
+        }
+    }, 120000);
+
+    test("ERRORtestPostDocument-parentOfEmptyTree", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        try {
+            await postDocument(TEST_TOKEN, repo, "SYSREQ", "root");
+        } catch (error) {
+            expect(error).toBeInstanceOf(APIError);
+            let castedError = error as APIError;
+            expect(castedError.message).toBe("Parent document must not be specified for the document that was about to be added.");
         }
     }, 120000);
 
@@ -143,6 +154,19 @@ describe("documentServiceTest", () => {
         expect(docs).toEqual([]);
     }, 120000);
 
+    test("ERRORtestPostExistingDocument", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        try {
+            await postDocument(TEST_TOKEN, repo, "root", "root");
+        } catch (error) {
+            expect(error).toBeInstanceOf(APIError);
+            let castedError = error as APIError;
+            expect(castedError.message).toBe("Could not build document tree.");
+        }
+    }, 120000);
+
     test("testDeleteWithChildren", async () => {
         const repo = TEST_REPOS[0];
         await postRepo(TEST_TOKEN, repo);
@@ -152,6 +176,31 @@ describe("documentServiceTest", () => {
 
         const docs = await fetchDocuments(TEST_TOKEN, repo);
         expect(docs).toEqual([]);
+    }, 120000);
+
+    test("ERRORtestDeleteDocument-NoDocumentYet", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        try {
+            await deleteDocument(TEST_TOKEN, repo, "root");
+        } catch (error) {
+            expect(error).toBeInstanceOf(APIError);
+            let castedError = error as APIError;
+            expect(castedError.message).toBe("No documents were created yet.");
+        }
+    }, 120000);
+
+    test("ERRORtestDeleteDocument-NoSuchDocument", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        try {
+            await deleteDocument(TEST_TOKEN, repo, "SYSREQ");
+        } catch (error) {
+            expect(error).toBeInstanceOf(APIError);
+            let castedError = error as APIError;
+            expect(castedError.message).toBe("Document of given UID: SYSREQ was not found.");
+        }
     }, 120000);
 });
 
@@ -235,6 +284,33 @@ describe("ReqServiceTest", () => {
         expect(reqs.length).toBe(0);
     }, 120000);
 
+    test("ERRORtestDeleteRequirement-IncorrectRequirementId", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        try {
+            await deleteRequirement(TEST_TOKEN, repo, "root001");
+        } catch (error) {
+            expect(error).toBeInstanceOf(APIError);
+            let castedError = error as APIError;
+            expect(castedError.message).toBe("Could not build doorstop tree in the given user folder /repos/github/test_uid/test_repo_1/req.");
+        }
+    }, 120000);
+
+    test("ERRORtestDeleteRequirement-IncorrectDocumentId", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        await postRequirement(TEST_TOKEN, repo, "root");
+        try {
+            await deleteRequirement(TEST_TOKEN, repo, "SYSREQ001");
+        } catch (error) {
+            expect(error).toBeInstanceOf(APIError);
+            let castedError = error as APIError;
+            expect(castedError.message).toBe("Could not build doorstop tree in the given user folder /repos/github/test_uid/test_repo_1/req.");
+        }
+    }, 120000);
+
     test("testDeleteRequirement-MultipleReqsInRepo", async () => {
         const repo = TEST_REPOS[0];
         await postRepo(TEST_TOKEN, repo);
@@ -300,6 +376,22 @@ describe("ReqServiceTest", () => {
         const root002 = reqs[1];
         expect(root001.links).toEqual(["root002"]);
         expect(root002.links).toEqual([]);
+    }, 120000);
+
+    test("ERRORtestLinkRequirement-makeCycle", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        await postRequirement(TEST_TOKEN, repo, "root");
+        await postRequirement(TEST_TOKEN, repo, "root");
+        await linkRequirement(TEST_TOKEN, repo, "root001", "root002");
+        try {
+            await linkRequirement(TEST_TOKEN, repo, "root002", "root001");
+        } catch (error) {
+            expect(error).toBeInstanceOf(APIError);
+            let castedError = error as APIError;
+            expect(castedError.message).toBe("Attempted to create link cycle.");
+        }
     }, 120000);
 
     test("testUnlinkRequirement", async () => {
