@@ -16,8 +16,6 @@ RUN npm run build
 
 FROM nginx
 
-ARG FRONTEND_PORT
-
 COPY --from=build-stage /app/dist /usr/share/nginx/html/
 
 RUN echo "\ 
