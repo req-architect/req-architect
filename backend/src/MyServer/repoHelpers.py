@@ -1,5 +1,5 @@
 from MyServer.authHelpers import OAuthProvider, AuthInfo
-from MyServer.testHelpers import server_test_mode, TEST_REPOS, TEST_SERVER_REPOS
+from MyServer.testHelpers import server_test_mode, TEST_SERVER_REPOS
 import git
 import os
 import csv

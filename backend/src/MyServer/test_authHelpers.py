@@ -14,7 +14,7 @@ from MyServer.authHelpers import (
     generate_authorization_url,
     requires_jwt_login,
 )
-from MyServer.testHelpers import server_test_mode, MockedAuthInfo, TEST_USERNAME, TEST_UID, TEST_MAIL, TEST_TOKEN, TEST_REPOS 
+from MyServer.testHelpers import TEST_USERNAME, TEST_UID, TEST_MAIL, TEST_REPOS 
 
 @requires_jwt_login
 def dummy_view(self, request):

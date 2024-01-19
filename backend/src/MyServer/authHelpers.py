@@ -1,4 +1,3 @@
-import json
 import urllib.parse
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone

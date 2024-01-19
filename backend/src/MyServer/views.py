@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Any
 
 from django.http import HttpResponse, JsonResponse
@@ -16,7 +15,6 @@ import MyServer.repoHelpers
 import MyServer.restHandlersHelpers
 import MyServer.restHandlersHelpers
 from MyServer.authHelpers import requires_jwt_login
-from MyServer.error import LinkCycleException
 
 
 # Create your views here.
