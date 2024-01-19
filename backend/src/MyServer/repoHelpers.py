@@ -1,3 +1,5 @@
+"""This module provides functions responsible for integration with git."""
+
 from MyServer.authHelpers import OAuthProvider, AuthInfo
 from MyServer.testHelpers import server_test_mode, TEST_SERVER_REPOS
 import git
@@ -8,6 +10,8 @@ import MyServer.error
 
 
 def getReposFromFile() -> dict:
+    """Load server repositories from conig file.\n
+    Returns: dict[repo_name: repo_url]"""
     if server_test_mode():
         return TEST_SERVER_REPOS
 
@@ -20,6 +24,7 @@ def getReposFromFile() -> dict:
 
 
 def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> bool:
+    """Commit changes in given repo whith given message and push it to remote.\n"""
     if server_test_mode():
         return True
 
@@ -52,10 +57,13 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
 
 
 def repoName2DirName(repoName: str) -> str:
+    """Get name of repository direcory on server from repo's name."""
     return repoName.replace('/', '-')
 
 
 def getRepoInfo(request) -> tuple[str, str]:
+    """Get repo's directory and name.\n
+    Returns: tuple[repo directory name, repo name]"""
     authInfo: AuthInfo = request.auth
     repoName = request.GET.get('repositoryName')
     userId = authInfo.uid
@@ -65,6 +73,7 @@ def getRepoInfo(request) -> tuple[str, str]:
 
 
 def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
+    """Clone repo from given url"""
     destination = f"{repoFolder}"
     os.makedirs(destination)
 
@@ -86,6 +95,7 @@ def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
 
 
 def pullRepo(repoFolder: str, token):
+    """Pull repo from give url"""
     if server_test_mode():
         return
 
@@ -99,10 +109,12 @@ def pullRepo(repoFolder: str, token):
 
 
 def checkIfExists(repoFolder: str) -> bool:
+    """Check if repo folder exists on server."""
     return os.path.exists(repoFolder)
 
 
 def getUserServerRepos(userRepos: list, serverRepos: dict):
+    """Get user's repos list and return list of those which are also in server's config file."""
     if not userRepos:
         return []
     return [repoName for repoName in userRepos if repoName in serverRepos.keys()]
