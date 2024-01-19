@@ -23,6 +23,17 @@ from MyServer.error import LinkCycleException
 # Views - they are really request handlers, byt Django has weird naming style
 
 
+"""
+Moduł do obsługi żądań klientów odnoszących się do pracy z dokumentami, wymaganiami, repozytoriami i logowaniem.
+
+Poszczególne klasy obsługują typy żądań odnoszące się do zasobów serwera opisanych w nazwie każdej klasy osobno.
+
+Klasy zawierają metody do bsługi konkretnych metod HTTP - typ obsługiwanej metody HTTP jest zawarty w nazwie metody obecnej w danej klasie.
+
+Jeżeli nie wystąpią błędy opisane w module error.py to na żądania klientów zwracane są komunikaty zawierające zasoby serwera (reprezentacje dokumentów, wymagań bądź repozytoriów użytkowników),
+komunikaty o statusie 200 potwierdzające poprawne wykonanie operacji.
+"""
+
 class ReqView(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
