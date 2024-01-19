@@ -1,3 +1,6 @@
+/* 
+This module tests service API functionalities for browser app-server communication.
+*/
 import { test, describe, beforeEach, afterEach } from "@jest/globals";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 // import { fetchIdentity } from "../../lib/api/authService.ts";
