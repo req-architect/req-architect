@@ -7,6 +7,7 @@ import { GenericContainer, StartedTestContainer } from "testcontainers";
 import { getRepos, postRepo, postCommit } from "../../lib/api/gitService";
 import { fetchDocuments, postDocument, deleteDocument } from "../../lib/api/documentService";
 import { fetchRequirements, postRequirement, deleteRequirement, linkRequirement, unlinkRequirement, putRequirement, getAllRequirements } from "../../lib/api/requirementService";
+import { APIError } from "../../lib/api/fetchAPI";
 
 const TEST_TOKEN = "test_token";
 const TEST_REPOS = ["test_repo_1", "test_repo_2"];
@@ -99,6 +100,20 @@ describe("documentServiceTest", () => {
         expect(docs.length).toBe(1);
         expect(docs[0].prefix).toBe("root");
         expect(docs[0].children).toEqual([]);
+    }, 120000);
+
+    test("testPostDocument-multipleRoots", async () => {
+        const repo = TEST_REPOS[0];
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        try {
+            await postDocument(TEST_TOKEN, repo, "root2");
+        } catch (error) {
+            // expect(() => { throw error; }).toThrow(APIError);
+            expect(error).toBeInstanceOf(APIError);
+            let castedError = error as APIError;
+            expect(castedError.message).toBe("parentID must be specified for the given document.");
+        }
     }, 120000);
 
     test("testPostDocumentWithParent", async () => {
