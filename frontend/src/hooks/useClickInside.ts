@@ -1,5 +1,10 @@
 import { RefObject, useEffect } from "react";
 
+/*
+    This hook is used to detect clicks inside a specific element.
+    It is used to close the dropdown menu when the user clicks outside of it.
+*/
+
 export default function useClickInside(
     ref: RefObject<HTMLInputElement>,
     callback: () => void,

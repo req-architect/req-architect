@@ -1,6 +1,11 @@
 import fetchAPI from "./fetchAPI.ts";
 import { ReqDocumentWithChildren } from "../../types.ts";
 
+/* 
+    This file contains functions to manage documents - functions to create, delete and fetch documents.
+    It communicates with the backend through the fetchAPI function.
+*/
+
 export async function postDocument(
     token_str: string,
     repositoryName: string,

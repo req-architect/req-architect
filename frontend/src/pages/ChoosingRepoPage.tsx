@@ -11,6 +11,11 @@ import useLoginRedirect from "../hooks/useLoginRedirect.ts";
 import { useAuth } from "../hooks/useAuthContext.ts";
 import useRepoContext from "../hooks/useRepoContext.ts";
 
+/*
+    This page is used to provide the user with a list of repositories to choose from.
+    It will then store the chosen repository in the repo context and redirect the user to the main page.
+*/
+
 export default function ChoosingRepoPage() {
     const navigate = useNavigate();
     const authTools = useAuth();

@@ -9,6 +9,11 @@ import { useMainContextTools } from "../../hooks/useMainContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 
+/* 
+    This component is used to edit documents.
+    It will display the document list and the requirements editor.
+*/
+
 function isInTree(root: ReqDocumentWithChildren, prefix: string): boolean {
     if (root.prefix === prefix) {
         return true;

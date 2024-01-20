@@ -1,3 +1,7 @@
+/* 
+    Typescript types used in the frontend
+*/
+
 export type ReqDocument = {
     prefix: string;
 };

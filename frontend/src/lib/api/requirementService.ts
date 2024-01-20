@@ -1,6 +1,12 @@
 import fetchAPI from "./fetchAPI.ts";
 import { Requirement, RequirementWithDoc } from "../../types.ts";
 
+/*
+    This file contains functions to manage requirements.
+    There are functions to create, delete, fetch, update, link, unlink or get all requirements or get the requirement prefix.
+    It communicates with the backend through the fetchAPI function.
+*/
+
 function getReqPrefix(reqId: string): string {
     // get all character without the last 3
     return reqId.slice(0, -3);

@@ -15,6 +15,12 @@ import { Requirement } from "../../../types.ts";
 import useRepoContext from "../../../hooks/useRepoContext.ts";
 import { useAuth } from "../../../hooks/useAuthContext.ts";
 
+/*
+    This component is used to display the details of a requirement.
+    It will display the requirement id, whether it is reviewed or not and the links it has.
+    It will also allow the user to unlink a requirement from the current requirement.
+*/
+
 export default function RequirementDetails({
     requirement,
     refreshRequirements,

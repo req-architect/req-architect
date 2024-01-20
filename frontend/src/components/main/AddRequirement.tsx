@@ -5,6 +5,12 @@ import { useMainContextTools } from "../../hooks/useMainContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 
+/*
+    This component is used to add a requirement.
+    It will display a button to add a requirement.
+    When the button is clicked, it will add a requirement to the current document.
+*/
+
 export default function AddRequirement({
     refreshRequirements,
 }: {

@@ -4,6 +4,11 @@ import { getRepos } from "../../lib/api/gitService";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 
+/*
+    This component is used to display a list of repositories to the user.
+    It will fetch the repositories from the API and display them in a dropdown.
+*/
+
 export default function RepoList({
     chosenRepository,
     setChosenRepository,

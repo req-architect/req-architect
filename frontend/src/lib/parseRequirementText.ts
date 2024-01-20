@@ -1,3 +1,8 @@
+/*
+    This file contains a function to parse a requirement text into a list of rendered components.
+    It is used to render the requirement text in the requirement list.
+*/
+
 export type RenderedRequirementComponent = {
     type: "text" | "uml";
     text: string;

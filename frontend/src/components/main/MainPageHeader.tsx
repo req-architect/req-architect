@@ -13,6 +13,12 @@ import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
 
+/*
+    This component is the header of the main page.
+    It will display the name of the repository and a text field to add a commit message.
+    It will also display a logout button.
+*/
+
 export default function MainPageHeader() {
     const [commitTextFieldValue, setcommitTextFieldValue] = useState("");
     const [errorState, setErrorState] = useState<string | null>(null);

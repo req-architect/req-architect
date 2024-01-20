@@ -1,5 +1,10 @@
 import { constant } from "../../constants.ts";
 
+/*
+    This file contains a function to fetch data from the API.
+    It is used by other files to communicate with the backend.
+*/
+
 type Method = "GET" | "POST" | "PUT" | "DELETE";
 
 export class APIError extends Error {

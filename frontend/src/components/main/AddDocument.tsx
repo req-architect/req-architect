@@ -14,6 +14,11 @@ import { ReqDocumentWithChildren } from "../../types.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
 
+/*
+    This component allows the user to add a document.
+    It will display a text field for the document prefix and a dropdown to select the parent document.
+*/
+
 type AddDocumentMode = "add" | "select";
 
 function extractPrefixes(document: ReqDocumentWithChildren) {
