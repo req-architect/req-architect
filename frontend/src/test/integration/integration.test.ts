@@ -246,6 +246,21 @@ describe("ReqServiceTest", () => {
         expect(reqs).toEqual([]);
     }, 120000);
 
+    test("ERRORtestFetchRequirements-NoSuchDocument", async () => {
+        const repo = TEST_REPOS[0];
+        let error;
+        await postRepo(TEST_TOKEN, repo);
+        
+        try {
+            await fetchRequirements(TEST_TOKEN, repo, "root");
+        } catch (err) {
+            error = err;
+        }
+        expect(error).toBeInstanceOf(APIError);
+        let castedError = error as APIError;
+        expect(castedError.message).toBe("Could not build document tree.");
+    }, 120000);
+
     test("testGetAllRequirements", async () => {
         const repo = TEST_REPOS[0];
         await postRepo(TEST_TOKEN, repo);
@@ -474,5 +489,37 @@ describe("ReqServiceTest", () => {
         const root002 = reqs[1];
         expect(root001.links).toEqual([]);
         expect(root002.links).toEqual([]);
+    }, 120000);
+
+    test("ERRORtestUnlinkRequirement-NoSuchRequirement", async () => {
+        const repo = TEST_REPOS[0];
+        let error;
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        await postRequirement(TEST_TOKEN, repo, "root");
+        try {
+            await unlinkRequirement(TEST_TOKEN, repo, "root001", "root002");
+        } catch (err) {
+            error = err;
+        }
+        expect(error).toBeInstanceOf(APIError);
+        let castedError = error as APIError;
+        expect(castedError.message).toBe("root001 does not exist or root002 does not exist.");
+    }, 120000);
+
+    test("ERRORtestUnlinkRequirement-NoSuchRequirement-v2", async () => {
+        const repo = TEST_REPOS[0];
+        let error;
+        await postRepo(TEST_TOKEN, repo);
+        await postDocument(TEST_TOKEN, repo, "root");
+        await postRequirement(TEST_TOKEN, repo, "root");
+        try {
+            await unlinkRequirement(TEST_TOKEN, repo, "root002", "root001");
+        } catch (err) {
+            error = err;
+        }
+        expect(error).toBeInstanceOf(APIError);
+        let castedError = error as APIError;
+        expect(castedError.message).toBe("root002 does not exist or root001 does not exist.");
     }, 120000);
 });
