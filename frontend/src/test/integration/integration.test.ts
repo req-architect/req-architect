@@ -5,15 +5,26 @@ import { test, describe, beforeEach, afterEach } from "@jest/globals";
 import { GenericContainer, StartedTestContainer } from "testcontainers";
 // import { fetchIdentity } from "../../lib/api/authService.ts";
 import { getRepos, postRepo, postCommit } from "../../lib/api/gitService";
-import { fetchDocuments, postDocument, deleteDocument } from "../../lib/api/documentService";
-import { fetchRequirements, postRequirement, deleteRequirement, linkRequirement, unlinkRequirement, putRequirement, getAllRequirements } from "../../lib/api/requirementService";
+import {
+    fetchDocuments,
+    postDocument,
+    deleteDocument,
+} from "../../lib/api/documentService";
+import {
+    fetchRequirements,
+    postRequirement,
+    deleteRequirement,
+    linkRequirement,
+    unlinkRequirement,
+    putRequirement,
+    getAllRequirements,
+} from "../../lib/api/requirementService";
 import { APIError } from "../../lib/api/fetchAPI";
 
 const TEST_TOKEN = "test_token";
 const TEST_REPOS = ["test_repo_1", "test_repo_2"];
 
 let TEST_API_URL = "http://localhost:8000";
-
 
 function constant(constant: string) {
     constant;
@@ -59,8 +70,14 @@ describe("GitServiceTest", () => {
     }, 120000);
 
     test("testPostCommit", async () => {
-        const response = await postCommit(TEST_TOKEN, TEST_REPOS[0], "Some commit text");
-        expect(response.message).toBe("Successfully staged changes in repository!");
+        const response = await postCommit(
+            TEST_TOKEN,
+            TEST_REPOS[0],
+            "Some commit text",
+        );
+        expect(response.message).toBe(
+            "Successfully staged changes in repository!",
+        );
     }, 120000);
 });
 
@@ -113,8 +130,8 @@ describe("documentServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("parentID must be specified for the given document.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("NO_PARENT_SPECIFIED");
     }, 120000);
 
     test("ERRORtestPostDocument-parentOfEmptyTree", async () => {
@@ -127,8 +144,10 @@ describe("documentServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("Parent document must not be specified for the document that was about to be added.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe(
+            "PARENT_OF_EMPTY_TREE_SPECIFIED",
+        );
     }, 120000);
 
     test("testPostDocumentWithParent", async () => {
@@ -141,11 +160,11 @@ describe("documentServiceTest", () => {
         expect(docs.length).toBe(1);
         expect(docs[0].prefix).toBe("root");
         const children = docs[0].children;
-        if (children) {
-            expect(children.length).toBe(1);
-            expect(children[0].prefix).toBe("SYSREQ");
-            expect(children[0].children).toEqual([]);
-        }
+        expect(children).toBeTruthy();
+        if (!children) return;
+        expect(children.length).toBe(1);
+        expect(children[0].prefix).toBe("SYSREQ");
+        expect(children[0].children).toEqual([]);
     }, 120000);
 
     test("testDeleteDocument", async () => {
@@ -169,8 +188,8 @@ describe("documentServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("Could not build document tree.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("DOCUMENT_ALREADY_EXISTS");
     }, 120000);
 
     test("testDeleteWithChildren", async () => {
@@ -194,8 +213,8 @@ describe("documentServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("No documents were created yet.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("NO_DOCUMENTS");
     }, 120000);
 
     test("ERRORtestDeleteDocument-NoSuchDocument", async () => {
@@ -209,11 +228,10 @@ describe("documentServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("Document of given UID: SYSREQ was not found.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("DOC_NOT_FOUND");
     }, 120000);
 });
-
 
 describe("ReqServiceTest", () => {
     let container: StartedTestContainer;
@@ -236,7 +254,7 @@ describe("ReqServiceTest", () => {
     afterEach(async () => {
         await container.stop();
     });
-    
+
     test("testFetchRequirements", async () => {
         const repo = TEST_REPOS[0];
         await postRepo(TEST_TOKEN, repo);
@@ -250,15 +268,15 @@ describe("ReqServiceTest", () => {
         const repo = TEST_REPOS[0];
         let error;
         await postRepo(TEST_TOKEN, repo);
-        
+
         try {
             await fetchRequirements(TEST_TOKEN, repo, "root");
         } catch (err) {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("Could not build document tree.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("DOC_NOT_FOUND");
     }, 120000);
 
     test("testGetAllRequirements", async () => {
@@ -276,7 +294,7 @@ describe("ReqServiceTest", () => {
         const root002 = reqs[1];
         const SYSREQ001 = reqs[2];
         expect(root001.id).toBe("root001");
-        expect(root001.docPrefix).toBe("root"); 
+        expect(root001.docPrefix).toBe("root");
         expect(root002.id).toBe("root002");
         expect(root002.docPrefix).toBe("root");
         expect(SYSREQ001.id).toBe("SYSREQ001");
@@ -305,12 +323,12 @@ describe("ReqServiceTest", () => {
 
         try {
             await postRequirement(TEST_TOKEN, repo, "root");
-        } catch(err) {
+        } catch (err) {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("Document of given UID: root was not found.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("DOC_NOT_FOUND");
     }, 120000);
 
     test("testDeleteRequirement", async () => {
@@ -335,8 +353,8 @@ describe("ReqServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("Could not build doorstop tree in the given user folder /repos/github/test_uid/test_repo_1/req.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("REQ_NOT_FOUND");
     }, 120000);
 
     test("ERRORtestDeleteRequirement-IncorrectDocumentId", async () => {
@@ -351,8 +369,8 @@ describe("ReqServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("Could not build doorstop tree in the given user folder /repos/github/test_uid/test_repo_1/req.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("REQ_NOT_FOUND");
     }, 120000);
 
     test("testDeleteRequirement-MultipleReqsInRepo", async () => {
@@ -395,13 +413,18 @@ describe("ReqServiceTest", () => {
         const req = reqs[0];
         expect(req.docPrefix).toBe("root");
     }, 120000);
-    
+
     test("testPutRequirement", async () => {
         const repo = TEST_REPOS[0];
         await postRepo(TEST_TOKEN, repo);
         await postDocument(TEST_TOKEN, repo, "root");
         await postRequirement(TEST_TOKEN, repo, "root");
-        await putRequirement(TEST_TOKEN, repo, "root001", "Some requirement text");
+        await putRequirement(
+            TEST_TOKEN,
+            repo,
+            "root001",
+            "Some requirement text",
+        );
 
         const reqs = await fetchRequirements(TEST_TOKEN, repo, "root");
         expect(reqs[0].text).toBe("Some requirement text");
@@ -418,8 +441,8 @@ describe("ReqServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("root001 does not exist or root does not exist.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("REQ_NOT_FOUND");
     }, 120000);
 
     test("testLinkRequirement", async () => {
@@ -451,8 +474,8 @@ describe("ReqServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("Attempted to create link cycle.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("LINK_CYCLE_ATTEMPT");
     }, 120000);
 
     test("ERRORtestLinkRequirement-makeCycle-MoreThanOneReqInCycle", async () => {
@@ -471,8 +494,8 @@ describe("ReqServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("Attempted to create link cycle.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("LINK_CYCLE_ATTEMPT");
     }, 120000);
 
     test("testUnlinkRequirement", async () => {
@@ -503,8 +526,8 @@ describe("ReqServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("root001 does not exist or root002 does not exist.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("REQ_NOT_FOUND");
     }, 120000);
 
     test("ERRORtestUnlinkRequirement-NoSuchRequirement-v2", async () => {
@@ -519,7 +542,7 @@ describe("ReqServiceTest", () => {
             error = err;
         }
         expect(error).toBeInstanceOf(APIError);
-        let castedError = error as APIError;
-        expect(castedError.message).toBe("root002 does not exist or root001 does not exist.");
+        const castedError = error as APIError;
+        expect(castedError.api_error_code).toBe("REQ_NOT_FOUND");
     }, 120000);
 });
