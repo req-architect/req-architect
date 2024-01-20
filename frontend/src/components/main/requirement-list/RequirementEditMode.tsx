@@ -15,6 +15,12 @@ import { defaultConfirm } from "../../../lib/defaultConfirm.ts";
 import useRepoContext from "../../../hooks/useRepoContext.ts";
 import { useAuth } from "../../../hooks/useAuthContext.ts";
 
+/*
+    This component is used to edit a requirement.
+    It will display the requirement id and the requirement text.
+    It will also allow the user to save, abort or delete the requirement.
+*/
+
 export default function RequirementEditMode() {
     const { requirement, refreshRequirements } = useRequirementContext();
     const [editedText, setEditedText] = useState(requirement.text);

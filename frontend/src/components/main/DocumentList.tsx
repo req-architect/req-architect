@@ -15,6 +15,11 @@ import { defaultConfirm } from "../../lib/defaultConfirm.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
 
+/* 
+    This component is used to display the document list.
+    It will display the document tree and allow the user to delete documents.
+*/
+
 export default function DocumentList({
     rootDocument,
     refreshDocuments,

@@ -7,6 +7,11 @@ import { useAuth } from "../hooks/useAuthContext.ts";
 import useRepoContext from "../hooks/useRepoContext.ts";
 import { useNavigate } from "react-router-dom";
 
+/*
+    This is the Main Page of the application.
+    It provides the user with all the tools in the application regarding the requirements management.
+*/
+
 export const MainContext = createContext<MainContextTools | null>(null);
 
 export default function MainPage() {

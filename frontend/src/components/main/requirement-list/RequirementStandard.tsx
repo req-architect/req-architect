@@ -3,6 +3,12 @@ import RenderedRequirementText from "./RenderedRequirementText.tsx";
 import { useMainContextTools } from "../../../hooks/useMainContext.ts";
 import useRequirementContext from "../../../hooks/useRequirementContext.ts";
 
+/*
+    This component is used to display a requirement.
+    It will display the requirement id and the requirement text.
+    It will also allow the user to edit the requirement.
+*/
+
 export default function RequirementStandard() {
     const contextTools = useMainContextTools();
     const { requirement } = useRequirementContext();

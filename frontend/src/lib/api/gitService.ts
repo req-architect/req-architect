@@ -1,5 +1,10 @@
 import fetchAPI from "./fetchAPI.ts";
 
+/*
+    This file contains functions to manage git repositories - functions to post commits, get repositories and post chosen repository.
+    It communicates with the backend through the fetchAPI function.
+*/
+
 type ResponseCommit = {
     message: string;
 };

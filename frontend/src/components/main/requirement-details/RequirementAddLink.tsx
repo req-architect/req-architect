@@ -9,6 +9,12 @@ import { APIError } from "../../../lib/api/fetchAPI";
 import useRepoContext from "../../../hooks/useRepoContext.ts";
 import { useAuth } from "../../../hooks/useAuthContext.ts";
 
+/*
+    This component is used to add a link to a requirement.
+    It will fetch all the requirements from the API and display them in a dropdown (minus the chosen requirement and requirements already linked).
+    The user will then be able to select a requirement and link it to the current requirement.
+*/
+
 interface RequirementsAndKey {
     allRequirements: RequirementWithDoc[];
     autocompleteKey: number;

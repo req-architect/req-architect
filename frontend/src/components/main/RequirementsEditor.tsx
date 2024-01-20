@@ -10,6 +10,11 @@ import { useMainContextTools } from "../../hooks/useMainContext.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
 
+/*
+    This component is used to edit requirements.
+    It will display the requirement list and the requirement details.
+*/
+
 function findRequirement(requirements: Requirement[], id: string | null) {
     return requirements.find((req) => req.id === id) || null;
 }

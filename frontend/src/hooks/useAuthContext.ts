@@ -5,6 +5,12 @@ import { fetchIdentity } from "../lib/api/authService.ts";
 import { AuthContext } from "../App.tsx";
 import { toast } from "react-toastify";
 
+/*
+    This hook is used to manage the authentication state of the user.
+    It is used to login/logout the user and to check if the user is logged in.
+    It also provides the user object and the token string.
+*/
+
 export type AuthContextTools = {
     tokenStr: string | null;
     user: AppUser | null;

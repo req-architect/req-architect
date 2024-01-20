@@ -2,6 +2,12 @@ import { useContext, useState } from "react";
 import { MainContext } from "../pages/MainPage.tsx";
 import { defaultConfirm } from "../lib/defaultConfirm.ts";
 
+/* 
+    This hook is used to manage the main context of the application.
+    It is used to manage the selected document and requirement.
+    It also provides functions to update the context.
+*/
+
 type MainContextData = {
     selectedDocumentPrefix: string | null;
     selectedRequirementId: string | null;

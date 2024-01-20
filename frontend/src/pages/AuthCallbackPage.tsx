@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuthContext.ts";
 import useLoginRedirect from "../hooks/useLoginRedirect.ts";
 
+/*
+    This page is used to handle the callback from the authentication server.
+    It will extract the token and expiration date from the URL and store it in the auth context.
+    It will then (if everything went ok) redirect the user to the repo page.
+*/
+
 export default function AuthCallbackPage() {
     const [error, setError] = useState<boolean>(false);
     const authTools = useAuth();

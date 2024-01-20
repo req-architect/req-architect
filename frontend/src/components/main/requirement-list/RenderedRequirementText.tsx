@@ -6,6 +6,11 @@ import parseRequirementText, {
     RequirementParseError,
 } from "../../../lib/parseRequirementText.ts";
 
+/*
+    This component is used to display the text of a requirement.
+    It will parse the text and display it.
+*/
+
 function umlDiagramSrc(text: string) {
     return `https://www.plantuml.com/plantuml/svg/${plantumlEncoder.encode(
         text,

@@ -5,6 +5,11 @@ import { auto } from "@popperjs/core";
 import useLoginRedirect from "../hooks/useLoginRedirect.ts";
 import { useAuth } from "../hooks/useAuthContext.ts";
 
+/*
+    This page is used to provide the user with options to login with GitHub or GitLab.
+    It will redirect the user to GitLab or GitHub to login and authorization page.
+*/
+
 export default function LoginPage() {
     useLoginRedirect(true, "/repo");
     const authTools = useAuth();

@@ -4,6 +4,11 @@ import { List, Box, Typography } from "@mui/material";
 import { createContext } from "react";
 import { RequirementContextType } from "../../../hooks/useRequirementContext.ts";
 
+/* 
+    This component is used to display a list of requirements.
+    It will display the requirements in a list.
+*/
+
 export const RequirementContext = createContext<RequirementContextType | null>(
     null,
 );
