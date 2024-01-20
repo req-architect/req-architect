@@ -8,75 +8,138 @@ import {
     TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { postDocument } from "../../lib/api/documentService.ts";
+import { ReqDocumentWithChildren } from "../../types.ts";
+import { useAuth } from "../../hooks/useAuthContext.ts";
+import useRepoContext from "../../hooks/useRepoContext.ts";
+
+type AddDocumentMode = "add" | "select";
+
+function extractPrefixes(document: ReqDocumentWithChildren) {
+    let prefixes: string[] = [document.prefix];
+
+    if (document.children && document.children.length > 0) {
+        document.children.forEach((child) => {
+            prefixes = [...prefixes, ...extractPrefixes(child)];
+        });
+    }
+    return prefixes;
+}
+
+type ErrorState = {
+    prefixError: string | null;
+    parentPrefixError: string | null;
+};
 
 export default function AddDocument({
-    mode,
-    setMode,
-    prefixes,
-    onAddDocument,
+    rootDocument,
+    refreshDocuments,
 }: {
-    mode: string;
-    setMode: (mode: string) => void;
-    prefixes: string[];
-    onAddDocument: () => void;
+    rootDocument: ReqDocumentWithChildren | null;
+    refreshDocuments: () => void;
 }) {
-    const [formData, setFormData] = useState({
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
+    const [mode, setMode] = useState<AddDocumentMode>("add");
+    const [formData, setFormData] = useState<{
+        text: string;
+        selectedOption: string | null;
+    }>({
         text: "",
-        selectedOption: "",
+        selectedOption: null,
+    });
+    const [errorState, setErrorState] = useState<ErrorState>({
+        prefixError: null,
+        parentPrefixError: null,
     });
 
+    const prefixes = useMemo(
+        () => (rootDocument ? extractPrefixes(rootDocument) : []),
+        [rootDocument],
+    );
+
     useEffect(() => {
-        if (formData.selectedOption === "" && prefixes.length > 0) {
-            setFormData((prev) => ({
-                ...prev,
-                selectedOption: prefixes[0],
-            }));
-        }
-    }, [formData.selectedOption, prefixes]);
-
-    const handleClick = () => {
-        setMode("select");
-    };
-
-    const handleCancel = () => {
-        setMode("add");
-    }
+        setFormData({
+            text: "",
+            selectedOption: prefixes.length > 0 ? prefixes[0] : null,
+        });
+    }, [prefixes]);
 
     const handleAddDocument = async (event: { preventDefault: () => void }) => {
         event.preventDefault(); //prevent: localhost/:1 Form submission canceled because the form is not connected
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
+        let newErrorState: ErrorState = {
+            prefixError: null,
+            parentPrefixError: null,
+        };
         if (!formData.text) {
-            alert("Please enter a document prefix");
+            newErrorState = {
+                ...newErrorState,
+                prefixError: "Document prefix cannot be empty",
+            };
+        }
+        if (formData.text && prefixes.includes(formData.text)) {
+            newErrorState = {
+                ...newErrorState,
+                prefixError: "Document prefix must be unique",
+            };
+        }
+        if (formData.selectedOption === null && prefixes.length > 0) {
+            newErrorState = {
+                ...newErrorState,
+                parentPrefixError: "Parent prefix cannot be empty",
+            };
+        }
+        if (
+            newErrorState.prefixError !== null ||
+            newErrorState.parentPrefixError !== null
+        ) {
+            setErrorState(newErrorState);
             return;
         }
-        if (/^\d+$/.test(formData.text.charAt(formData.text.length - 1))) { // if is digit
-            alert("Document prefix cannot end with a digit");
-            return;
-        }
-        if (formData.selectedOption === "") {
-            console.log("No parent prefix selected");
-            await postDocument(formData.text);
+        setErrorState(newErrorState);
+        if (formData.selectedOption === null) {
+            await postDocument(
+                authTools.tokenStr,
+                repoTools.repositoryName,
+                formData.text,
+            );
         } else {
-            console.log("Parent prefix selected:", formData.selectedOption);
-            await postDocument(formData.text, formData.selectedOption);
+            await postDocument(
+                authTools.tokenStr,
+                repoTools.repositoryName,
+                formData.text,
+                formData.selectedOption,
+            );
         }
         //setMode("add");
-        onAddDocument();
+        refreshDocuments();
     };
 
     return (
         <Box
             alignItems="stretch"
-            sx={{ alignSelf: "flex-end", marginTop: "auto", ml: 2, mr: 2, mb: 2, justifyContent: "flex-end"}}
+            sx={{
+                alignSelf: "flex-end",
+                marginTop: "auto",
+                ml: 2,
+                mr: 2,
+                mb: 2,
+                justifyContent: "flex-end",
+            }}
         >
             {mode === "add" ? (
                 <Fab
                     size="small"
                     color="success"
                     aria-label="add"
-                    sx={{  }}
-                    onClick={handleClick}
+                    sx={{}}
+                    onClick={() => {
+                        setMode("select");
+                    }}
                 >
                     <AddIcon />
                 </Fab>
@@ -87,12 +150,15 @@ export default function AddDocument({
                             label="New document prefix"
                             fullWidth
                             sx={{ mt: 2, mb: 2 }}
+                            value={formData.text}
                             onChange={(event) => {
                                 setFormData((prev) => ({
                                     ...prev,
                                     text: event.target.value,
                                 }));
                             }}
+                            error={!!errorState.prefixError}
+                            helperText={errorState.prefixError}
                         />
                         <FormControl
                             fullWidth
@@ -104,13 +170,17 @@ export default function AddDocument({
                                 onChange={(_event, newValue) => {
                                     setFormData((prev) => ({
                                         ...prev,
-                                        selectedOption: newValue || "",
+                                        selectedOption: newValue || null,
                                     }));
                                 }}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
                                         label="Parent prefix"
+                                        error={!!errorState.parentPrefixError}
+                                        helperText={
+                                            errorState.parentPrefixError
+                                        }
                                     />
                                 )}
                                 PaperComponent={({ children }) => (
@@ -127,13 +197,13 @@ export default function AddDocument({
                             />
                         </FormControl>
                     </form>
-                    <Box sx = {{mb: 2}}>
+                    <Box sx={{ mb: 2 }}>
                         <Button
                             type="submit"
                             variant="contained"
                             color="success"
                             onClick={handleAddDocument}
-                            sx={{width: "100%"}}
+                            sx={{ width: "100%" }}
                         >
                             Add Document
                         </Button>
@@ -142,8 +212,10 @@ export default function AddDocument({
                         <Button
                             variant="contained"
                             color="success"
-                            onClick={handleCancel}
-                            sx={{width: "100%"}}
+                            onClick={() => {
+                                setMode("add");
+                            }}
+                            sx={{ width: "100%" }}
                         >
                             Back
                         </Button>

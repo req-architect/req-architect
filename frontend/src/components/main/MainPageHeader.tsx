@@ -7,7 +7,50 @@ import {
     Box,
 } from "@mui/material";
 
+import { useState } from "react";
+import { postCommit } from "../../lib/api/gitService";
+import { toast } from "react-toastify";
+import { useAuth } from "../../hooks/useAuthContext.ts";
+import useRepoContext from "../../hooks/useRepoContext.ts";
+
 export default function MainPageHeader() {
+    const [commitTextFieldValue, setcommitTextFieldValue] = useState("");
+    const [errorState, setErrorState] = useState<string | null>(null);
+    const authTools = useAuth();
+    const repoTools = useRepoContext();
+
+    const handleLogOut = () => {
+        repoTools.setRepositoryName(null);
+        authTools.logout();
+    };
+
+    const changeCommitFieldValue = (
+        event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        setcommitTextFieldValue(event.target.value);
+    };
+
+    const handleCommit = async () => {
+        if (!commitTextFieldValue) {
+            setErrorState("Commit message cannot be empty");
+            return;
+        }
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
+        if (errorState) setErrorState(null);
+        const response = await postCommit(
+            authTools.tokenStr,
+            repoTools.repositoryName,
+            commitTextFieldValue,
+        );
+        response.message;
+        if (response.message.includes("Success")) {
+            toast.success("Changes pushed");
+            setcommitTextFieldValue("");
+        }
+    };
+
     return (
         <AppBar
             position="static"
@@ -35,11 +78,14 @@ export default function MainPageHeader() {
                 >
                     <TextField
                         id="outlined-basic"
-                        label="Comment"
+                        label={errorState ? errorState : "Comment"}
                         multiline
                         variant="outlined"
                         maxRows={1}
                         sx={{ width: "50%", mr: 2, bgcolor: "white" }}
+                        value={commitTextFieldValue}
+                        onChange={changeCommitFieldValue}
+                        error={!!errorState}
                     ></TextField>
                     <Button
                         sx={{
@@ -52,6 +98,7 @@ export default function MainPageHeader() {
                                 background: "#689F38",
                             },
                         }}
+                        onClick={handleCommit}
                     >
                         SAVE
                     </Button>
@@ -65,6 +112,7 @@ export default function MainPageHeader() {
                         height: "40px",
                         mr: 2,
                     }}
+                    onClick={handleLogOut}
                 >
                     Log out
                 </Button>

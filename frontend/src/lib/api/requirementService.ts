@@ -1,46 +1,91 @@
 import fetchAPI from "./fetchAPI.ts";
-import { Requirement } from "../../types.ts";
+import { Requirement, RequirementWithDoc } from "../../types.ts";
 
 function getReqPrefix(reqId: string): string {
-    // get all characters to first digit
-    const prefix = reqId.match(/^[^\d]+/);
-    if (prefix === null) {
-        throw new Error("Invalid requirement ID");
-    }
-    return prefix[0];
+    // get all character without the last 3
+    return reqId.slice(0, -3);
 }
 
 export async function fetchRequirements(
+    tokenStr: string,
+    repositoryName: string,
     docPrefix: string,
 ): Promise<Requirement[]> {
-    return fetchAPI("GET", `/MyServer/req/?docId=${docPrefix}`);
+    return fetchAPI(
+        tokenStr,
+        repositoryName,
+        "GET",
+        `/MyServer/req/?docId=${docPrefix}`,
+    );
 }
 
-export async function postRequirement(docPrefix: string) {
-    if (!docPrefix){
-        alert("To add a requirement you must first choose a document");
-        return;
+export async function postRequirement(
+    tokenStr: string,
+    repositoryName: string,
+    docPrefix: string,
+) {
+    if (!docPrefix) {
+        throw new Error("docPrefix is empty");
     }
-    await fetchAPI("POST", "/MyServer/req/", {
+    await fetchAPI(tokenStr, repositoryName, "POST", "/MyServer/req/", {
         docId: docPrefix,
         reqNumberId: "", // id assigned automatically
         reqText: "", // text is empty by default
     });
 }
 
-export async function putRequirement(reqId: string, reqText: string) {
-    console.log(`Updating ${reqId} to ${reqText}`);
+export async function putRequirement(
+    tokenStr: string,
+    repositoryName: string,
+    reqId: string,
+    reqText: string,
+) {
     const prefix = getReqPrefix(reqId);
-    await fetchAPI("PUT", "/MyServer/req/", {
+    await fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/", {
         docId: prefix,
         reqId,
         reqText,
     });
 }
-export async function deleteRequirement(reqId: string) {
+export async function deleteRequirement(
+    tokenStr: string,
+    repositoryName: string,
+    reqId: string,
+) {
     const prefix = getReqPrefix(reqId);
-    await fetchAPI("DELETE", "/MyServer/req/", {
+    await fetchAPI(tokenStr, repositoryName, "DELETE", "/MyServer/req/", {
         docId: prefix,
         reqId,
     });
+}
+
+export async function linkRequirement(
+    tokenStr: string,
+    repositoryName: string,
+    req1Id: string,
+    req2Id: string,
+) {
+    await fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/link/", {
+        req1Id,
+        req2Id,
+    });
+}
+
+export async function unlinkRequirement(
+    tokenStr: string,
+    repositoryName: string,
+    req1Id: string,
+    req2Id: string,
+) {
+    await fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/unlink/", {
+        req1Id,
+        req2Id,
+    });
+}
+
+export async function getAllRequirements(
+    tokenStr: string,
+    repositoryName: string,
+): Promise<RequirementWithDoc[]> {
+    return fetchAPI(tokenStr, repositoryName, "GET", "/MyServer/req/all");
 }

@@ -1,36 +1,25 @@
-import { Requirement } from "../../../types.ts";
 import { Box, Button, Typography } from "@mui/material";
-import { useContext } from "react";
-import { MainContext } from "../../../pages/MainPage.tsx";
 import RenderedRequirementText from "./RenderedRequirementText.tsx";
+import { useMainContextTools } from "../../../hooks/useMainContext.ts";
+import useRequirementContext from "../../../hooks/useRequirementContext.ts";
 
-export default function RequirementStandard({
-    requirement,
-}: {
-    requirement: Requirement;
-}) {
-    const contextTools = useContext(MainContext);
-    function handleSelect() {
-        contextTools?.updateSelectedRequirement(requirement);
-    }
+export default function RequirementStandard() {
+    const contextTools = useMainContextTools();
+    const { requirement } = useRequirementContext();
     return (
         <Box sx={{ m: 2 }}>
-            <Typography variant="h6" color="black" fontWeight={"bold"} sx={{ mb: 1 }}>
+            <Typography
+                variant="h6"
+                color="black"
+                fontWeight={"bold"}
+                sx={{ mb: 1 }}
+            >
                 Req {requirement.id}
             </Typography>
             <RenderedRequirementText text={requirement.text} />
-            {/* {contextTools?.isSelected(requirement) && (
-                <IconButton
-                    aria-label="edit"
-                    onClick={() => contextTools?.updateEditMode(true)}
-                >
-                    <EditIcon />
-                </IconButton>
-            )} */}
             <Button
                 onClick={() => {
-                    handleSelect();
-                    contextTools?.updateEditMode(true);
+                    contextTools.selectAndEdit(requirement.id);
                 }}
                 sx={{
                     background: "green",

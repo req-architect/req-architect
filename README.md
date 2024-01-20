@@ -1,18 +1,18 @@
 # PZSP2-KUKIWAKO
 
 Projekt z przedmiotu PZSP2 w semestrze 23Z.  
-Zespół nr 7 - KUKIWAKO  
+Zespół nr 7 - KUKIWAKO
 
 Skład:
 
-- Nel Kułakowska
-- Marcin Wawrzyniak
-- Jan Kowalczewski
-- Mateusz Kiełbus
+-   Nel Kułakowska
+-   Marcin Wawrzyniak
+-   Jan Kowalczewski
+-   Mateusz Kiełbus
 
 ## Cel projektu
-Celem naszego projektu jest stworzenie serwisu internetowego będącego nakładką graficzną na narzędzie "doorstop". Aplikacja będzie skierowana dla osób nietechnicznych, aby nie musiały wykonywać poszczególnych komend z poziomu konsoli. Pozwoli na generowanie diagramów UML zawarte w plikach z wymaganiami doorstop i integrację z wybranym zdalnym repozytorium git.
 
+Celem naszego projektu jest stworzenie serwisu internetowego będącego nakładką graficzną na narzędzie "doorstop". Aplikacja będzie skierowana dla osób nietechnicznych, aby nie musiały wykonywać poszczególnych komend z poziomu konsoli. Pozwoli na generowanie diagramów UML zawarte w plikach z wymaganiami doorstop i integrację z wybranym zdalnym repozytorium git.
 
 ## Instalacja i uruchamianie w trybie deweloperskim
 
@@ -28,8 +28,57 @@ W katalogu głównym projektu należy utworzyć plik `.env` i ustawić w nim zmi
 Przykładowy plik `.env`:
 
 ```text
-APP_ADDRESS="http://localhost"
+FRONTEND_URL="http://localhost:3000"
+BACKEND_URL="http://localhost:8000"
+GITHUB_CLIENT_ID="*************"
+GITHUB_CLIENT_SECRET="*************"
+GITLAB_CLIENT_ID="*************"
+GITLAB_CLIENT_SECRET="*************"
+JWT_SECRET="*************"
+SERVER_TEST_MODE=0
 ```
+
+Aby umożliwić autoryzację należy utworzyć aplikacje na serwisie github.com oraz gitlab.com i wygenerować sekret JWT.
+
+#### Tworzenie aplikacji na github.com
+
+1. W [ustawieniach deweloperskich GitHub](https://github.com/settings/apps) przejść do OAuthApps > New OAuth App.
+2. Wypełnić formularz:
+    - Application name: dowolna nazwa
+    - Homepage URL: `$FRONTEND_URL`
+    - Authorization callback URL: `$BACKEND_URL/MyServer/login_callback/github`
+3. Kliknąć "Register application".
+4. Skopiować wartość "Client ID" do pliku `.env` jako wartość `GITHUB_CLIENT_ID`.
+5. Kliknąć "Generate a new client secret".
+6. Skopiować wartość "Client secret" do pliku `.env` jako wartość `GITHUB_CLIENT_SECRET`.
+
+#### Tworzenie aplikacji na gitlab.com
+
+1. W [ustawieniach Gitlab](https://gitlab.com/-/user_settings/profile) przejść do Applications > New application.
+2. Wypełnić formularz:
+    - Name: dowolna nazwa
+    - Redirect URI: `$BACKEND_URL/MyServer/login_callback/gitlab`
+    - Scopes: read_user, read_repository, write_repository, read_api
+3. Kliknąć "Save application".
+4. Skopiować wartość "Application ID" do pliku `.env` jako wartość `GITLAB_CLIENT_ID`.
+5. Skopiować wartość "Secret" do pliku `.env` jako wartość `GITLAB_CLIENT_SECRET`.
+6. Kliknąć "Continue"
+
+#### Generowanie sekretu JWT
+
+Sekret JWT można wygenerować za pomocą polecenia:
+
+```bash
+openssl rand -base64 256
+```
+
+LUB
+
+```bash
+node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
+```
+
+Wynik należy skopiować do pliku `.env` jako wartość `JWT_SECRET`.
 
 ### Zbudowanie kontenerów
 
@@ -64,3 +113,44 @@ docker-compose down
 ### Zmiany w kodzie podczas działania aplikacji
 
 Wszystkie zmiany w katalogach `frontend/src` i `backend/src` są automatycznie wykrywane i aplikowane w kontenerach.
+
+## Uruchomienie "nielokalnego" serwera
+
+Plik ".env":
+
+```text
+FRONTEND_URL="https://kukiwako.serveo.net"
+BACKEND_URL="https://kukiwakobackend.serveo.net"
+```
+
+```bash
+docker-compose build
+docker-compose up -d
+```
+
+w jednym terminalu:
+
+```bash
+ ssh -R kukiwakobackend.serveo.net:80:localhost:8000 serveo.net
+```
+
+w drugim:
+
+```bash
+ ssh -R kukiwako.serveo.net:80:localhost:3000 serveo.net
+```
+
+lub jednym poleceniem:
+```bash
+ ssh -R kukiwakobackend.serveo.net:80:localhost:8000 -R kukiwako.serveo.net:80:localhost:3000 serveo.net
+```
+
+## Uruchomienie serwera w trybie testowym  
+Aby uruchomić serwer w trybie testowym (służącym do przeprowadzenia testów integracyjnych) należy ustawić zmienną środowiskową `SERVER_TEST_MODE=1`. Tryb testowy całkowicie ingoruje integracje z gitem (autoryzację, operacje na zdalnym repozytorium).
+
+### Uwaga przy korzystaniu z bigubu
+Zanim zrobimy docker compose itd, należy zmienić nazwę katalogu:
+```bash
+mv pzsp2-kukiwako z121-pzsp2-kukiwako
+```
+aby kontenery zaczynały się od z121.   

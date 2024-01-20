@@ -1,0 +1,41 @@
+stages:
+  - build
+  - test
+
+frontend_build:
+  stage: build
+  image: node:18-alpine
+  before_script:
+    - cd frontend
+    - npm install
+  artifacts:
+    untracked: true
+  script:
+    - npm run build
+
+frontend_test:
+  stage: test
+  image: node:18-alpine
+  script:
+    - cd frontend
+    - npm run test src/test/unit
+  dependencies:
+    - frontend_build
+  artifacts:
+    when: always
+    paths:
+      - frontend/reports/*.xml
+    reports:
+      junit: frontend/reports/*.xml
+
+backend_test:
+  stage: test
+  image: python:3.11-alpine
+  before_script:
+    - apk add --no-cache git
+    - cd backend
+    - pip install -r requirements.txt
+  script:
+    - cd src
+    - CORS_ALLOWED_ORIGINS="http://localhost:3000" coverage run --branch manage.py test
+    - coverage report
