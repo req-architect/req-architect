@@ -4,6 +4,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { fetchIdentity } from "../lib/api/authService.ts";
 import { AuthContext } from "../App.tsx";
 import { toast } from "react-toastify";
+import { APIError } from "../lib/api/fetchAPI.ts";
 
 /*
     This hook is used to manage the authentication state of the user.
@@ -31,6 +32,10 @@ export default function useAuthContext() {
         user: null,
         initialLoading: true,
     });
+    const logout = useCallback(() => {
+        setToken(null);
+        toast.info("You have been logged out.");
+    }, [setToken]);
     useEffect(() => {
         const abortController = new AbortController();
         const currentTimestampSec = Math.floor(Date.now() / 1000);
@@ -49,21 +54,24 @@ export default function useAuthContext() {
                 });
             })
             .catch((e) => {
-                if (!(e.name === "AbortError")) {
-                    setAuthState({
-                        user: null,
-                        initialLoading: false,
-                    });
+                if (e.name === "AbortError") {
+                    return;
                 }
+                if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        logout();
+                    }
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while fetching your identity: ${e.name}`,
+                );
             });
         return () => {
             abortController.abort();
         };
-    }, [token]);
-    const logout = useCallback(() => {
-        setToken(null);
-        toast.info("You have been logged out.");
-    }, [setToken]);
+    }, [logout, token]);
     const login = useCallback(
         (token: JWTToken) => {
             setToken(token);

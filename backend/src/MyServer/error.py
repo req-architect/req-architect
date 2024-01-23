@@ -1,5 +1,7 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from rest_framework import status
+import urllib.parse
+from decouple import config
 
 from rest_framework.exceptions import APIException
 from rest_framework.views import exception_handler
@@ -117,14 +119,54 @@ class LinkCycleException(CustomAPIException):
     api_error_code = 'LINK_CYCLE_ATTEMPT'
 
 
+class TokenNotPresentException(CustomAPIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_detail = 'Token not present in request.'
+    api_error_code = 'TOKEN_NOT_PRESENT'
+
+
+class InvalidTokenException(CustomAPIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    api_error_code = 'INVALID_TOKEN'
+
+    def __init__(self, detail='Invalid token.'):
+        super().__init__(detail)
+
+
+class InvalidAuthorizationCodeException(CustomAPIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    api_error_code = 'INVALID_AUTHORIZATION_CODE'
+
+    def __init__(self, detail='Invalid authorization code.'):
+        super().__init__(detail)
+
+
+class OAuthProviderCommunicationException(CustomAPIException):
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    api_error_code = 'OAUTH_COMMUNICATION_ERROR'
+    redirect = False
+
+    def __init__(self, detail='There has been an error while communicating with the OAuth provider (Gitlab/Github).', redirect=False):
+        super().__init__(detail)
+        self.redirect = redirect
+
+
 def custom_exception_handler(exc, context):
     """
     Function to handle a caught exception, creates an error message returned to the client.
     """
     response = exception_handler(exc, context)
     if response is not None and isinstance(exc, CustomAPIException):
-        response = JsonResponse({
-            "message": response.data["detail"],
-            "api_error_code": exc.api_error_code
-        }, status=response.status_code)
+        if (isinstance(exc, InvalidAuthorizationCodeException) or
+                (isinstance(exc, OAuthProviderCommunicationException) and exc.redirect)):
+            redirect_to = config("FRONTEND_URL") + "/login_callback?" + urllib.parse.urlencode({
+                "message": response.data["detail"],
+                "api_error_code": exc.api_error_code,
+            })
+            response = HttpResponseRedirect(redirect_to=redirect_to)
+        else:
+            response = JsonResponse({
+                "message": response.data["detail"],
+                "api_error_code": exc.api_error_code
+            }, status=response.status_code)
     return response
