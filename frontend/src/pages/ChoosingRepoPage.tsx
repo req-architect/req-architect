@@ -12,6 +12,10 @@ import { useAuth } from "../hooks/useAuthContext.ts";
 import useRepoContext from "../hooks/useRepoContext.ts";
 import { APIError } from "../lib/api/fetchAPI.ts";
 import { toast } from "react-toastify";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { grey } from "@mui/material/colors";
+import IconButton from "@mui/material/IconButton";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 /*
     This page is used to provide the user with a list of repositories to choose from.
@@ -71,25 +75,33 @@ export default function ChoosingRepoPage() {
                 }}
             >
                 <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        pr: 2,
-                    }}
+                    display="flex"
+                    justifyContent="flex-end"
+                    alignItems="center"
+                    gap="1vh"
+                    paddingRight="5vh"
+                    paddingTop="1.5vh"
                 >
-                    <Button
-                        color="inherit"
-                        sx={{
-                            border: "1px solid green",
-                            color: "green",
-                            minWidth: "150px",
-                            height: "40px",
-                            mt: 2,
-                        }}
-                        onClick={handleLogOut}
-                    >
-                        Log out
-                    </Button>
+                    <AccountCircleIcon
+                        sx={{ color: grey[600] }}
+                        fontSize="large"
+                    />
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Typography
+                            variant="h5"
+                            color="black"
+                            component="div"
+                            sx={{ minWidth: "fit-content", mr: 2 }}
+                        >
+                            {authTools.user?.login}
+                        </Typography>
+                    </Box>
+                    <IconButton>
+                        <LogoutIcon
+                            sx={{ color: grey[900] }}
+                            onClick={handleLogOut}
+                        />
+                    </IconButton>
                 </Box>
                 <Box
                     sx={{
