@@ -55,34 +55,28 @@ export default function RequirementAddLink({
     );
 
     const fetchData = useCallback(async () => {
-        try {
-            if (!authTools.tokenStr || !repoTools.repositoryName) {
-                return;
-            }
-            const allReqs = await getAllRequirements(
-                authTools.tokenStr,
-                repoTools.repositoryName,
-            ).catch((e) => {
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
+        }
+        await getAllRequirements(authTools.tokenStr, repoTools.repositoryName)
+            .then((allReqs) => {
+                const filteredReqs = filterRequirements(allReqs.flat());
+                setAllRequirementsAndKey((prevAllRequirementsAndKey) => ({
+                    allRequirements: filteredReqs,
+                    autocompleteKey:
+                        prevAllRequirementsAndKey.autocompleteKey + 1,
+                }));
+            })
+            .catch((e) => {
                 if (e instanceof APIError) {
                     toast.error(e.message);
                     return;
                 }
                 toast.error(
-                    `An error occurred while fetching your identity: ${e.name}`,
+                    `An error occurred while fetching requirements: ${e.name}`,
                 );
                 console.error(e);
             });
-            if (!allReqs) {
-                return;
-            }
-            const filteredReqs = filterRequirements(allReqs.flat());
-            setAllRequirementsAndKey((prevAllRequirementsAndKey) => ({
-                allRequirements: filteredReqs,
-                autocompleteKey: prevAllRequirementsAndKey.autocompleteKey + 1,
-            }));
-        } catch (error) {
-            console.error("Error fetching requirements:", error);
-        }
     }, [authTools, repoTools, filterRequirements]);
 
     useEffect(() => {
@@ -120,7 +114,7 @@ export default function RequirementAddLink({
                     return;
                 }
                 toast.error(
-                    `An error occurred while fetching your identity: ${e.name}`,
+                    `An error occurred while trying to link requirements: ${e.name}`,
                 );
                 console.error(e);
             });

@@ -65,7 +65,7 @@ export default function useAuthContext() {
                     return;
                 }
                 toast.error(
-                    `An error occurred while fetching your identity: ${e.name}`,
+                    `An error occurred while trying to fetch your identity: ${e.name}`,
                 );
             });
         return () => {

@@ -38,7 +38,7 @@ export default function AddRequirement({
                         return;
                     }
                     toast.error(
-                        `An error occurred while fetching your identity: ${e.name}`,
+                        `An error occurred while trying to add requirement: ${e.name}`,
                     );
                     console.error(e);
                 });

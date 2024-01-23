@@ -51,7 +51,7 @@ export default function RequirementDetails({
                         return;
                     }
                     toast.error(
-                        `An error occurred while fetching your identity: ${e.name}`,
+                        `An error occurred while trying to unlink requirements: ${e.name}`,
                     );
                     console.error(e);
                 });

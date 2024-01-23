@@ -44,7 +44,7 @@ export default function RequirementsEditor() {
                         return;
                     }
                     toast.error(
-                        `An error occurred while fetching your identity: ${e.name}`,
+                        `An error occurred while trying to fetch requirements: ${e.name}`,
                     );
                     console.error(e);
                 });

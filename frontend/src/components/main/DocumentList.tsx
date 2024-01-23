@@ -56,7 +56,7 @@ export default function DocumentList({
                             return;
                         }
                         toast.error(
-                            `An error occurred while fetching your identity: ${e.name}`,
+                            `An error occurred while trying to delete document: ${e.name}`,
                         );
                         console.error(e);
                     });

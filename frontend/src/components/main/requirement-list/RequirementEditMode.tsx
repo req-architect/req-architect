@@ -61,7 +61,7 @@ export default function RequirementEditMode() {
                     return;
                 }
                 toast.error(
-                    `An error occurred while fetching your identity: ${e.name}`,
+                    `An error occurred while trying to save requirement: ${e.name}`,
                 );
                 console.error(e);
             });
@@ -83,7 +83,7 @@ export default function RequirementEditMode() {
                     return;
                 }
                 toast.error(
-                    `An error occurred while fetching your identity: ${e.name}`,
+                    `An error occurred while trying to delete requirement: ${e.name}`,
                 );
                 console.error(e);
             });

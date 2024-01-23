@@ -61,7 +61,7 @@ export default function MainPageHeader() {
                     return;
                 }
                 toast.error(
-                    `An error occurred while fetching your identity: ${e.name}`,
+                    `An error occurred while trying to save changes: ${e.name}`,
                 );
                 console.error(e);
             });

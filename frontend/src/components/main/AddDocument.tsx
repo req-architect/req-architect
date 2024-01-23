@@ -129,7 +129,7 @@ export default function AddDocument({
                 return;
             }
             toast.error(
-                `An error occurred while fetching your identity: ${e.name}`,
+                `An error occurred while trying to add document: ${e.name}`,
             );
             console.error(e);
         });
