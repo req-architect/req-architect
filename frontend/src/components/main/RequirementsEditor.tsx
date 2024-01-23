@@ -40,6 +40,10 @@ export default function RequirementsEditor() {
                 .then(setFetchedRequirements)
                 .catch((e) => {
                     if (e instanceof APIError) {
+                        if (e.api_error_code == "INVALID_TOKEN") {
+                            authTools.logout(e.message);
+                            return;
+                        }
                         toast.error(e.message);
                         return;
                     }

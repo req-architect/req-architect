@@ -16,7 +16,7 @@ export type AuthContextTools = {
     tokenStr: string | null;
     user: AppUser | null;
     initialLoading: boolean;
-    logout: () => void;
+    logout: (reason?: string) => void;
     login: (token: JWTToken) => void;
     isLoggedIn: () => boolean | null;
 };
@@ -32,10 +32,14 @@ export default function useAuthContext() {
         user: null,
         initialLoading: true,
     });
-    const logout = useCallback(() => {
-        setToken(null);
-        toast.info("You have been logged out.");
-    }, [setToken]);
+    const logout = useCallback(
+        (reason: string = "") => {
+            setToken(null);
+            if (reason) toast.info(`You have been logged out: ${reason}`);
+            else toast.info(`You have been logged out`);
+        },
+        [setToken],
+    );
     useEffect(() => {
         const abortController = new AbortController();
         const currentTimestampSec = Math.floor(Date.now() / 1000);
@@ -57,15 +61,11 @@ export default function useAuthContext() {
                 if (e.name === "AbortError") {
                     return;
                 }
-                if (
-                    e instanceof APIError &&
-                    e.api_error_code == "INVALID_TOKEN"
-                ) {
-                    setToken(null);
-                    toast.info(`You have been logged out: ${e.message}`);
-                    return;
-                }
                 if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        logout(e.message);
+                        return;
+                    }
                     toast.error(e.message);
                     return;
                 }
@@ -76,7 +76,7 @@ export default function useAuthContext() {
         return () => {
             abortController.abort();
         };
-    }, [setToken, token]);
+    }, [logout, token]);
     const login = useCallback(
         (token: JWTToken) => {
             setToken(token);

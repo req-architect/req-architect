@@ -69,6 +69,10 @@ export default function RequirementAddLink({
             })
             .catch((e) => {
                 if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
                     toast.error(e.message);
                     return;
                 }
@@ -100,16 +104,17 @@ export default function RequirementAddLink({
         )
             .then(refreshRequirements)
             .catch((e) => {
-                if (
-                    e instanceof APIError &&
-                    e.api_error_code == "LINK_CYCLE_ATTEMPT"
-                ) {
-                    setErrorState(
-                        "Can't link this requirement - you mustn't build a cycle",
-                    );
-                    return;
-                }
                 if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
+                    if (e.api_error_code == "LINK_CYCLE_ATTEMPT") {
+                        setErrorState(
+                            "Can't link this requirement - you mustn't build a cycle",
+                        );
+                        return;
+                    }
                     toast.error(e.message);
                     return;
                 }

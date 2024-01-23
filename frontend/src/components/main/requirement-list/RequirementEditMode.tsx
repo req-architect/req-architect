@@ -57,6 +57,10 @@ export default function RequirementEditMode() {
             .then(refreshRequirements)
             .catch((e) => {
                 if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
                     toast.error(e.message);
                     return;
                 }
@@ -79,6 +83,10 @@ export default function RequirementEditMode() {
             .then(refreshRequirements)
             .catch((e) => {
                 if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
                     toast.error(e.message);
                     return;
                 }

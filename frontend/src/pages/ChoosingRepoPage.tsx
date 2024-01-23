@@ -42,6 +42,10 @@ export default function ChoosingRepoPage() {
             .catch((e) => {
                 setMode(1);
                 if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
                     toast.error(e.message);
                     return;
                 }
