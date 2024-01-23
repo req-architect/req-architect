@@ -32,19 +32,24 @@ export default function ChoosingRepoPage() {
         if (!chosenRepository || !authTools.tokenStr) {
             return;
         }
-        repoContext.setRepositoryName(chosenRepository);
+
         setMode(2);
-        await postRepo(authTools.tokenStr, chosenRepository).catch((e) => {
-            if (e instanceof APIError) {
-                toast.error(e.message);
-                return;
-            }
-            toast.error(
-                `An error occurred while fetching your identity: ${e.name}`,
-            );
-            console.error(e);
-        });
-        navigate("/");
+        await postRepo(authTools.tokenStr, chosenRepository)
+            .then(() => {
+                repoContext.setRepositoryName(chosenRepository);
+                navigate("/");
+            })
+            .catch((e) => {
+                setMode(1);
+                if (e instanceof APIError) {
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while trying to choose repo: ${e.name}`,
+                );
+                console.error(e);
+            });
     };
 
     const handleLogOut = () => {

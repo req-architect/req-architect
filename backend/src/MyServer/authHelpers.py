@@ -198,6 +198,8 @@ def requires_jwt_login(func):
             raise InvalidTokenException("Token expired.")
         except jwt.InvalidSignatureError:
             raise InvalidTokenException("Token is invalid.")
+        except jwt.DecodeError:
+            raise InvalidTokenException("Token could not be decoded.")
         oAuthToken = tokenMap.getToken(UUID(payload["uuid"]))
         if not oAuthToken:
             raise InvalidTokenException("Token could not be verified.")

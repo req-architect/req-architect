@@ -57,10 +57,15 @@ export default function useAuthContext() {
                 if (e.name === "AbortError") {
                     return;
                 }
+                if (
+                    e instanceof APIError &&
+                    e.api_error_code == "INVALID_TOKEN"
+                ) {
+                    setToken(null);
+                    toast.info(`You have been logged out: ${e.message}`);
+                    return;
+                }
                 if (e instanceof APIError) {
-                    if (e.api_error_code == "INVALID_TOKEN") {
-                        logout();
-                    }
                     toast.error(e.message);
                     return;
                 }
@@ -71,7 +76,7 @@ export default function useAuthContext() {
         return () => {
             abortController.abort();
         };
-    }, [logout, token]);
+    }, [setToken, token]);
     const login = useCallback(
         (token: JWTToken) => {
             setToken(token);
