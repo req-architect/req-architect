@@ -8,6 +8,7 @@ import { Requirement, RequirementWithDoc } from "../../../types";
 import { APIError } from "../../../lib/api/fetchAPI";
 import useRepoContext from "../../../hooks/useRepoContext.ts";
 import { useAuth } from "../../../hooks/useAuthContext.ts";
+import { toast } from "react-toastify";
 
 /*
     This component is used to add a link to a requirement.
@@ -61,7 +62,19 @@ export default function RequirementAddLink({
             const allReqs = await getAllRequirements(
                 authTools.tokenStr,
                 repoTools.repositoryName,
-            );
+            ).catch((e) => {
+                if (e instanceof APIError) {
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while fetching your identity: ${e.name}`,
+                );
+                console.error(e);
+            });
+            if (!allReqs) {
+                return;
+            }
             const filteredReqs = filterRequirements(allReqs.flat());
             setAllRequirementsAndKey((prevAllRequirementsAndKey) => ({
                 allRequirements: filteredReqs,
@@ -91,7 +104,16 @@ export default function RequirementAddLink({
                 repoTools.repositoryName,
                 requirement.id,
                 selectedRequirement.id,
-            );
+            ).catch((e) => {
+                if (e instanceof APIError) {
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while fetching your identity: ${e.name}`,
+                );
+                console.error(e);
+            });
             refreshRequirements();
         } catch (error) {
             if (

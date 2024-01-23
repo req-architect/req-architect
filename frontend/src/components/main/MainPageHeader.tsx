@@ -12,6 +12,7 @@ import { postCommit } from "../../lib/api/gitService";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
+import { APIError } from "../../lib/api/fetchAPI.ts";
 
 /*
     This component is the header of the main page.
@@ -45,16 +46,25 @@ export default function MainPageHeader() {
             return;
         }
         if (errorState) setErrorState(null);
-        const response = await postCommit(
+        await postCommit(
             authTools.tokenStr,
             repoTools.repositoryName,
             commitTextFieldValue,
-        );
-        response.message;
-        if (response.message.includes("Success")) {
-            toast.success("Changes pushed");
-            setcommitTextFieldValue("");
-        }
+        )
+            .then(() => {
+                toast.success("Changes pushed");
+                setcommitTextFieldValue("");
+            })
+            .catch((e) => {
+                if (e instanceof APIError) {
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while fetching your identity: ${e.name}`,
+                );
+                console.error(e);
+            });
     };
 
     return (

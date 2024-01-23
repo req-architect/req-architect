@@ -14,6 +14,8 @@ import useRequirementContext from "../../../hooks/useRequirementContext.ts";
 import { defaultConfirm } from "../../../lib/defaultConfirm.ts";
 import useRepoContext from "../../../hooks/useRepoContext.ts";
 import { useAuth } from "../../../hooks/useAuthContext.ts";
+import { APIError } from "../../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /*
     This component is used to edit a requirement.
@@ -51,7 +53,16 @@ export default function RequirementEditMode() {
             repoTools.repositoryName,
             requirement.id,
             editedText,
-        );
+        ).catch((e) => {
+            if (e instanceof APIError) {
+                toast.error(e.message);
+                return;
+            }
+            toast.error(
+                `An error occurred while fetching your identity: ${e.name}`,
+            );
+            console.error(e);
+        });
         refreshRequirements();
     }
     async function handleDelete() {
@@ -63,7 +74,16 @@ export default function RequirementEditMode() {
             authTools.tokenStr,
             repoTools.repositoryName,
             requirement.id,
-        );
+        ).catch((e) => {
+            if (e instanceof APIError) {
+                toast.error(e.message);
+                return;
+            }
+            toast.error(
+                `An error occurred while fetching your identity: ${e.name}`,
+            );
+            console.error(e);
+        });
         refreshRequirements();
     }
     return (

@@ -6,29 +6,29 @@ import { ReqDocumentWithChildren } from "../../types.ts";
     It communicates with the backend through the fetchAPI function.
 */
 
-export async function postDocument(
+export function postDocument(
     token_str: string,
     repositoryName: string,
     prefix: string,
     parent?: string,
 ) {
-    await fetchAPI(token_str, repositoryName, "POST", "/MyServer/doc/", {
+    return fetchAPI(token_str, repositoryName, "POST", "/MyServer/doc/", {
         docId: prefix,
         ...(parent && { parentId: parent }),
     });
 }
 
-export async function deleteDocument(
+export function deleteDocument(
     tokenStr: string,
     repositoryName: string,
     prefix: string,
 ) {
-    await fetchAPI(tokenStr, repositoryName, "DELETE", "/MyServer/doc/", {
+    return fetchAPI(tokenStr, repositoryName, "DELETE", "/MyServer/doc/", {
         docId: prefix,
     });
 }
 
-export async function fetchDocuments(
+export function fetchDocuments(
     tokenStr: string,
     repositoryName: string,
 ): Promise<ReqDocumentWithChildren[]> {

@@ -14,6 +14,8 @@ import React from "react";
 import { defaultConfirm } from "../../lib/defaultConfirm.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
+import { APIError } from "../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /* 
     This component is used to display the document list.
@@ -46,7 +48,16 @@ export default function DocumentList({
                     authTools.tokenStr,
                     repoTools.repositoryName,
                     itemName,
-                );
+                ).catch((e) => {
+                    if (e instanceof APIError) {
+                        toast.error(e.message);
+                        return;
+                    }
+                    toast.error(
+                        `An error occurred while fetching your identity: ${e.name}`,
+                    );
+                    console.error(e);
+                });
                 refreshDocuments();
             },
         );

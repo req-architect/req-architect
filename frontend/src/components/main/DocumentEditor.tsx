@@ -8,6 +8,8 @@ import RequirementsEditor from "./RequirementsEditor.tsx";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
+import { APIError } from "../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /* 
     This component is used to edit documents.
@@ -43,11 +45,22 @@ export default function DocumentEditor() {
         const data = await fetchDocuments(
             authTools.tokenStr,
             repoTools.repositoryName,
-        );
-        if (data.length > 0) {
-            setFetchedRootDocument(data[0]);
-        } else {
-            setFetchedRootDocument(null);
+        ).catch((e) => {
+            if (e instanceof APIError) {
+                toast.error(e.message);
+                return;
+            }
+            toast.error(
+                `An error occurred while fetching your identity: ${e.name}`,
+            );
+            console.error(e);
+        });
+        if (data) {
+            if (data.length > 0) {
+                setFetchedRootDocument(data[0]);
+            } else {
+                setFetchedRootDocument(null);
+            }
         }
     }, [authTools, repoTools]);
 

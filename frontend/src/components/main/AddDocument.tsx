@@ -13,6 +13,8 @@ import { postDocument } from "../../lib/api/documentService.ts";
 import { ReqDocumentWithChildren } from "../../types.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
+import { APIError } from "../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /*
     This component allows the user to add a document.
@@ -106,20 +108,31 @@ export default function AddDocument({
             return;
         }
         setErrorState(newErrorState);
+        let docPromise: Promise<void>;
         if (formData.selectedOption === null) {
-            await postDocument(
+            docPromise = postDocument(
                 authTools.tokenStr,
                 repoTools.repositoryName,
                 formData.text,
             );
         } else {
-            await postDocument(
+            docPromise = postDocument(
                 authTools.tokenStr,
                 repoTools.repositoryName,
                 formData.text,
                 formData.selectedOption,
             );
         }
+        await docPromise.catch((e) => {
+            if (e instanceof APIError) {
+                toast.error(e.message);
+                return;
+            }
+            toast.error(
+                `An error occurred while fetching your identity: ${e.name}`,
+            );
+            console.error(e);
+        });
         //setMode("add");
         refreshDocuments();
     };
