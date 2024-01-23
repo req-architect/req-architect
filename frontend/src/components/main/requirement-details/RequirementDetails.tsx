@@ -43,17 +43,18 @@ export default function RequirementDetails({
                 repoTools.repositoryName,
                 requirement.id,
                 linkReqId,
-            ).catch((e) => {
-                if (e instanceof APIError) {
-                    toast.error(e.message);
-                    return;
-                }
-                toast.error(
-                    `An error occurred while fetching your identity: ${e.name}`,
-                );
-                console.error(e);
-            });
-            refreshRequirements();
+            )
+                .then(refreshRequirements)
+                .catch((e) => {
+                    if (e instanceof APIError) {
+                        toast.error(e.message);
+                        return;
+                    }
+                    toast.error(
+                        `An error occurred while fetching your identity: ${e.name}`,
+                    );
+                    console.error(e);
+                });
         }
     };
 

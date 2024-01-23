@@ -42,26 +42,24 @@ export default function DocumentEditor() {
         if (!authTools.tokenStr || !repoTools.repositoryName) {
             return;
         }
-        const data = await fetchDocuments(
-            authTools.tokenStr,
-            repoTools.repositoryName,
-        ).catch((e) => {
-            if (e instanceof APIError) {
-                toast.error(e.message);
-                return;
-            }
-            toast.error(
-                `An error occurred while fetching your identity: ${e.name}`,
-            );
-            console.error(e);
-        });
-        if (data) {
-            if (data.length > 0) {
-                setFetchedRootDocument(data[0]);
-            } else {
-                setFetchedRootDocument(null);
-            }
-        }
+        await fetchDocuments(authTools.tokenStr, repoTools.repositoryName)
+            .then((data) => {
+                if (data.length > 0) {
+                    setFetchedRootDocument(data[0]);
+                } else {
+                    setFetchedRootDocument(null);
+                }
+            })
+            .catch((e) => {
+                if (e instanceof APIError) {
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while fetching your identity: ${e.name}`,
+                );
+                console.error(e);
+            });
     }, [authTools, repoTools]);
 
     useEffect(() => {

@@ -98,13 +98,23 @@ export default function RequirementAddLink({
         if (!authTools.tokenStr || !repoTools.repositoryName) {
             return;
         }
-        try {
-            await linkRequirement(
-                authTools.tokenStr,
-                repoTools.repositoryName,
-                requirement.id,
-                selectedRequirement.id,
-            ).catch((e) => {
+        await linkRequirement(
+            authTools.tokenStr,
+            repoTools.repositoryName,
+            requirement.id,
+            selectedRequirement.id,
+        )
+            .then(refreshRequirements)
+            .catch((e) => {
+                if (
+                    e instanceof APIError &&
+                    e.api_error_code == "LINK_CYCLE_ATTEMPT"
+                ) {
+                    setErrorState(
+                        "Can't link this requirement - you mustn't build a cycle",
+                    );
+                    return;
+                }
                 if (e instanceof APIError) {
                     toast.error(e.message);
                     return;
@@ -114,19 +124,6 @@ export default function RequirementAddLink({
                 );
                 console.error(e);
             });
-            refreshRequirements();
-        } catch (error) {
-            if (
-                error instanceof APIError &&
-                error.api_error_code == "LINK_CYCLE_ATTEMPT"
-            ) {
-                setErrorState(
-                    "Can't link this requirement - you mustn't build a cycle",
-                );
-            } else {
-                throw error;
-            }
-        }
     };
 
     return (

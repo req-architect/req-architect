@@ -123,7 +123,7 @@ export default function AddDocument({
                 formData.selectedOption,
             );
         }
-        await docPromise.catch((e) => {
+        await docPromise.then(refreshDocuments).catch((e) => {
             if (e instanceof APIError) {
                 toast.error(e.message);
                 return;
@@ -133,8 +133,6 @@ export default function AddDocument({
             );
             console.error(e);
         });
-        //setMode("add");
-        refreshDocuments();
     };
 
     return (

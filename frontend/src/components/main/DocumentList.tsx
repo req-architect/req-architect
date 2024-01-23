@@ -48,17 +48,18 @@ export default function DocumentList({
                     authTools.tokenStr,
                     repoTools.repositoryName,
                     itemName,
-                ).catch((e) => {
-                    if (e instanceof APIError) {
-                        toast.error(e.message);
-                        return;
-                    }
-                    toast.error(
-                        `An error occurred while fetching your identity: ${e.name}`,
-                    );
-                    console.error(e);
-                });
-                refreshDocuments();
+                )
+                    .then(refreshDocuments)
+                    .catch((e) => {
+                        if (e instanceof APIError) {
+                            toast.error(e.message);
+                            return;
+                        }
+                        toast.error(
+                            `An error occurred while fetching your identity: ${e.name}`,
+                        );
+                        console.error(e);
+                    });
             },
         );
     };
