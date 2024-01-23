@@ -10,13 +10,14 @@ Module for handling errors that occur when working with the Doorstop API and whe
 Each exception has a descriptive name, contains an error code and an error message. The occurrence of an exception returns an appropriate message to the client (browser).
 """
 
+
 class CustomAPIException(APIException):
     api_error_code = 'CUSTOM_API_EXCEPTION'
 
 
 class DoorstopException(CustomAPIException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    api_error_code = 'Doorstop internal error'
+    api_error_code = 'DOORSTOP_INTERNAL_ERROR'
 
     def __init__(self, detail='Internal Doorstop error'):
         super().__init__(detail)
@@ -24,7 +25,7 @@ class DoorstopException(CustomAPIException):
 
 class PullRejectedException(CustomAPIException):
     status_code = status.HTTP_409_CONFLICT
-    api_error_code = 'Pull rejected.'
+    api_error_code = 'PULL_REJECTED'
 
     def __init__(self, detail='Pull was rejected.'):
         super().__init__(detail)
@@ -32,7 +33,7 @@ class PullRejectedException(CustomAPIException):
 
 class FetchRejectedException(CustomAPIException):
     status_code = status.HTTP_409_CONFLICT
-    api_error_code = 'Fetch rejected.'
+    api_error_code = 'FETCH_REJECTED'
 
     def __init__(self, detail='Fetch was rejected.'):
         super().__init__(detail)
@@ -40,21 +41,23 @@ class FetchRejectedException(CustomAPIException):
 
 class MergeRejectedException(CustomAPIException):
     status_code = status.HTTP_409_CONFLICT
-    api_error_code = 'Merge rejected.'
+    api_error_code = 'MERGE_REJECTED'
 
     def __init__(self, detail='Merge was rejected.'):
         super().__init__(detail)
 
+
 class CloneRejectedException(CustomAPIException):
     status_code = status.HTTP_409_CONFLICT
-    api_error_code = 'Clone rejected.'
+    api_error_code = 'CLONE_REJECTED'
 
     def __init__(self, detail='Clone was rejected.'):
         super().__init__(detail)
 
+
 class PushRejectedException(CustomAPIException):
     status_code = status.HTTP_409_CONFLICT
-    api_error_code = 'Push rejected.'
+    api_error_code = 'PUSH_REJECTED'
 
     def __init__(self, detail='Push was rejected.'):
         super().__init__(detail)
@@ -62,7 +65,7 @@ class PushRejectedException(CustomAPIException):
 
 class ParentOfEmptyTreeSpecifiedException(CustomAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    api_error_code = 'Parent document when tree is empty was specified'
+    api_error_code = 'PARENT_OF_EMPTY_TREE_SPECIFIED'
 
     def __init__(self, detail='Parent document must not be specified for the document that was about to be added.'):
         super().__init__(detail)
@@ -70,15 +73,15 @@ class ParentOfEmptyTreeSpecifiedException(CustomAPIException):
 
 class NoParentSpecifiedException(CustomAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    api_error_code = 'No parent specified'
+    api_error_code = 'NO_PARENT_SPECIFIED'
 
     def __init__(self, detail='Parent document must be specified for the document that was about to be added.'):
         super().__init__(detail)
 
 
 class EmptyDocumentTreeException(CustomAPIException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    api_error_code = 'No documents created'
+    status_code = status.HTTP_404_NOT_FOUND
+    api_error_code = 'NO_DOCUMENTS'
 
     def __init__(self, detail='No documents were created yet.'):
         super().__init__(detail)
@@ -86,7 +89,7 @@ class EmptyDocumentTreeException(CustomAPIException):
 
 class InvalidReqIDException(CustomAPIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    api_error_code = 'Invalid Req ID'
+    api_error_code = 'INVALID_REQ_ID'
 
     def __init__(self, detail='Given Req ID is invalid.'):
         super().__init__(detail)
@@ -94,14 +97,15 @@ class InvalidReqIDException(CustomAPIException):
 
 class DocNotFoundException(CustomAPIException):
     status_code = status.HTTP_404_NOT_FOUND
-    api_error_code = 'Doc not found'
+    api_error_code = 'DOC_NOT_FOUND'
 
-    def __init__(self, detail='Req not found'):
+    def __init__(self, detail='Doc not found'):
         super().__init__(detail)
+
 
 class ReqNotFoundException(CustomAPIException):
     status_code = status.HTTP_404_NOT_FOUND
-    api_error_code = 'Req not found'
+    api_error_code = 'REQ_NOT_FOUND'
 
     def __init__(self, detail='Req not found'):
         super().__init__(detail)
