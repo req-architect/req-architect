@@ -84,7 +84,7 @@ def session_get_with_catch(session: OAuth2Session, *args, **kwargs):
         response = session.get(*args, **kwargs)
     except requests.ConnectionError:
         raise OAuthProviderCommunicationException
-    if not response.ok:
+    if response.status_code != status.HTTP_200_OK:
         raise OAuthProviderCommunicationException
     return response
 

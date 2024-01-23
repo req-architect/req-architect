@@ -221,9 +221,9 @@ class TestAuthHelpers(unittest.TestCase):
 
         auth_provider = AuthProviderAPI(OAuthProvider.GITHUB)
         token = OAuthToken("mocked_token", OAuthProvider.GITHUB)
-        identity = auth_provider.get_identity(token)
+        identity = auth_provider.get_identity(token.token)
 
-        mock_oauth_session.assert_called_once_with(token={"access_token": token, "token_type": "Bearer"})
+        mock_oauth_session.assert_called_once_with(token={"access_token": token.token, "token_type": "Bearer"})
         mock_oauth_session_instance.get.assert_called_once_with("https://api.github.com/user")
         self.assertEqual(identity, ("mocked_id", "mocked_login", "mocked_email"))
 
@@ -234,9 +234,9 @@ class TestAuthHelpers(unittest.TestCase):
 
         auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
         token = OAuthToken("mocked_token", OAuthProvider.GITLAB)
-        identity = auth_provider.get_identity(token)
+        identity = auth_provider.get_identity(token.token)
 
-        mock_oauth_session.assert_called_once_with(token={"access_token": token, "token_type": "Bearer"})
+        mock_oauth_session.assert_called_once_with(token={"access_token": token.token, "token_type": "Bearer"})
         mock_oauth_session_instance.get.assert_called_once_with("https://gitlab.com/api/v4/user")
         self.assertEqual(identity, ("mocked_id", "mocked_login", "mocked_email"))
 

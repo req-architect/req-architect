@@ -10,6 +10,7 @@ frontend_build:
     - npm install
   artifacts:
     untracked: true
+    expire_in: 1 day
   script:
     - npm run build
 
