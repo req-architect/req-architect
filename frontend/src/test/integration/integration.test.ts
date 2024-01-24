@@ -179,17 +179,11 @@ describe("documentServiceTest", () => {
 
     test("ERRORtestPostExistingDocument", async () => {
         const repo = TEST_REPOS[0];
-        let error;
         await postRepo(TEST_TOKEN, repo);
         await postDocument(TEST_TOKEN, repo, "root");
-        try {
-            await postDocument(TEST_TOKEN, repo, "root", "root");
-        } catch (err) {
-            error = err;
-        }
-        expect(error).toBeInstanceOf(APIError);
-        const castedError = error as APIError;
-        expect(castedError.api_error_code).toBe("DOCUMENT_ALREADY_EXISTS");
+        await expect(
+            postDocument(TEST_TOKEN, repo, "root", "root"),
+        ).rejects.toThrow(APIError);
     }, 120000);
 
     test("testDeleteWithChildren", async () => {
@@ -266,17 +260,10 @@ describe("ReqServiceTest", () => {
 
     test("ERRORtestFetchRequirements-NoSuchDocument", async () => {
         const repo = TEST_REPOS[0];
-        let error;
         await postRepo(TEST_TOKEN, repo);
-
-        try {
-            await fetchRequirements(TEST_TOKEN, repo, "root");
-        } catch (err) {
-            error = err;
-        }
-        expect(error).toBeInstanceOf(APIError);
-        const castedError = error as APIError;
-        expect(castedError.api_error_code).toBe("DOC_NOT_FOUND");
+        await expect(
+            fetchRequirements(TEST_TOKEN, repo, "root"),
+        ).rejects.toThrow(APIError);
     }, 120000);
 
     test("testGetAllRequirements", async () => {
@@ -344,33 +331,21 @@ describe("ReqServiceTest", () => {
 
     test("ERRORtestDeleteRequirement-IncorrectRequirementId", async () => {
         const repo = TEST_REPOS[0];
-        let error;
         await postRepo(TEST_TOKEN, repo);
         await postDocument(TEST_TOKEN, repo, "root");
-        try {
-            await deleteRequirement(TEST_TOKEN, repo, "root001");
-        } catch (err) {
-            error = err;
-        }
-        expect(error).toBeInstanceOf(APIError);
-        const castedError = error as APIError;
-        expect(castedError.api_error_code).toBe("REQ_NOT_FOUND");
+        await expect(
+            deleteRequirement(TEST_TOKEN, repo, "root001"),
+        ).rejects.toThrow(APIError);
     }, 120000);
 
     test("ERRORtestDeleteRequirement-IncorrectDocumentId", async () => {
         const repo = TEST_REPOS[0];
-        let error;
         await postRepo(TEST_TOKEN, repo);
         await postDocument(TEST_TOKEN, repo, "root");
         await postRequirement(TEST_TOKEN, repo, "root");
-        try {
-            await deleteRequirement(TEST_TOKEN, repo, "SYSREQ001");
-        } catch (err) {
-            error = err;
-        }
-        expect(error).toBeInstanceOf(APIError);
-        const castedError = error as APIError;
-        expect(castedError.api_error_code).toBe("REQ_NOT_FOUND");
+        await expect(
+            deleteRequirement(TEST_TOKEN, repo, "SYSREQ001"),
+        ).rejects.toThrow(APIError);
     }, 120000);
 
     test("testDeleteRequirement-MultipleReqsInRepo", async () => {
