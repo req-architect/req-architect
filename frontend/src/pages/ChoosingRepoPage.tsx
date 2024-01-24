@@ -10,6 +10,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import useLoginRedirect from "../hooks/useLoginRedirect.ts";
 import { useAuth } from "../hooks/useAuthContext.ts";
 import useRepoContext from "../hooks/useRepoContext.ts";
+import { APIError } from "../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /*
     This page is used to provide the user with a list of repositories to choose from.
@@ -30,10 +32,28 @@ export default function ChoosingRepoPage() {
         if (!chosenRepository || !authTools.tokenStr) {
             return;
         }
-        repoContext.setRepositoryName(chosenRepository);
+
         setMode(2);
-        await postRepo(authTools.tokenStr, chosenRepository);
-        navigate("/");
+        await postRepo(authTools.tokenStr, chosenRepository)
+            .then(() => {
+                repoContext.setRepositoryName(chosenRepository);
+                navigate("/");
+            })
+            .catch((e) => {
+                setMode(1);
+                if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while trying to choose repo: ${e.name}`,
+                );
+                console.error(e);
+            });
     };
 
     const handleLogOut = () => {

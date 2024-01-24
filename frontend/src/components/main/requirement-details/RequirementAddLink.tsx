@@ -8,6 +8,7 @@ import { Requirement, RequirementWithDoc } from "../../../types";
 import { APIError } from "../../../lib/api/fetchAPI";
 import useRepoContext from "../../../hooks/useRepoContext.ts";
 import { useAuth } from "../../../hooks/useAuthContext.ts";
+import { toast } from "react-toastify";
 
 /*
     This component is used to add a link to a requirement.
@@ -54,22 +55,32 @@ export default function RequirementAddLink({
     );
 
     const fetchData = useCallback(async () => {
-        try {
-            if (!authTools.tokenStr || !repoTools.repositoryName) {
-                return;
-            }
-            const allReqs = await getAllRequirements(
-                authTools.tokenStr,
-                repoTools.repositoryName,
-            );
-            const filteredReqs = filterRequirements(allReqs.flat());
-            setAllRequirementsAndKey((prevAllRequirementsAndKey) => ({
-                allRequirements: filteredReqs,
-                autocompleteKey: prevAllRequirementsAndKey.autocompleteKey + 1,
-            }));
-        } catch (error) {
-            console.error("Error fetching requirements:", error);
+        if (!authTools.tokenStr || !repoTools.repositoryName) {
+            return;
         }
+        await getAllRequirements(authTools.tokenStr, repoTools.repositoryName)
+            .then((allReqs) => {
+                const filteredReqs = filterRequirements(allReqs.flat());
+                setAllRequirementsAndKey((prevAllRequirementsAndKey) => ({
+                    allRequirements: filteredReqs,
+                    autocompleteKey:
+                        prevAllRequirementsAndKey.autocompleteKey + 1,
+                }));
+            })
+            .catch((e) => {
+                if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while fetching requirements: ${e.name}`,
+                );
+                console.error(e);
+            });
     }, [authTools, repoTools, filterRequirements]);
 
     useEffect(() => {
@@ -85,26 +96,33 @@ export default function RequirementAddLink({
         if (!authTools.tokenStr || !repoTools.repositoryName) {
             return;
         }
-        try {
-            await linkRequirement(
-                authTools.tokenStr,
-                repoTools.repositoryName,
-                requirement.id,
-                selectedRequirement.id,
-            );
-            refreshRequirements();
-        } catch (error) {
-            if (
-                error instanceof APIError &&
-                error.api_error_code == "LINK_CYCLE_ATTEMPT"
-            ) {
-                setErrorState(
-                    "Can't link this requirement - you mustn't build a cycle",
+        await linkRequirement(
+            authTools.tokenStr,
+            repoTools.repositoryName,
+            requirement.id,
+            selectedRequirement.id,
+        )
+            .then(refreshRequirements)
+            .catch((e) => {
+                if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
+                    if (e.api_error_code == "LINK_CYCLE_ATTEMPT") {
+                        setErrorState(
+                            "Can't link this requirement - you mustn't build a cycle",
+                        );
+                        return;
+                    }
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while trying to link requirements: ${e.name}`,
                 );
-            } else {
-                throw error;
-            }
-        }
+                console.error(e);
+            });
     };
 
     return (

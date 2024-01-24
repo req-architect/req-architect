@@ -4,8 +4,8 @@ import useMainContext, { MainContextTools } from "../hooks/useMainContext.ts";
 import DocumentEditor from "../components/main/DocumentEditor.tsx";
 import useLoginRedirect from "../hooks/useLoginRedirect.ts";
 import { useAuth } from "../hooks/useAuthContext.ts";
-import useRepoContext from "../hooks/useRepoContext.ts";
 import { useNavigate } from "react-router-dom";
+import useRepoContext from "../hooks/useRepoContext.ts";
 
 /*
     This is the Main Page of the application.
@@ -26,6 +26,7 @@ export default function MainPage() {
             return;
         }
     }, [navigate, repoContext]);
+
     return (
         !authTools.initialLoading && (
             <MainContext.Provider value={mainContextTools}>

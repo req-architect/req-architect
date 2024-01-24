@@ -9,6 +9,8 @@ import { fetchRequirements } from "../../lib/api/requirementService.ts";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
+import { APIError } from "../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /*
     This component is used to edit requirements.
@@ -30,12 +32,26 @@ export default function RequirementsEditor() {
             return;
         }
         if (mainContextTools.data.selectedDocumentPrefix !== null) {
-            const data = await fetchRequirements(
+            await fetchRequirements(
                 authTools.tokenStr,
                 repoTools.repositoryName,
                 mainContextTools.data.selectedDocumentPrefix,
-            );
-            setFetchedRequirements(data);
+            )
+                .then(setFetchedRequirements)
+                .catch((e) => {
+                    if (e instanceof APIError) {
+                        if (e.api_error_code == "INVALID_TOKEN") {
+                            authTools.logout(e.message);
+                            return;
+                        }
+                        toast.error(e.message);
+                        return;
+                    }
+                    toast.error(
+                        `An error occurred while trying to fetch requirements: ${e.name}`,
+                    );
+                    console.error(e);
+                });
         }
     }, [authTools, repoTools, mainContextTools.data.selectedDocumentPrefix]);
 

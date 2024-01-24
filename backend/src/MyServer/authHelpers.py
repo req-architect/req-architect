@@ -9,13 +9,16 @@ from typing import Dict, Tuple
 from uuid import uuid4, UUID
 
 import jwt
+import requests
 from decouple import config
 from requests_oauthlib import OAuth2Session
 from rest_framework import status
 from rest_framework.response import Response
+from oauthlib.oauth2 import InvalidGrantError
 
 # for integrations tests
 from MyServer.testHelpers import server_test_mode, MockedAuthInfo, TEST_USERNAME, TEST_UID, TEST_MAIL, TEST_TOKEN, TEST_REPOS
+from MyServer.error import TokenNotPresentException, InvalidTokenException, OAuthProviderCommunicationException, InvalidAuthorizationCodeException
 
 
 class OAuthProvider(Enum):
@@ -76,6 +79,16 @@ class AuthInfo:
 tokenMap = TokenMap()
 
 
+def session_get_with_catch(session: OAuth2Session, *args, **kwargs):
+    try:
+        response = session.get(*args, **kwargs)
+    except requests.ConnectionError:
+        raise OAuthProviderCommunicationException
+    if response.status_code != status.HTTP_200_OK:
+        raise OAuthProviderCommunicationException
+    return response
+
+
 class AuthProviderAPI:
     def __init__(self, provider: OAuthProvider):
         self._provider = provider
@@ -85,8 +98,13 @@ class AuthProviderAPI:
             self._provider.name.upper() + "_CLIENT_SECRET")
         redirect_uri = self._provider.get_redirect_url()
         session = OAuth2Session(clientId, redirect_uri=redirect_uri)
-        session.fetch_token(PROVIDER_INFO[self._provider]["token_url"], client_secret=clientSecret,
+        try:
+            session.fetch_token(PROVIDER_INFO[self._provider]["token_url"], client_secret=clientSecret,
                             authorization_response=request_uri)
+        except InvalidGrantError:
+            raise InvalidAuthorizationCodeException()
+        except requests.ConnectionError:
+            raise OAuthProviderCommunicationException(redirect=True)
         return OAuthTokenWithInfo(session.access_token,
                                   self._provider,
                                   session.token.get("refresh_token"),
@@ -98,15 +116,11 @@ class AuthProviderAPI:
             return TEST_MAIL
 
         session = OAuth2Session(token={"access_token": token_str, "token_type": "Bearer"})
-        emails = []
         if self._provider == OAuthProvider.GITHUB:
-            r = session.get('https://api.github.com/user/emails')
+            r = session_get_with_catch(session, 'https://api.github.com/user/emails')
         else:
-            r = session.get('https://gitlab.com/api/v4/user/emails')
-        if r.status_code == 200:
-            emails = r.json()
-        else:
-            raise Exception("Error getting user email")
+            r = session_get_with_catch(session, 'https://gitlab.com/api/v4/user/emails')
+        emails = r.json()
         for email in emails:
             if email['primary'] and email['verified']:
                 return email['email']
@@ -118,11 +132,13 @@ class AuthProviderAPI:
 
         session = OAuth2Session(token={"access_token": token_str, "token_type": "Bearer"})
         if self._provider == OAuthProvider.GITHUB:
-            r = session.get("https://api.github.com/user").json()
-            return r['id'], r['login'], r['email']
+            r = session_get_with_catch(session, "https://api.github.com/user")
+            identity = r.json()
+            return identity['id'], identity['login'], identity['email']
         else:
-            r = session.get("https://gitlab.com/api/v4/user").json()
-            return r['id'], r['username'], r['email']
+            r = session_get_with_catch(session, "https://gitlab.com/api/v4/user")
+            identity = r.json()
+            return identity['id'], identity['username'], identity['email']
 
     def get_repos(self, token_str: str) -> list[str] | None:
         if server_test_mode():
@@ -130,21 +146,17 @@ class AuthProviderAPI:
 
         session = OAuth2Session(token={"access_token": token_str, "token_type": "Bearer"})
         if self._provider == OAuthProvider.GITHUB:
-            r = session.get('https://api.github.com/user/repos', headers={
+            r = session_get_with_catch(session, 'https://api.github.com/user/repos', headers={
                 'Accept': 'application/vnd.github+json'
             })
-            if r.status_code == 200:
-                repositories = r.json()
-                write_access_repos = [repo["full_name"] for repo in repositories if repo['permissions']['push']]
-                return write_access_repos
-            else:
-                return None
+            repositories = r.json()
+            write_access_repos = [repo["full_name"] for repo in repositories if repo['permissions']['push']]
+            return write_access_repos
         else:
-            r = session.get('https://gitlab.com/api/v4/projects?membership=true&min_access_level=40')
-            if r.status_code == 200:
-                repositories = r.json()
-                repo_names = [repo["path_with_namespace"] for repo in repositories]
-                return repo_names
+            r = session_get_with_catch(session, 'https://gitlab.com/api/v4/projects?membership=true&min_access_level=40')
+            repositories = r.json()
+            repo_names = [repo["path_with_namespace"] for repo in repositories]
+            return repo_names
 
 
 def generate_frontend_redirect_url(request_uri: str, provider: AuthProviderAPI) -> str:
@@ -175,28 +187,32 @@ def requires_jwt_login(func):
     def wrapper(self, request, *args, **kwargs):
         authHeader = request.headers.get("Authorization")
         if not authHeader:
-            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+            raise TokenNotPresentException()
         auth_type, token = authHeader.split(" ")[:2]
         if auth_type != "Bearer":
-            return Response({'message': 'Wrong auth type'}, status=status.HTTP_401_UNAUTHORIZED)
+            raise TokenNotPresentException()
         jwtToken = authHeader.split(" ")[1]
         try:
             payload = jwt.decode(jwtToken, config("JWT_SECRET"), algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
-            return Response({'message': 'Token expired'}, status=status.HTTP_401_UNAUTHORIZED)
+            raise InvalidTokenException("Token expired.")
+        except jwt.InvalidSignatureError:
+            raise InvalidTokenException("Token is invalid.")
+        except jwt.DecodeError:
+            raise InvalidTokenException("Token could not be decoded.")
         oAuthToken = tokenMap.getToken(UUID(payload["uuid"]))
         if not oAuthToken:
-            return Response({'message': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+            raise InvalidTokenException("Token could not be verified.")
         user_id = payload["user_id"]
         authInfo = AuthInfo(oAuthToken.token, oAuthToken.provider, user_id)
         request.auth = authInfo
         return func(self, request, *args, **kwargs)
-    
+
     @wraps(func)
     def test_wrapper(self, request, *args, **kwargs):
         request.auth = MockedAuthInfo(OAuthProvider.GITHUB)
         return func(self, request, *args, **kwargs)
-    
+
     if server_test_mode():
         return test_wrapper
     return wrapper

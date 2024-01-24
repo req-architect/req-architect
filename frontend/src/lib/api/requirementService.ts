@@ -12,7 +12,7 @@ function getReqPrefix(reqId: string): string {
     return reqId.slice(0, -3);
 }
 
-export async function fetchRequirements(
+export function fetchRequirements(
     tokenStr: string,
     repositoryName: string,
     docPrefix: string,
@@ -25,7 +25,7 @@ export async function fetchRequirements(
     );
 }
 
-export async function postRequirement(
+export function postRequirement(
     tokenStr: string,
     repositoryName: string,
     docPrefix: string,
@@ -33,63 +33,63 @@ export async function postRequirement(
     if (!docPrefix) {
         throw new Error("docPrefix is empty");
     }
-    await fetchAPI(tokenStr, repositoryName, "POST", "/MyServer/req/", {
+    return fetchAPI(tokenStr, repositoryName, "POST", "/MyServer/req/", {
         docId: docPrefix,
         reqNumberId: "", // id assigned automatically
         reqText: "", // text is empty by default
     });
 }
 
-export async function putRequirement(
+export function putRequirement(
     tokenStr: string,
     repositoryName: string,
     reqId: string,
     reqText: string,
 ) {
     const prefix = getReqPrefix(reqId);
-    await fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/", {
+    return fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/", {
         docId: prefix,
         reqId,
         reqText,
     });
 }
-export async function deleteRequirement(
+export function deleteRequirement(
     tokenStr: string,
     repositoryName: string,
     reqId: string,
 ) {
     const prefix = getReqPrefix(reqId);
-    await fetchAPI(tokenStr, repositoryName, "DELETE", "/MyServer/req/", {
+    return fetchAPI(tokenStr, repositoryName, "DELETE", "/MyServer/req/", {
         docId: prefix,
         reqId,
     });
 }
 
-export async function linkRequirement(
+export function linkRequirement(
     tokenStr: string,
     repositoryName: string,
     req1Id: string,
     req2Id: string,
 ) {
-    await fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/link/", {
+    return fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/link/", {
         req1Id,
         req2Id,
     });
 }
 
-export async function unlinkRequirement(
+export function unlinkRequirement(
     tokenStr: string,
     repositoryName: string,
     req1Id: string,
     req2Id: string,
 ) {
-    await fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/unlink/", {
+    return fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/unlink/", {
         req1Id,
         req2Id,
     });
 }
 
-export async function getAllRequirements(
+export function getAllRequirements(
     tokenStr: string,
     repositoryName: string,
 ): Promise<RequirementWithDoc[]> {

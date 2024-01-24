@@ -8,6 +8,8 @@ import RequirementsEditor from "./RequirementsEditor.tsx";
 import { useMainContextTools } from "../../hooks/useMainContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
+import { APIError } from "../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /* 
     This component is used to edit documents.
@@ -40,15 +42,28 @@ export default function DocumentEditor() {
         if (!authTools.tokenStr || !repoTools.repositoryName) {
             return;
         }
-        const data = await fetchDocuments(
-            authTools.tokenStr,
-            repoTools.repositoryName,
-        );
-        if (data.length > 0) {
-            setFetchedRootDocument(data[0]);
-        } else {
-            setFetchedRootDocument(null);
-        }
+        await fetchDocuments(authTools.tokenStr, repoTools.repositoryName)
+            .then((data) => {
+                if (data.length > 0) {
+                    setFetchedRootDocument(data[0]);
+                } else {
+                    setFetchedRootDocument(null);
+                }
+            })
+            .catch((e) => {
+                if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while trying to fetch documents: ${e.name}`,
+                );
+                console.error(e);
+            });
     }, [authTools, repoTools]);
 
     useEffect(() => {

@@ -14,6 +14,8 @@ import useRequirementContext from "../../../hooks/useRequirementContext.ts";
 import { defaultConfirm } from "../../../lib/defaultConfirm.ts";
 import useRepoContext from "../../../hooks/useRepoContext.ts";
 import { useAuth } from "../../../hooks/useAuthContext.ts";
+import { APIError } from "../../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /*
     This component is used to edit a requirement.
@@ -51,8 +53,22 @@ export default function RequirementEditMode() {
             repoTools.repositoryName,
             requirement.id,
             editedText,
-        );
-        refreshRequirements();
+        )
+            .then(refreshRequirements)
+            .catch((e) => {
+                if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while trying to save requirement: ${e.name}`,
+                );
+                console.error(e);
+            });
     }
     async function handleDelete() {
         if (!authTools.tokenStr || !repoTools.repositoryName) {
@@ -63,8 +79,22 @@ export default function RequirementEditMode() {
             authTools.tokenStr,
             repoTools.repositoryName,
             requirement.id,
-        );
-        refreshRequirements();
+        )
+            .then(refreshRequirements)
+            .catch((e) => {
+                if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while trying to delete requirement: ${e.name}`,
+                );
+                console.error(e);
+            });
     }
     return (
         <Grid container>
