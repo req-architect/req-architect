@@ -38,7 +38,7 @@ export default function App() {
         <AuthContext.Provider value={authTools}>
             <RepoContext.Provider value={{ repositoryName, setRepositoryName }}>
                 <RouterProvider router={router} />
-                <ToastContainer />
+                <ToastContainer position="bottom-right" />
             </RepoContext.Provider>
         </AuthContext.Provider>
     );
