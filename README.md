@@ -131,26 +131,58 @@ docker-compose up -d
 w jednym terminalu:
 
 ```bash
- ssh -R kukiwakobackend.serveo.net:80:localhost:8000 serveo.net
+ssh -R kukiwakobackend.serveo.net:80:localhost:8000 serveo.net
 ```
 
 w drugim:
 
 ```bash
- ssh -R kukiwako.serveo.net:80:localhost:3000 serveo.net
+ssh -R kukiwako.serveo.net:80:localhost:3000 serveo.net
 ```
 
 lub jednym poleceniem:
+
 ```bash
- ssh -R kukiwakobackend.serveo.net:80:localhost:8000 -R kukiwako.serveo.net:80:localhost:3000 serveo.net
+ssh -R kukiwakobackend.serveo.net:80:localhost:8000 -R kukiwako.serveo.net:80:localhost:3000 serveo.net
 ```
 
-## Uruchomienie serwera w trybie testowym  
+## Uruchomienie serwera w trybie testowym 
+
 Aby uruchomić serwer w trybie testowym (służącym do przeprowadzenia testów integracyjnych) należy ustawić zmienną środowiskową `SERVER_TEST_MODE=1`. Tryb testowy całkowicie ingoruje integracje z gitem (autoryzację, operacje na zdalnym repozytorium).
 
 ### Uwaga przy korzystaniu z bigubu
+
 Zanim zrobimy docker compose itd, należy zmienić nazwę katalogu:
+
 ```bash
 mv pzsp2-kukiwako z121-pzsp2-kukiwako
 ```
-aby kontenery zaczynały się od z121.   
+
+aby kontenery zaczynały się od z121.
+
+## Uruchomienie serwera w trybie produkcyjnym
+
+Należy przekopiować plik `.env` do `.env.prod`.  
+Następnie dodać zmienne środowiskowe:
+
+```text
+BACKEND_PORT=8000
+FRONTEND_PORT=3000
+REPOS_HOST_FOLDER="/home/jani/pzsp2-repos"
+```
+
+REPOS_HOST_FOLDER określa ścieżkę na maszynie hosta, gdzie zostaną zapisane sklonowane repozytoria.
+
+Uruchomienie:
+
+```bash
+docker compose -f docker-compose-prod.yml --env-file .env.prod up --build
+```
+
+Po uruchomieniu należy przekierować adresy URL frontendu i backendu na zadeklarowane porty, np.:
+
+```bash
+ssh -R kukiwakobackend.serveo.net:80:localhost:8000 -R kukiwako.serveo.net:80:localhost:3000 serveo.net
+```
+
+Komunikacja od strony sieci publicznej musi odbywać się po protokole HTTPS.

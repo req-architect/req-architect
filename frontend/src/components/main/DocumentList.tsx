@@ -14,6 +14,8 @@ import React from "react";
 import { defaultConfirm } from "../../lib/defaultConfirm.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
+import { APIError } from "../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /* 
     This component is used to display the document list.
@@ -46,8 +48,22 @@ export default function DocumentList({
                     authTools.tokenStr,
                     repoTools.repositoryName,
                     itemName,
-                );
-                refreshDocuments();
+                )
+                    .then(refreshDocuments)
+                    .catch((e) => {
+                        if (e instanceof APIError) {
+                            if (e.api_error_code == "INVALID_TOKEN") {
+                                authTools.logout(e.message);
+                                return;
+                            }
+                            toast.error(e.message);
+                            return;
+                        }
+                        toast.error(
+                            `An error occurred while trying to delete document: ${e.name}`,
+                        );
+                        console.error(e);
+                    });
             },
         );
     };

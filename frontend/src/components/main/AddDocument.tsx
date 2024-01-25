@@ -13,6 +13,8 @@ import { postDocument } from "../../lib/api/documentService.ts";
 import { ReqDocumentWithChildren } from "../../types.ts";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
+import { APIError } from "../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /*
     This component allows the user to add a document.
@@ -106,22 +108,35 @@ export default function AddDocument({
             return;
         }
         setErrorState(newErrorState);
+        let docPromise: Promise<void>;
         if (formData.selectedOption === null) {
-            await postDocument(
+            docPromise = postDocument(
                 authTools.tokenStr,
                 repoTools.repositoryName,
                 formData.text,
             );
         } else {
-            await postDocument(
+            docPromise = postDocument(
                 authTools.tokenStr,
                 repoTools.repositoryName,
                 formData.text,
                 formData.selectedOption,
             );
         }
-        //setMode("add");
-        refreshDocuments();
+        await docPromise.then(refreshDocuments).catch((e) => {
+            if (e instanceof APIError) {
+                if (e.api_error_code == "INVALID_TOKEN") {
+                    authTools.logout(e.message);
+                    return;
+                }
+                toast.error(e.message);
+                return;
+            }
+            toast.error(
+                `An error occurred while trying to add document: ${e.name}`,
+            );
+            console.error(e);
+        });
     };
 
     return (

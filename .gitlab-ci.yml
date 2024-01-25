@@ -10,6 +10,7 @@ frontend_build:
     - npm install
   artifacts:
     untracked: true
+    expire_in: 1 day
   script:
     - npm run build
 
@@ -37,5 +38,5 @@ backend_test:
     - pip install -r requirements.txt
   script:
     - cd src
-    - CORS_ALLOWED_ORIGINS="http://localhost:3000" coverage run --branch manage.py test
+    - CORS_ALLOWED_ORIGINS="http://localhost:3000" PRODUCTION="0" coverage run --branch manage.py test
     - coverage report

@@ -14,6 +14,8 @@ import { IconButtonStyles } from "../../../lib/styles.ts";
 import { Requirement } from "../../../types.ts";
 import useRepoContext from "../../../hooks/useRepoContext.ts";
 import { useAuth } from "../../../hooks/useAuthContext.ts";
+import { APIError } from "../../../lib/api/fetchAPI.ts";
+import { toast } from "react-toastify";
 
 /*
     This component is used to display the details of a requirement.
@@ -41,9 +43,22 @@ export default function RequirementDetails({
                 repoTools.repositoryName,
                 requirement.id,
                 linkReqId,
-            );
-            console.log(`Unlinking: ${linkReqId}`);
-            refreshRequirements();
+            )
+                .then(refreshRequirements)
+                .catch((e) => {
+                    if (e instanceof APIError) {
+                        if (e.api_error_code == "INVALID_TOKEN") {
+                            authTools.logout(e.message);
+                            return;
+                        }
+                        toast.error(e.message);
+                        return;
+                    }
+                    toast.error(
+                        `An error occurred while trying to unlink requirements: ${e.name}`,
+                    );
+                    console.error(e);
+                });
         }
     };
 

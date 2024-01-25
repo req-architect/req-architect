@@ -12,6 +12,12 @@ import { postCommit } from "../../lib/api/gitService";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuthContext.ts";
 import useRepoContext from "../../hooks/useRepoContext.ts";
+import { APIError } from "../../lib/api/fetchAPI.ts";
+import LogoutIcon from "@mui/icons-material/Logout";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import IconButton from "@mui/material/IconButton";
+import { grey } from "@mui/material/colors";
+import UndoIcon from "@mui/icons-material/Undo";
 
 /*
     This component is the header of the main page.
@@ -45,16 +51,29 @@ export default function MainPageHeader() {
             return;
         }
         if (errorState) setErrorState(null);
-        const response = await postCommit(
+        await postCommit(
             authTools.tokenStr,
             repoTools.repositoryName,
             commitTextFieldValue,
-        );
-        response.message;
-        if (response.message.includes("Success")) {
-            toast.success("Changes pushed");
-            setcommitTextFieldValue("");
-        }
+        )
+            .then(() => {
+                toast.success("Changes pushed");
+                setcommitTextFieldValue("");
+            })
+            .catch((e) => {
+                if (e instanceof APIError) {
+                    if (e.api_error_code == "INVALID_TOKEN") {
+                        authTools.logout(e.message);
+                        return;
+                    }
+                    toast.error(e.message);
+                    return;
+                }
+                toast.error(
+                    `An error occurred while trying to save changes: ${e.name}`,
+                );
+                console.error(e);
+            });
     };
 
     return (
@@ -68,14 +87,25 @@ export default function MainPageHeader() {
             }}
         >
             <Toolbar>
-                <Typography
-                    variant="h5"
-                    color="black"
-                    component="div"
-                    sx={{ minWidth: "fit-content", mr: 2 }}
-                >
-                    PZSP2-KUKIWAKO
-                </Typography>
+                <Box sx={{ display: "flex", gap: "5px" }}>
+                    <IconButton
+                        onClick={() => {
+                            repoTools.setRepositoryName(null);
+                        }}
+                    >
+                        <UndoIcon sx={{ color: grey[800] }} />
+                    </IconButton>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Typography
+                            variant="h5"
+                            color="black"
+                            component="div"
+                            sx={{ minWidth: "fit-content", mr: 2 }}
+                        >
+                            {repoTools.repositoryName}
+                        </Typography>
+                    </Box>
+                </Box>
                 <Box
                     display="flex"
                     justifyContent="center"
@@ -109,19 +139,28 @@ export default function MainPageHeader() {
                         SAVE
                     </Button>
                 </Box>
-                <Button
-                    color="inherit"
-                    sx={{
-                        border: "1px solid green",
-                        color: "green",
-                        minWidth: "150px",
-                        height: "40px",
-                        mr: 2,
-                    }}
-                    onClick={handleLogOut}
-                >
-                    Log out
-                </Button>
+                <Box display="flex" justifyContent="center" gap="1vh">
+                    <AccountCircleIcon
+                        sx={{ color: grey[600] }}
+                        fontSize="large"
+                    />
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Typography
+                            variant="h5"
+                            color="black"
+                            component="div"
+                            sx={{ minWidth: "fit-content", mr: 2 }}
+                        >
+                            {authTools.user?.login}
+                        </Typography>
+                    </Box>
+                    <IconButton>
+                        <LogoutIcon
+                            sx={{ color: grey[900] }}
+                            onClick={handleLogOut}
+                        />
+                    </IconButton>
+                </Box>
             </Toolbar>
         </AppBar>
     );
