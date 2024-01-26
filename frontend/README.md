@@ -1,29 +1,29 @@
 # Frontend
 
-Ten plik opisuje procedurę manualnej instalacji i uruchomienia serwera webowego.  
-W większości przypadków zaleca się postawienie całej aplikacji za pomocą środowiska Docker.  
-Instrukcja znajduje się w pliku [README.md](../README.md).
+This file describes the procedure for manually installing and running the web server.  
+In most cases, it is recommended to deploy the entire application using Docker.  
+Instructions can be found in the [README.md](../README.md) file.
 
-## Instalacja
+## Installation
 
-W systemie musi znajdować się interpreter Node.js w wersji 18 lub wyższej.
+The system must have Node.js interpreter version 18 or higher installed.
 
 ```bash
 npm install
 ```
 
-## Ustawienie środowiska
+## Environment Setup
 
-Należy utworzyć plik `.env` w aktualnym katalogu i ustawić w nim zmienne środowiskowe.  
-Przykładowy plik `.env`:
+Create a `.env` file in the current directory and set the environment variables.  
+Sample `.env` file:
 
 ```text
 VITE_APP_API_URL="http://localhost:8000"
 ```
 
-## Uruchomienie serwera
+## Running the Server
 
-Przed uruchomieniem aplikacji webowej należy upewnić się, że serwer API jest uruchomiony.
+Before running the web application, make sure that the API server is up and running.
 
 ```bash
 npm run dev

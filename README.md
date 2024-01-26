@@ -1,31 +1,54 @@
-# PZSP2-KUKIWAKO
+# ReqArchitect
 
-Projekt z przedmiotu PZSP2 w semestrze 23Z.  
-Zespół nr 7 - KUKIWAKO
+Project for the PZSP2 course in the 23Z semester, Warsaw University of Technology.
 
-Skład:
+Team members:
 
 -   Nel Kułakowska
 -   Marcin Wawrzyniak
 -   Jan Kowalczewski
 -   Mateusz Kiełbus
 
-## Cel projektu
+## License
 
-Celem naszego projektu jest stworzenie serwisu internetowego będącego nakładką graficzną na narzędzie "doorstop". Aplikacja będzie skierowana dla osób nietechnicznych, aby nie musiały wykonywać poszczególnych komend z poziomu konsoli. Pozwoli na generowanie diagramów UML zawarte w plikach z wymaganiami doorstop i integrację z wybranym zdalnym repozytorium git.
+MIT License
 
-## Instalacja i uruchamianie w trybie deweloperskim
+Copyright (c) 2024 Jan Kowalczewski, Marcin Wawrzyniak, Nel Kułakowska and Mateusz Kiełbus, Warsaw University of Technology, 2024
 
-Instrukcje dotyczące manualnej instalacji i uruchomienia wszystkich komponentów oddzielnie znajdują się w plikach [Frontend](frontend/README.md) i [Backend](backend/README.md).
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Niniejsza instrukcja dotyczy uruchomienia aplikacji za pomocą środowiska Docker.  
-Należy upewnić się, że w systemie zainstalowane są `docker` oraz `docker-compose`.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-### Przygotowanie środowiska
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
-W katalogu głównym projektu należy utworzyć plik `.env` i ustawić w nim zmienne środowiskowe.
+## Project Objective
 
-Przykładowy plik `.env`:
+The goal of our project is to create a web service that serves as a graphical interface for the "doorstop" tool. The application is designed for non-technical users, eliminating the need for executing commands through the console. It will facilitate the generation of UML diagrams from doorstop requirement files and integrate with a chosen remote Git repository.
+
+## Installation and Running in Developer Mode
+
+Instructions for manually installing and running each component separately can be found in the [Frontend](frontend/README.md) and [Backend](backend/README.md) directories.
+
+This guide covers running the application using Docker.  
+Make sure that `docker` and `docker-compose` are installed on your system.
+
+### Environment Setup
+
+In the project's root directory, create a `.env` file and set the environment variables.
+
+Sample `.env` file:
 
 ```text
 FRONTEND_URL="http://localhost:3000"
@@ -38,85 +61,85 @@ JWT_SECRET="*************"
 SERVER_TEST_MODE=0
 ```
 
-Aby umożliwić autoryzację należy utworzyć aplikacje na serwisie github.com oraz gitlab.com i wygenerować sekret JWT.
+To enable authorization, create applications on github.com and gitlab.com and generate a JWT secret.
 
-#### Tworzenie aplikacji na github.com
+#### Creating an application on github.com
 
-1. W [ustawieniach deweloperskich GitHub](https://github.com/settings/apps) przejść do OAuthApps > New OAuth App.
-2. Wypełnić formularz:
-    - Application name: dowolna nazwa
-    - Homepage URL: `$FRONTEND_URL`
-    - Authorization callback URL: `$BACKEND_URL/MyServer/login_callback/github`
-3. Kliknąć "Register application".
-4. Skopiować wartość "Client ID" do pliku `.env` jako wartość `GITHUB_CLIENT_ID`.
-5. Kliknąć "Generate a new client secret".
-6. Skopiować wartość "Client secret" do pliku `.env` jako wartość `GITHUB_CLIENT_SECRET`.
+1. In [GitHub Developer settings](https://github.com/settings/apps), go to OAuthApps > New OAuth App.
+2. Fill in the form:
+   - Application name: any name
+   - Homepage URL: `$FRONTEND_URL`
+   - Authorization callback URL: `$BACKEND_URL/MyServer/login_callback/github`
+3. Click "Register application."
+4. Copy the "Client ID" value to the `.env` file as `GITHUB_CLIENT_ID`
+5. Click "Generate a new client secret."
+6. Copy the "Client secret" value to the `.env` file as `GITHUB_CLIENT_SECRET`
 
-#### Tworzenie aplikacji na gitlab.com
+#### Creating an application on gitlab.com
 
-1. W [ustawieniach Gitlab](https://gitlab.com/-/user_settings/profile) przejść do Applications > New application.
-2. Wypełnić formularz:
-    - Name: dowolna nazwa
-    - Redirect URI: `$BACKEND_URL/MyServer/login_callback/gitlab`
-    - Scopes: read_user, read_repository, write_repository, read_api
-3. Kliknąć "Save application".
-4. Skopiować wartość "Application ID" do pliku `.env` jako wartość `GITLAB_CLIENT_ID`.
-5. Skopiować wartość "Secret" do pliku `.env` jako wartość `GITLAB_CLIENT_SECRET`.
-6. Kliknąć "Continue"
+1. In [Gitlab settings](https://gitlab.com/-/user_settings/profile), go to Applications > New application.
+2. Fill in the form:
+   - Name: any name
+   - Redirect URI: `$BACKEND_URL/MyServer/login_callback/gitlab`
+   - Scopes: read_user, read_repository, write_repository, read_api
+3. Click "Save application."
+4. Copy the "Application ID" value to the `.env` file as `GITLAB_CLIENT_ID`
+5. Copy the "Secret" value to the `.env` file as `GITLAB_CLIENT_SECRET`
+6. Click "Continue."
 
-#### Generowanie sekretu JWT
+#### Generating JWT Secret
 
-Sekret JWT można wygenerować za pomocą polecenia:
+Generate the JWT secret using the command:
 
 ```bash
 openssl rand -base64 256
 ```
 
-LUB
+OR
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
 ```
 
-Wynik należy skopiować do pliku `.env` jako wartość `JWT_SECRET`.
+Copy the result to the `.env` file as `JWT_SECRET`
 
-### Zbudowanie kontenerów
+### Building Containers
 
 ```bash
 docker-compose build
 ```
 
-### Uruchomienie i zatrzymanie w trybie zwykłym
+### Running and Stopping in Normal Mode
 
-Uruchomienie:
+To run:
 
 ```bash
 docker-compose up
 ```
 
-Zatrzymanie poprzez wciśnięcie `Ctrl+C`.
+Stop by pressing `Ctrl+C`.
 
-### Uruchomienie i zatrzymanie w tle
+### Running and Stopping in the Background
 
-Uruchomienie:
+To run:
 
 ```bash
 docker-compose up -d
 ```
 
-Zatrzymanie:
+To stop:
 
 ```bash
 docker-compose down
 ```
 
-### Zmiany w kodzie podczas działania aplikacji
+### Code Changes During Application Runtime
 
-Wszystkie zmiany w katalogach `frontend/src` i `backend/src` są automatycznie wykrywane i aplikowane w kontenerach.
+All changes in the `frontend/src` and `backend/src` directories are automatically detected and applied in the containers.
 
-## Uruchomienie "nielokalnego" serwera
+## Running a "Non-local" Server
 
-Plik ".env":
+`.env` file:
 
 ```text
 FRONTEND_URL="https://kukiwako.serveo.net"
@@ -128,42 +151,32 @@ docker-compose build
 docker-compose up -d
 ```
 
-w jednym terminalu:
+In one terminal:
 
 ```bash
 ssh -R kukiwakobackend.serveo.net:80:localhost:8000 serveo.net
 ```
 
-w drugim:
+In another:
 
 ```bash
 ssh -R kukiwako.serveo.net:80:localhost:3000 serveo.net
 ```
 
-lub jednym poleceniem:
+Or in one command:
 
 ```bash
 ssh -R kukiwakobackend.serveo.net:80:localhost:8000 -R kukiwako.serveo.net:80:localhost:3000 serveo.net
 ```
 
-## Uruchomienie serwera w trybie testowym 
+## Running the Server in Test Mode
 
-Aby uruchomić serwer w trybie testowym (służącym do przeprowadzenia testów integracyjnych) należy ustawić zmienną środowiskową `SERVER_TEST_MODE=1`. Tryb testowy całkowicie ingoruje integracje z gitem (autoryzację, operacje na zdalnym repozytorium).
+To run the server in test mode (for conducting integration tests), set the environment variable `SERVER_TEST_MODE=1`. The test mode completely ignores Git integrations (authorization, operations on the remote repository).
 
-### Uwaga przy korzystaniu z bigubu
+## Running the Server in Production Mode
 
-Zanim zrobimy docker compose itd, należy zmienić nazwę katalogu:
-
-```bash
-mv pzsp2-kukiwako z121-pzsp2-kukiwako
-```
-
-aby kontenery zaczynały się od z121.
-
-## Uruchomienie serwera w trybie produkcyjnym
-
-Należy przekopiować plik `.env` do `.env.prod`.  
-Następnie dodać zmienne środowiskowe:
+Copy the `.env` file to `.env.prod`.  
+Then add environment variables:
 
 ```text
 BACKEND_PORT=8000
@@ -171,18 +184,16 @@ FRONTEND_PORT=3000
 REPOS_HOST_FOLDER="/home/jani/pzsp2-repos"
 ```
 
-REPOS_HOST_FOLDER określa ścieżkę na maszynie hosta, gdzie zostaną zapisane sklonowane repozytoria.
-
-Uruchomienie:
+Run:
 
 ```bash
 docker compose -f docker-compose-prod.yml --env-file .env.prod up --build
 ```
 
-Po uruchomieniu należy przekierować adresy URL frontendu i backendu na zadeklarowane porty, np.:
+After starting, redirect the frontend and backend URLs to the declared ports, e.g.,:
 
 ```bash
 ssh -R kukiwakobackend.serveo.net:80:localhost:8000 -R kukiwako.serveo.net:80:localhost:3000 serveo.net
 ```
 
-Komunikacja od strony sieci publicznej musi odbywać się po protokole HTTPS.
+Communication from the public network must be done over HTTPS.
