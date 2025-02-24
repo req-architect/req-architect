@@ -10,13 +10,13 @@ export function postCommit(
     repositoryName: string,
     commitText: string,
 ) {
-    return fetchAPI(tokenStr, repositoryName, "POST", "/MyServer/git/commit/", {
+    return fetchAPI(tokenStr, repositoryName, "POST", "/api/git/commit/", {
         commitText: commitText,
     });
 }
 
 export function getRepos(tokenStr: string): Promise<string[]> {
-    return fetchAPI(tokenStr, null, "GET", "/MyServer/git/repos/");
+    return fetchAPI(tokenStr, null, "GET", "/api/git/repos/");
 }
 
 export function postRepo(tokenStr: string, repositoryName: string) {
@@ -24,7 +24,7 @@ export function postRepo(tokenStr: string, repositoryName: string) {
         tokenStr,
         repositoryName,
         "POST",
-        "/MyServer/git/repos/",
+        "/api/git/repos/",
         {},
     );
 }

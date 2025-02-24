@@ -21,14 +21,15 @@ Sample `.env` file:
 
 ```text
 CORS_ALLOWED_ORIGINS="http://localhost:3000"
-BACKEND_URL: http://localhost:8000
-FRONTEND_URL: http://localhost:3000
-GITHUB_CLIENT_ID: "**********"
-GITHUB_CLIENT_SECRET: "**********"
-GITLAB_CLIENT_ID: "**********"
-GITLAB_CLIENT_SECRET: "**********"
-JWT_SECRET: "**********"
+BACKEND_URL="http://localhost:8000"
+FRONTEND_URL="http://localhost:3000
+GITHUB_CLIENT_ID="**********"
+GITHUB_CLIENT_SECRET="**********"
+GITLAB_CLIENT_ID="**********"
+GITLAB_CLIENT_SECRET="**********"
+JWT_SECRET="**********"
 REPOS_FOLDER="/repos"
+PRODUCTION="0"
 ```
 
 The 'CORS_ALLOWED_ORIGINS' variable can take the form of a list of addresses separated by the `|` character, for example:
@@ -45,7 +46,7 @@ To enable authorization, create applications on github.com and gitlab.com and ge
 2. Fill in the form:
    - Application name: any name
    - Homepage URL: `$FRONTEND_URL`
-   - Authorization callback URL: `$BACKEND_URL/MyServer/login_callback/github`
+   - Authorization callback URL: `$BACKEND_URL/api/login_callback/github`
 3. Click "Register application."
 4. Copy the "Client ID" value to the `.env` file as `GITHUB_CLIENT_ID`
 5. Click "Generate a new client secret."
@@ -56,7 +57,7 @@ To enable authorization, create applications on github.com and gitlab.com and ge
 1. In [Gitlab settings](https://gitlab.com/-/user_settings/profile), go to Applications > New application.
 2. Fill in the form:
    - Name: any name
-   - Redirect URI: `$BACKEND_URL/MyServer/login_callback/gitlab`
+   - Redirect URI: `$BACKEND_URL/api/login_callback/gitlab`
    - Scopes: read_user, read_repository, write_repository, read_api
 3. Click "Save application."
 4. Copy the "Application ID" value to the `.env` file as `GITLAB_CLIENT_ID`

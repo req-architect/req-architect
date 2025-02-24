@@ -1,7 +1,7 @@
 import fetchAPI from "./fetchAPI.ts";
 import { ReqDocumentWithChildren } from "../../types.ts";
 
-/* 
+/*
     This file contains functions to manage documents - functions to create, delete and fetch documents.
     It communicates with the backend through the fetchAPI function.
 */
@@ -12,7 +12,7 @@ export function postDocument(
     prefix: string,
     parent?: string,
 ) {
-    return fetchAPI(token_str, repositoryName, "POST", "/MyServer/doc/", {
+    return fetchAPI(token_str, repositoryName, "POST", "/api/doc/", {
         docId: prefix,
         ...(parent && { parentId: parent }),
     });
@@ -23,7 +23,7 @@ export function deleteDocument(
     repositoryName: string,
     prefix: string,
 ) {
-    return fetchAPI(tokenStr, repositoryName, "DELETE", "/MyServer/doc/", {
+    return fetchAPI(tokenStr, repositoryName, "DELETE", "/api/doc/", {
         docId: prefix,
     });
 }
@@ -32,5 +32,5 @@ export function fetchDocuments(
     tokenStr: string,
     repositoryName: string,
 ): Promise<ReqDocumentWithChildren[]> {
-    return fetchAPI(tokenStr, repositoryName, "GET", "/MyServer/doc/");
+    return fetchAPI(tokenStr, repositoryName, "GET", "/api/doc/");
 }

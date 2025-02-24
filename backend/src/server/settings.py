@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'MyServer.apps.MyServerConfig',
+    'api.apps.ApiConfig',
     'rest_framework',
     'doorstop',
     'git',
@@ -130,9 +130,9 @@ if not DEBUG:
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
         ),
-        'EXCEPTION_HANDLER': 'MyServer.error.custom_exception_handler'
+        'EXCEPTION_HANDLER': 'api.error.custom_exception_handler'
     }
 else:
     REST_FRAMEWORK = {
-        'EXCEPTION_HANDLER': 'MyServer.error.custom_exception_handler'
+        'EXCEPTION_HANDLER': 'api.error.custom_exception_handler'
     }

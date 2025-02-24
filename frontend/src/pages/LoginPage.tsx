@@ -15,11 +15,11 @@ export default function LoginPage() {
     const authTools = useAuth();
     const handleGithubClick = () => {
         window.location.href =
-            import.meta.env.VITE_APP_API_URL + "/MyServer/login/github";
+            import.meta.env.VITE_APP_API_URL + "/api/login/github";
     };
     const handleGitLabClick = () => {
         window.location.href =
-            import.meta.env.VITE_APP_API_URL + "/MyServer/login/gitlab";
+            import.meta.env.VITE_APP_API_URL + "/api/login/gitlab";
     };
 
     return (

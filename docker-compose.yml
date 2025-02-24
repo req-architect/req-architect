@@ -18,6 +18,7 @@ services:
       REPOS_FOLDER: /repos
       PYTHONUNBUFFERED: 1
       SERVER_TEST_MODE: ${SERVER_TEST_MODE}
+      PRODUCTION: "0"
     volumes:
       - ./backend/src:/app/src
   frontend:

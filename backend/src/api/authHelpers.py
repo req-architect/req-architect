@@ -17,8 +17,8 @@ from rest_framework.response import Response
 from oauthlib.oauth2 import InvalidGrantError
 
 # for integrations tests
-from MyServer.testHelpers import server_test_mode, MockedAuthInfo, TEST_USERNAME, TEST_UID, TEST_MAIL, TEST_TOKEN, TEST_REPOS
-from MyServer.error import TokenNotPresentException, InvalidTokenException, OAuthProviderCommunicationException, InvalidAuthorizationCodeException
+from api.testHelpers import server_test_mode, MockedAuthInfo, TEST_USERNAME, TEST_UID, TEST_MAIL, TEST_TOKEN, TEST_REPOS
+from api.error import TokenNotPresentException, InvalidTokenException, OAuthProviderCommunicationException, InvalidAuthorizationCodeException
 
 
 class OAuthProvider(Enum):
@@ -26,7 +26,7 @@ class OAuthProvider(Enum):
     GITLAB = 1
 
     def get_redirect_url(self) -> str:
-        return config("BACKEND_URL") + "/MyServer/login_callback/" + self.name.lower()
+        return config("BACKEND_URL") + "/api/login_callback/" + self.name.lower()
 
 
 PROVIDER_INFO: Dict[OAuthProvider, Dict[str, str]] = {

@@ -1,12 +1,12 @@
 """This module provides functions responsible for integration with git."""
 
-from MyServer.authHelpers import OAuthProvider, AuthInfo
-from MyServer.testHelpers import server_test_mode, TEST_SERVER_REPOS
+from api.authHelpers import OAuthProvider, AuthInfo
+from api.testHelpers import server_test_mode, TEST_SERVER_REPOS
 import git
 import os
 import csv
 from decouple import config
-import MyServer.error
+import api.error
 
 
 def getReposFromFile() -> dict:
@@ -37,16 +37,16 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
         fetchInfo = repo.remote().fetch()
         for info in fetchInfo:
             if info.flags == info.REJECTED:
-                raise MyServer.error.FetchRejectedException()
+                raise api.error.FetchRejectedException()
         try:
             repo.git.merge(f'origin/{repo.active_branch.name}')
         except git.GitCommandError:
-            raise MyServer.error.MergeRejectedException(f"Merge was rejected after fetching results from remote repo.")
+            raise api.error.MergeRejectedException(f"Merge was rejected after fetching results from remote repo.")
         pushInfo = repo.remote().push()
         try:
             pushInfo.raise_if_error()
         except Exception:
-            raise MyServer.error.PushRejectedException(f"Push operation resulted in conflicts.")
+            raise api.error.PushRejectedException(f"Push operation resulted in conflicts.")
         return True
     except git.InvalidGitRepositoryError:
         return False
@@ -88,7 +88,7 @@ def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
     try:
         repo = git.Repo.clone_from(url, destination)
     except git.GitCommandError:
-        raise MyServer.error.CloneRejectedException(f"Clone was rejected.")
+        raise api.error.CloneRejectedException(f"Clone was rejected.")
     # ensure /req exists
     os.makedirs(f"{destination}/req", exist_ok=True)
     return repo
@@ -105,7 +105,7 @@ def pullRepo(repoFolder: str, token):
     pullInfo = origin.pull()
     for info in pullInfo:
         if info.flags == info.REJECTED:
-            raise MyServer.error.PullRejectedException("Pull was rejected.")
+            raise api.error.PullRejectedException("Pull was rejected.")
 
 
 def checkIfExists(repoFolder: str) -> bool:

@@ -21,7 +21,7 @@ export function fetchRequirements(
         tokenStr,
         repositoryName,
         "GET",
-        `/MyServer/req/?docId=${docPrefix}`,
+        `/api/req/?docId=${docPrefix}`,
     );
 }
 
@@ -33,7 +33,7 @@ export function postRequirement(
     if (!docPrefix) {
         throw new Error("docPrefix is empty");
     }
-    return fetchAPI(tokenStr, repositoryName, "POST", "/MyServer/req/", {
+    return fetchAPI(tokenStr, repositoryName, "POST", "/api/req/", {
         docId: docPrefix,
         reqNumberId: "", // id assigned automatically
         reqText: "", // text is empty by default
@@ -47,7 +47,7 @@ export function putRequirement(
     reqText: string,
 ) {
     const prefix = getReqPrefix(reqId);
-    return fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/", {
+    return fetchAPI(tokenStr, repositoryName, "PUT", "/api/req/", {
         docId: prefix,
         reqId,
         reqText,
@@ -59,7 +59,7 @@ export function deleteRequirement(
     reqId: string,
 ) {
     const prefix = getReqPrefix(reqId);
-    return fetchAPI(tokenStr, repositoryName, "DELETE", "/MyServer/req/", {
+    return fetchAPI(tokenStr, repositoryName, "DELETE", "/api/req/", {
         docId: prefix,
         reqId,
     });
@@ -71,7 +71,7 @@ export function linkRequirement(
     req1Id: string,
     req2Id: string,
 ) {
-    return fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/link/", {
+    return fetchAPI(tokenStr, repositoryName, "PUT", "/api/req/link/", {
         req1Id,
         req2Id,
     });
@@ -83,7 +83,7 @@ export function unlinkRequirement(
     req1Id: string,
     req2Id: string,
 ) {
-    return fetchAPI(tokenStr, repositoryName, "PUT", "/MyServer/req/unlink/", {
+    return fetchAPI(tokenStr, repositoryName, "PUT", "/api/req/unlink/", {
         req1Id,
         req2Id,
     });
@@ -93,5 +93,5 @@ export function getAllRequirements(
     tokenStr: string,
     repositoryName: string,
 ): Promise<RequirementWithDoc[]> {
-    return fetchAPI(tokenStr, repositoryName, "GET", "/MyServer/req/all");
+    return fetchAPI(tokenStr, repositoryName, "GET", "/api/req/all");
 }
