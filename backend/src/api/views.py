@@ -32,10 +32,11 @@ If no errors described in the error.py module occur, messages containing server 
 status 200 messages confirming the correct execution of the operation.
 """
 
+
 class ReqView(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._serverRepos = api.repoHelpers.getReposFromFile()
+        self._serverRepos = api.repoHelpers.get_repos_from_file()
 
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
@@ -43,52 +44,56 @@ class ReqView(APIView):
 
     @requires_jwt_login
     def get(self, request, *args, **kwargs):
-        return self._getReqs(request)
+        return self._get_reqs(request)
 
     @requires_jwt_login
     def post(self, request, *args, **kwargs):
-        return self._addRequirement(request)
+        return self._add_requirement(request)
 
     @requires_jwt_login
     def delete(self, request, *args, **kwargs):
-        return self._deleteRequirement(request)
+        return self._delete_requirement(request)
 
     @requires_jwt_login
     def put(self, request, *args, **kwargs):
-        return self._editRequirement(request)
+        return self._edit_requirement(request)
 
-    def _deleteRequirement(self, request):
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        api.restHandlersHelpers.deleteUserRequirement(request.data.get("docId"), request.data.get("reqId"), repoFolder + "/req")
+    @staticmethod
+    def _delete_requirement(request):
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        api.restHandlersHelpers.delete_user_requirement(request.data.get("docId"), request.data.get("reqId"), repo_folder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
-    def _editRequirement(self, request):
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        api.restHandlersHelpers.editUserRequirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), repoFolder + "/req")
+    @staticmethod
+    def _edit_requirement(request):
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        api.restHandlersHelpers.edit_user_requirement(request.data.get("docId"), request.data.get("reqId"), request.data.get("reqText"), repo_folder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
-    def _addRequirement(self, request):
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        api.restHandlersHelpers.addUserRequirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), repoFolder + "/req")
+    @staticmethod
+    def _add_requirement(request):
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        api.restHandlersHelpers.add_user_requirement(request.data.get("docId"), request.data.get("reqNumberId"), request.data.get("reqText"), repo_folder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
-    def _getReqs(self, request):
+    @staticmethod
+    def _get_reqs(request):
         doc_id = request.GET.get('docId', '')  # Get docId from query parameters
         if not doc_id:
             return Response({'message': 'Missing docId parameter in the request'}, status=status.HTTP_400_BAD_REQUEST)
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        reqs = api.restHandlersHelpers.getDocReqs(
-            request.GET.get("docId"), repoFolder + "/req")
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        reqs = api.restHandlersHelpers.get_doc_reqs(
+            request.GET.get("docId"), repo_folder + "/req")
         if not reqs:
             return JsonResponse([], safe=False)
-        serialized = api.restHandlersHelpers.serializeDocReqs(reqs)
+        serialized = api.restHandlersHelpers.serialize_doc_reqs(reqs)
         return JsonResponse(serialized, safe=False)
 
 
 class DocView(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._serverRepos = api.repoHelpers.getReposFromFile()
+        self._serverRepos = api.repoHelpers.get_repos_from_file()
 
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
@@ -96,64 +101,69 @@ class DocView(APIView):
 
     @requires_jwt_login
     def get(self, request, *args, **kwargs):
-        return self._getDocuments(request)
+        return self._get_documents(request)
 
     @requires_jwt_login
     def post(self, request, *args, **kwargs):
-        return self._addDocument(request)
+        return self._add_document(request)
 
     @requires_jwt_login
     def delete(self, request, *args, **kwargs):
-        return self._deleteDocument(request)
+        return self._delete_document(request)
 
-    def _addDocument(self, request):
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        api.restHandlersHelpers.addUserDocument(request.data.get("docId"), request.data.get("parentId"), repoFolder + "/req")
+    @staticmethod
+    def _add_document(request):
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        api.restHandlersHelpers.add_user_document(request.data.get("docId"), request.data.get("parentId"), repo_folder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
-    def _deleteDocument(self, request):
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        api.restHandlersHelpers.deleteUserDocument(request.data.get("docId"), repoFolder + "/req")
+    @staticmethod
+    def _delete_document(request):
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        api.restHandlersHelpers.delete_user_document(request.data.get("docId"), repo_folder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
-    def _getDocuments(self, request):
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        serialized = api.restHandlersHelpers.serializeDocuments(
-            repoFolder + "/req")
+    @staticmethod
+    def _get_documents(request):
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        serialized = api.restHandlersHelpers.serialize_documents(
+            repo_folder + "/req")
         return JsonResponse(serialized, safe=False)
 
 
 class LinkView(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._serverRepos = api.repoHelpers.getReposFromFile()
+        self._serverRepos = api.repoHelpers.get_repos_from_file()
 
     @requires_jwt_login
     def put(self, request, *args, **kwargs):
-        return self._addLink(request)
+        return self._add_link(request)
 
-    def _addLink(self, request):
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        api.restHandlersHelpers.addUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder + "/req")
+    @staticmethod
+    def _add_link(request):
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        api.restHandlersHelpers.add_user_link(request.data.get("req1Id"), request.data.get("req2Id"), repo_folder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
 class UnlinkView(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._serverRepos = api.repoHelpers.getReposFromFile()
+        self._serverRepos = api.repoHelpers.get_repos_from_file()
 
     @requires_jwt_login
     def put(self, request, *args, **kwargs):
-        return self._removeLink(request)
+        return self._remove_link(request)
 
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super(UnlinkView, self).dispatch(*args, **kwargs)
 
-    def _removeLink(self, request):
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        api.restHandlersHelpers.deleteUserLink(request.data.get("req1Id"), request.data.get("req2Id"), repoFolder + "/req")
+    @staticmethod
+    def _remove_link(request):
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        api.restHandlersHelpers.delete_user_link(request.data.get("req1Id"), request.data.get("req2Id"), repo_folder + "/req")
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
@@ -176,94 +186,92 @@ class LoginView(APIView):
 class GitCommitView(APIView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._serverRepos = api.repoHelpers.getReposFromFile()
+        self._serverRepos = api.repoHelpers.get_repos_from_file()
 
     @requires_jwt_login
     def post(self, request, *args, **kwargs):
         text = request.data.get("commitText")
-        if self._commitAndPush(request, text):
+        if self._commit_and_push(request, text):
             return Response({'message': "Successfully staged changes in repository!"}, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Could not publish changes in repository'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-    def _commitAndPush(self, request, commitText: str):
-        authInfo: api.authHelpers.AuthInfo = request.auth
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        providerAPI = api.authHelpers.AuthProviderAPI(authInfo.provider)
-        _, userName, userMail = providerAPI.get_identity(authInfo.token)
-        if not userMail:
-            userMail = providerAPI.getUserMail(authInfo.token)
-        return api.repoHelpers.stageChanges(repoFolder, commitText, userName, userMail)
+    @staticmethod
+    def _commit_and_push(request, commit_text: str):
+        auth_info: api.authHelpers.AuthInfo = request.auth
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        provider_api = api.authHelpers.AuthProviderAPI(auth_info.provider)
+        _, user_name, user_mail = provider_api.get_identity(auth_info.token)
+        if not user_mail:
+            user_mail = provider_api.get_user_mail(auth_info.token)
+        return api.repoHelpers.stage_changes(repo_folder, commit_text, user_name, user_mail)
 
 
 class GetUserReposList(APIView):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self._serverRepos = api.repoHelpers.getReposFromFile()
+        self._serverRepos = api.repoHelpers.get_repos_from_file()
 
     @requires_jwt_login
     def get(self, request, *args, **kwargs):
-        return self._getUserRepos(request)
+        return self._get_user_repos(request)
 
     @requires_jwt_login
     def post(self, request, *args, **kwargs):
-        return self._postChosenRepo(request)
+        return self._post_chosen_repo(request)
 
-    def _getUserRepos(self, request):
-        authInfo: api.authHelpers.AuthInfo = request.auth
-        userRepos = api.authHelpers.AuthProviderAPI(authInfo.provider).get_repos(authInfo.token)
-        serverUserRepos = api.repoHelpers.getUserServerRepos(userRepos, self._serverRepos)
-        return JsonResponse(serverUserRepos, safe=False)
+    def _get_user_repos(self, request):
+        auth_info: api.authHelpers.AuthInfo = request.auth
+        user_repos = api.authHelpers.AuthProviderAPI(auth_info.provider).get_repos(auth_info.token)
+        server_user_repos = api.repoHelpers.get_user_server_repos(user_repos, self._serverRepos)
+        return JsonResponse(server_user_repos, safe=False)
 
-    def _postChosenRepo(self, request):
-        authInfo: api.authHelpers.AuthInfo = request.auth
-        repoFolder, repoName = api.repoHelpers.getRepoInfo(request)
-        repoUrl = self._serverRepos.get(repoName)
-        if api.repoHelpers.checkIfExists(repoFolder):
-            api.repoHelpers.pullRepo(repoFolder, authInfo.token)
+    def _post_chosen_repo(self, request):
+        auth_info: api.authHelpers.AuthInfo = request.auth
+        repo_folder, repo_name = api.repoHelpers.get_repo_info(request)
+        repo_url = self._serverRepos.get(repo_name)
+        if api.repoHelpers.check_if_exists(repo_folder):
+            api.repoHelpers.pull_repo(repo_folder, auth_info.token)
         else:
-            api.repoHelpers.cloneRepo(repoFolder, repoUrl, authInfo.token, authInfo.provider)
+            api.repoHelpers.clone_repo(repo_folder, repo_url, auth_info.token, auth_info.provider)
         return Response({'message': 'OK'}, status=status.HTTP_200_OK)
 
 
 class AllReqsView(APIView):
     def __init__(self):
-        self._serverRepos = api.repoHelpers.getReposFromFile()
+        self._serverRepos = api.repoHelpers.get_repos_from_file()
 
     @requires_jwt_login
     def get(self, request, *args, **kwargs):
-        return self._getAllReqs(request)
+        return self._get_all_reqs(request)
 
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super(AllReqsView, self).dispatch(*args, **kwargs)
 
-    def _getAllReqs(self, request):
-        repoFolder, _ = api.repoHelpers.getRepoInfo(request)
-        reqs = api.restHandlersHelpers.getAllReqs(repoFolder + "/req")
+    @staticmethod
+    def _get_all_reqs(request):
+        repo_folder, _ = api.repoHelpers.get_repo_info(request)
+        reqs = api.restHandlersHelpers.get_all_reqs(repo_folder + "/req")
         if not reqs:
             return JsonResponse([], safe=False)
-        serialized = api.restHandlersHelpers.serializeAllReqs(reqs)
+        serialized = api.restHandlersHelpers.serialize_all_reqs(reqs)
         return JsonResponse(serialized, safe=False)
 
 
 class IdentityView(APIView):
     @requires_jwt_login
     def get(self, request, *args, **kwargs):
-        return self._getIdentity(request)
+        return self._get_identity(request)
 
-    def _getIdentity(self, request):
-        authInfo: api.authHelpers.AuthInfo = request.auth
-        providerAPI = api.authHelpers.AuthProviderAPI(authInfo.provider)
-        uid, login, email = providerAPI.get_identity(authInfo.token)
+    @staticmethod
+    def _get_identity(request):
+        auth_info: api.authHelpers.AuthInfo = request.auth
+        provider_api = api.authHelpers.AuthProviderAPI(auth_info.provider)
+        uid, login, email = provider_api.get_identity(auth_info.token)
         if not email:
-            email = providerAPI.getUserMail(authInfo.token)
+            email = provider_api.get_user_mail(auth_info.token)
         return JsonResponse({"uid": uid,
                              "login": login,
                              "email": email,
-                             "provider": authInfo.provider.name.lower()})
-
-
-def seyHello(request) -> HttpResponse:
-    """A simple hello world function to check if connection between the app and the server is correctly established"""
-    return HttpResponse('Hello from backend')
+                             "provider": auth_info.provider.name.lower()})

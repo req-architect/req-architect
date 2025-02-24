@@ -4,7 +4,6 @@ from . import views
 
 
 urlpatterns = [
-    path('hello/', views.seyHello),
     path("req/", views.ReqView.as_view(), name="req"),
     path("doc/", views.DocView.as_view(), name="doc"),
     path("req/link/", views.LinkView.as_view(), name="linkView"),

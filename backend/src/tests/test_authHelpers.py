@@ -17,9 +17,11 @@ from api.authHelpers import (
 from api.error import InvalidTokenException, TokenNotPresentException, OAuthProviderCommunicationException
 from api.testHelpers import TEST_USERNAME, TEST_UID, TEST_MAIL, TEST_REPOS
 
+
 @requires_jwt_login
 def dummy_view(self, request):
     return "OK"
+
 
 class TestAuthHelpers(unittest.TestCase):
     @patch("api.authHelpers.config")
@@ -81,7 +83,7 @@ class TestAuthHelpers(unittest.TestCase):
 
     @patch("api.authHelpers.config")
     @patch("api.authHelpers.jwt.decode")
-    @patch("api.authHelpers.tokenMap.getToken")
+    @patch("api.authHelpers.tokenMap.get_token")
     def test_requires_jwt_login_valid_token(self, mock_get_token, mock_jwt_decode, mock_config):
         valid_jwt_token = "valid_jwt_token"
         valid_uuid = UUID("550e8400-e29b-41d4-a716-446655440000")
@@ -124,7 +126,7 @@ class TestAuthHelpers(unittest.TestCase):
             self.assertRaises(InvalidTokenException, dummy_view, self, request)
 
     @patch("api.authHelpers.jwt.decode")
-    @patch("api.authHelpers.tokenMap.getToken")
+    @patch("api.authHelpers.tokenMap.get_token")
     @patch("api.authHelpers.config")
     def test_requires_jwt_login_invalid_token(self, mock_config, mock_get_token, mock_jwt_decode):
         mock_config.side_effect = lambda key: {
@@ -150,7 +152,7 @@ class TestAuthHelpers(unittest.TestCase):
         existing_uuid = uuid4()
         existing_token = OAuthToken("mocked_token", OAuthProvider.GITHUB)
         token_map._tokenDict[existing_uuid] = existing_token
-        result = token_map.getToken(existing_uuid)
+        result = token_map.get_token(existing_uuid)
         self.assertEqual(result, existing_token)
 
     @patch("api.authHelpers.OAuth2Session.get")
@@ -161,7 +163,7 @@ class TestAuthHelpers(unittest.TestCase):
         mock_requests_get.return_value = mock_response
 
         auth_provider = AuthProviderAPI(OAuthProvider.GITHUB)
-        email = auth_provider.getUserMail("mocked_token")
+        email = auth_provider.get_user_mail("mocked_token")
 
         mock_requests_get.assert_called_once_with("https://api.github.com/user/emails")
         mock_requests_get.return_value.json.assert_called_once()
@@ -175,7 +177,7 @@ class TestAuthHelpers(unittest.TestCase):
         mock_requests_get.return_value = mock_response
 
         auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
-        email = auth_provider.getUserMail("mocked_token")
+        email = auth_provider.get_user_mail("mocked_token")
 
         mock_requests_get.assert_called_once_with("https://gitlab.com/api/v4/user/emails")
         mock_requests_get.return_value.json.assert_called_once()
@@ -187,7 +189,7 @@ class TestAuthHelpers(unittest.TestCase):
         mock_response.status_code = 400
 
         auth_provider = AuthProviderAPI(OAuthProvider.GITHUB)
-        self.assertRaises(OAuthProviderCommunicationException, auth_provider.getUserMail, "mocked_token")
+        self.assertRaises(OAuthProviderCommunicationException, auth_provider.get_user_mail, "mocked_token")
         mock_requests_get.assert_called_once_with("https://api.github.com/user/emails")
 
     @patch("api.authHelpers.OAuth2Session.get")
@@ -198,18 +200,18 @@ class TestAuthHelpers(unittest.TestCase):
         mock_requests_get.return_value = mock_response
 
         auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
-        email = auth_provider.getUserMail("mocked_token")
+        email = auth_provider.get_user_mail("mocked_token")
         self.assertIsNone(email)
 
         mock_response.json.return_value = [{"email": "test@example.com", "primary": False, "verified": False}]
-        email = auth_provider.getUserMail("mocked_token")
+        email = auth_provider.get_user_mail("mocked_token")
         self.assertIsNone(email)
 
         mock_response.json.return_value = [
             {"email": "test@example.com", "primary": True, "verified": False},
             {"email": "test2@example.com", "primary": False, "verified": True},
         ]
-        email = auth_provider.getUserMail("mocked_token")
+        email = auth_provider.get_user_mail("mocked_token")
         self.assertIsNone(email)
 
     @patch("api.authHelpers.OAuth2Session")
@@ -291,7 +293,7 @@ class TestAuthHelpers(unittest.TestCase):
     @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})
     def test_getUserMail_server_test_mode(self):
         auth_provider = AuthProviderAPI(OAuthProvider.GITLAB)
-        email = auth_provider.getUserMail("mocked_token")
+        email = auth_provider.get_user_mail("mocked_token")
         self.assertEqual(email, TEST_MAIL)
 
     @patch.dict(os.environ, {"SERVER_TEST_MODE": "1"})

@@ -1,4 +1,4 @@
-"""This module provides functions, data strucures and classes responsible for users authentication."""
+"""This module provides functions, data structures and classes responsible for users authentication."""
 
 import urllib.parse
 from dataclasses import dataclass
@@ -60,12 +60,12 @@ class TokenMap:
     def __init__(self):
         self._tokenDict: Dict[UUID, OAuthTokenWithInfo] = {}
 
-    def insertToken(self, token: OAuthTokenWithInfo) -> UUID:
+    def insert_token(self, token: OAuthTokenWithInfo) -> UUID:
         uuid = uuid4()
         self._tokenDict[uuid] = token
         return uuid
 
-    def getToken(self, uuid: UUID) -> OAuthTokenWithInfo | None:
+    def get_token(self, uuid: UUID) -> OAuthTokenWithInfo | None:
         return self._tokenDict.get(uuid)
 
 
@@ -94,12 +94,12 @@ class AuthProviderAPI:
         self._provider = provider
 
     def create_access_token(self, request_uri: str):
-        clientId, clientSecret = config(self._provider.name.upper() + "_CLIENT_ID"), config(
+        client_id, client_secret = config(self._provider.name.upper() + "_CLIENT_ID"), config(
             self._provider.name.upper() + "_CLIENT_SECRET")
         redirect_uri = self._provider.get_redirect_url()
-        session = OAuth2Session(clientId, redirect_uri=redirect_uri)
+        session = OAuth2Session(client_id, redirect_uri=redirect_uri)
         try:
-            session.fetch_token(PROVIDER_INFO[self._provider]["token_url"], client_secret=clientSecret,
+            session.fetch_token(PROVIDER_INFO[self._provider]["token_url"], client_secret=client_secret,
                             authorization_response=request_uri)
         except InvalidGrantError:
             raise InvalidAuthorizationCodeException()
@@ -111,7 +111,7 @@ class AuthProviderAPI:
                                   session.token.get("created_at"),
                                   session.token.get("expires_in"))
 
-    def getUserMail(self, token_str: str) -> str | None:
+    def get_user_mail(self, token_str: str) -> str | None:
         if server_test_mode():
             return TEST_MAIL
 
@@ -162,7 +162,7 @@ class AuthProviderAPI:
 def generate_frontend_redirect_url(request_uri: str, provider: AuthProviderAPI) -> str:
     token = provider.create_access_token(request_uri)  # handle exceptions
     user_id, _, _ = provider.get_identity(token.token)
-    uuid = tokenMap.insertToken(token)
+    uuid = tokenMap.insert_token(token)
     expiration_time_minutes = 30  # change later
     exp = (datetime.now(timezone.utc) + timedelta(minutes=expiration_time_minutes)).timestamp()
     iat = datetime.now(timezone.utc).timestamp()
@@ -175,9 +175,9 @@ def generate_frontend_redirect_url(request_uri: str, provider: AuthProviderAPI) 
 
 
 def generate_authorization_url(provider: OAuthProvider) -> str:
-    clientId = config(provider.name.upper() + "_CLIENT_ID")
+    client_id = config(provider.name.upper() + "_CLIENT_ID")
     redirect_uri = provider.get_redirect_url()
-    session = OAuth2Session(clientId, redirect_uri=redirect_uri, scope=PROVIDER_INFO[provider]["scope"])
+    session = OAuth2Session(client_id, redirect_uri=redirect_uri, scope=PROVIDER_INFO[provider]["scope"])
     authorization_url, state = session.authorization_url(PROVIDER_INFO[provider]["authorization_url"])
     return authorization_url
 
@@ -185,27 +185,27 @@ def generate_authorization_url(provider: OAuthProvider) -> str:
 def requires_jwt_login(func):
     @wraps(func)
     def wrapper(self, request, *args, **kwargs):
-        authHeader = request.headers.get("Authorization")
-        if not authHeader:
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
             raise TokenNotPresentException()
-        auth_type, token = authHeader.split(" ")[:2]
+        auth_type, token = auth_header.split(" ")[:2]
         if auth_type != "Bearer":
             raise TokenNotPresentException()
-        jwtToken = authHeader.split(" ")[1]
+        jwt_token = auth_header.split(" ")[1]
         try:
-            payload = jwt.decode(jwtToken, config("JWT_SECRET"), algorithms=["HS256"])
+            payload = jwt.decode(jwt_token, config("JWT_SECRET"), algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
             raise InvalidTokenException("Token expired.")
         except jwt.InvalidSignatureError:
             raise InvalidTokenException("Token is invalid.")
         except jwt.DecodeError:
             raise InvalidTokenException("Token could not be decoded.")
-        oAuthToken = tokenMap.getToken(UUID(payload["uuid"]))
-        if not oAuthToken:
+        oauth_token = tokenMap.get_token(UUID(payload["uuid"]))
+        if not oauth_token:
             raise InvalidTokenException("Token could not be verified.")
         user_id = payload["user_id"]
-        authInfo = AuthInfo(oAuthToken.token, oAuthToken.provider, user_id)
-        request.auth = authInfo
+        auth_info = AuthInfo(oauth_token.token, oauth_token.provider, user_id)
+        request.auth = auth_info
         return func(self, request, *args, **kwargs)
 
     @wraps(func)

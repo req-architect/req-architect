@@ -9,91 +9,92 @@ It contains functions for adding and removing documents and requirements and for
 representation of existing documents and requirements to customers.
 """
 
-def addUserDocument(docId: str, parentId: str, userFolder: str):
+
+def add_user_document(doc_id: str, parent_id: str, user_folder: str):
     """
     Function containing the logic for adding a document. It uses the document tree from the Doorstop API to manage the process of adding a new document by calling the
     appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client via the
     appropriate exceptions.
     """
     try:
-        docTree = doorstop.build(cwd=userFolder)
-        if len(docTree.documents) >= 1 and not parentId:
+        doc_tree = doorstop.build(cwd=user_folder)
+        if len(doc_tree.documents) >= 1 and not parent_id:
             raise api.error.NoParentSpecifiedException(f"parentID must be specified for the given document.")
-        if len(docTree.documents) == 0 and parentId:
+        if len(doc_tree.documents) == 0 and parent_id:
             raise api.error.ParentOfEmptyTreeSpecifiedException()
-        docName = userFolder + "/" + docId
-        docTree.create_document(
-            docName, docId, parent=parentId)
+        doc_name = user_folder + "/" + doc_id
+        doc_tree.create_document(
+            doc_name, doc_id, parent=parent_id)
     except doorstop.DoorstopError:
         raise api.error.DoorstopException(f"Could not build document tree.")
     except FileNotFoundError:
-        raise api.error.DoorstopException(f"User folder {userFolder} was not found.")
+        raise api.error.DoorstopException(f"User folder {user_folder} was not found.")
 
-def removeDocTree(tree: doorstop.Tree, docId: str, userFolder: str, rootTree: doorstop.Tree):
+
+def remove_doc_tree(tree: doorstop.Tree, doc_id: str, user_folder: str, root_tree: doorstop.Tree):
     """
     Function containing the logic for removing a specific subtree from the project document tree. It uses the tree from the Doorstop API to manage the process of deleting an existing subtree by calling the
     appropriate Doorstop functions.
     """
     doc = tree.document
-    if doc.prefix == docId:
-        ToBeRemoved = tree.documents
-        ToCheck = [
-            document for document in rootTree.documents if document not in ToBeRemoved]
-        for document in ToBeRemoved:
+    if doc.prefix == doc_id:
+        to_be_removed = tree.documents
+        to_check = [
+            document for document in root_tree.documents if document not in to_be_removed]
+        for document in to_be_removed:
             for req in document.items:
-                RemoveLinksToReq(str(req.uid), ToCheck, userFolder)
+                remove_links_to_req(str(req.uid), to_check, user_folder)
         for document in tree.documents:
             rmtree(document.path)
         return
     for child in tree.children:
-        removeDocTree(child, docId, userFolder, rootTree)
+        remove_doc_tree(child, doc_id, user_folder, root_tree)
     return
 
 
-def deleteUserDocument(docId: str, userFolder: str):
+def delete_user_document(doc_id: str, user_folder: str):
     """
     Function containing the logic for deleting a document. Uses the document tree from the Doorstop API to manage the process of deleting an existing document by calling the
     appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
     via appropriate exceptions.
     """
     try:
-        docTree = doorstop.build(userFolder)
-        numberOfDocuments = len(docTree.documents)
-        if numberOfDocuments == 0:
+        doc_tree = doorstop.build(user_folder)
+        number_of_documents = len(doc_tree.documents)
+        if number_of_documents == 0:
             raise api.error.EmptyDocumentTreeException(f"No documents were created yet.")
         try:
-            doc = docTree.find_document(docId)
+            doc_tree.find_document(doc_id)
         except doorstop.DoorstopError:
-            raise api.error.DocNotFoundException(f"Document of given UID: {docId} was not found.")
-        removeDocTree(docTree, docId, userFolder, docTree)
+            raise api.error.DocNotFoundException(f"Document of given UID: {doc_id} was not found.")
+        remove_doc_tree(doc_tree, doc_id, user_folder, doc_tree)
     except doorstop.DoorstopError:
         raise api.error.DoorstopException(f"Could not build document tree.")
 
 
-
-def addUserRequirement(docId: str, reqNumberId: int, reqText: str, userFolder: str):
+def add_user_requirement(doc_id: str, req_number_id: int, req_text: str, user_folder: str):
     """
     Function containing the logic for adding a requirement. It uses the document tree from the Doorstop API to manage the process of adding a new requirement by calling the
     appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
     via appropriate exceptions.
     """
     try:
-        docTree = doorstop.build(userFolder)
+        doc_tree = doorstop.build(user_folder)
         try:
-            doc = docTree.find_document(docId)
+            doc = doc_tree.find_document(doc_id)
         except doorstop.DoorstopError:
-            raise api.error.DocNotFoundException(f"Document of given UID: {docId} was not found.")
+            raise api.error.DocNotFoundException(f"Document of given UID: {doc_id} was not found.")
         try:
-            req = doc.add_item(number=reqNumberId)
+            req = doc.add_item(number=req_number_id)
         except doorstop.DoorstopError:
-            raise api.error.InvalidReqIDException(f"Given Req ID: {reqNumberId} is invalid.")
-        if reqText:
-            req.text = reqText
+            raise api.error.InvalidReqIDException(f"Given Req ID: {req_number_id} is invalid.")
+        if req_text:
+            req.text = req_text
     except doorstop.DoorstopError:
         raise api.error.DoorstopException(f"Could not build document tree.")
 
 
-def RemoveLinksToReq(reqId: str, documents: list[doorstop.Document], userFolder: str):
+def remove_links_to_req(req_id: str, documents: list[doorstop.Document], user_folder: str):
     """
     Function containing logic for removing references to a given subtree requirement from the project document tree. It uses the document tree from the Doorstop API to manage the process of removing an existing subtree by calling the
     relevant Doorstop functions.
@@ -101,119 +102,118 @@ def RemoveLinksToReq(reqId: str, documents: list[doorstop.Document], userFolder:
     for doc in documents:
         reqs = doc.items
         for req in reqs:
-            if str(req.uid) != reqId:
-                deleteUserLink(str(req.uid), reqId, userFolder)
+            if str(req.uid) != req_id:
+                delete_user_link(str(req.uid), req_id, user_folder)
 
 
-def deleteUserRequirement(docId: str, reqUID: str, userFolder: str):
+def delete_user_requirement(doc_id: str, req_uid: str, user_folder: str):
     """
     Function containing the logic for removing a requirement. It uses the tree from the Doorstop API to manage the process of removing an existing requirement by calling the
     appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
     via appropriate exceptions.
     """
     try:
-        docTree = doorstop.build(userFolder)
-        doc = docTree.find_document(docId)
-        req = doc.find_item(reqUID)
-        RemoveLinksToReq(reqUID, docTree.documents, userFolder)
+        doc_tree = doorstop.build(user_folder)
+        doc = doc_tree.find_document(doc_id)
+        req = doc.find_item(req_uid)
+        remove_links_to_req(req_uid, doc_tree.documents, user_folder)
         req.delete()
     except doorstop.DoorstopError:
-        raise api.error.DoorstopException(f"Could not build doorstop tree in the given user folder {userFolder}.")
+        raise api.error.DoorstopException(f"Could not build doorstop tree in the given user folder {user_folder}.")
     except FileNotFoundError:
-        raise api.error.ReqNotFoundException(f"{reqUID} does not exist or {docId} does not exist.")
+        raise api.error.ReqNotFoundException(f"{req_uid} does not exist or {doc_id} does not exist.")
 
 
-def editUserRequirement(docId: str, reqUID: str, reqText: str, userFolder: str):
+def edit_user_requirement(doc_id: str, req_uid: str, req_text: str, user_folder: str):
     """
     Function containing the logic for modifying an existing requirement (modifying the requirement text). It uses the document tree from the Doorstop API to manage the process of modifying an existing requirement by calling the
     appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
     via appropriate exceptions.
     """
     try:
-        docTree = doorstop.build(userFolder)
-        doc = docTree.find_document(docId)
+        doc_tree = doorstop.build(user_folder)
+        doc = doc_tree.find_document(doc_id)
     except doorstop.DoorstopError:
-        raise api.error.DoorstopException(f"Could not build doorstop tree in the given user folder {userFolder}.")
+        raise api.error.DoorstopException(f"Could not build doorstop tree in the given user folder {user_folder}.")
     try:
-        req = doc.find_item(reqUID)
-        req.text = reqText
+        req = doc.find_item(req_uid)
+        req.text = req_text
     except doorstop.DoorstopError:
-        raise api.error.ReqNotFoundException(f"{reqUID} does not exist or {docId} does not exist.")
+        raise api.error.ReqNotFoundException(f"{req_uid} does not exist or {doc_id} does not exist.")
 
 
-def addUserLink(req1UID: str, req2UID: str, userFolder: str):
+def add_user_link(req1_uid: str, req2_uid: str, user_folder: str):
     """
     Function containing the logic to add a reference in an existing requirement to another existing requirement. It uses the document tree from the Doorstop API to manage this process by calling the
     appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
     via appropriate exceptions.
     """
     try:
-        docTree = doorstop.build(userFolder)
-        docTree.link_items(req1UID, req2UID)
+        doc_tree = doorstop.build(user_folder)
+        doc_tree.link_items(req1_uid, req2_uid)
     except doorstop.DoorstopError:
         raise api.error.LinkCycleException(f"Attempted to create link cycle.")
 
-def deleteUserLink(req1UID: str, req2UID: str, userFolder: str):
+
+def delete_user_link(req1_uid: str, req2_uid: str, user_folder: str):
     """
     Function containing the logic to remove a reference in an existing requirement to another existing requirement. It uses the document tree from the Doorstop API to manage this process by calling the
     appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
     via appropriate exceptions.
     """
     try:
-        docTree = doorstop.build(userFolder)
-        docTree.unlink_items(req1UID, req2UID)
+        doc_tree = doorstop.build(user_folder)
+        doc_tree.unlink_items(req1_uid, req2_uid)
     except doorstop.DoorstopError:
-        raise api.error.ReqNotFoundException(f"{req1UID} does not exist or {req2UID} does not exist.")
+        raise api.error.ReqNotFoundException(f"{req1_uid} does not exist or {req2_uid} does not exist.")
 
 
-def getDocReqs(docId: str, userFolder: str) -> list[doorstop.Item] or list:
+def get_doc_reqs(doc_id: str, user_folder: str) -> list[doorstop.Item] or list:
     """
     Function containing the logic for finding the requirements of an existing document. It uses the document tree from the Doorstop API to manage this process by calling the
     appropriate Doorstop functions. If an error occurs during this process, an appropriate message is created and returned to the client
     via appropriate exceptions.
     """
     try:
-        docTree = doorstop.build(userFolder)
-        doc = docTree.find_document(docId)
+        doc_tree = doorstop.build(user_folder)
+        doc = doc_tree.find_document(doc_id)
         reqs = doc.items
     except doorstop.DoorstopError:
         raise api.error.DoorstopException(f"Could not build document tree.")
     except FileNotFoundError:
-        raise api.error.DocNotFoundException(f"Document of given UID: {docId} was not found")
+        raise api.error.DocNotFoundException(f"Document of given UID: {doc_id} was not found")
     return reqs
 
 
-def buildDicts(tree: doorstop.Tree):
+def build_dicts(tree: doorstop.Tree):
     """
     Helper function containing the logic for building the individual document dictionaries included in the document representation returned to the customer. It uses the document tree from the Doorstop API to manage this process by calling the
     relevant Doorstop functions.
     """
     doc = tree.document
-    dict = {}
-    dict["prefix"] = str(doc.prefix)
-    dict["children"] = []
+    doc_dict = {"prefix": str(doc.prefix), "children": []}
     for child in tree.children:
-        dict["children"].append(buildDicts(child))
-    return dict
+        doc_dict["children"].append(build_dicts(child))
+    return doc_dict
 
 
-def serializeDocuments(userFolder: str):
+def serialize_documents(user_folder: str):
     """
     Function containing the logic for building the document representation returned to the client. It uses the document tree from the Doorstop API to manage this process by calling the
     relevant Doorstop functions.
     """
     try:
         data = []
-        rootTree = doorstop.build(userFolder)
-        if len(rootTree.documents) == 0:
+        root_tree = doorstop.build(user_folder)
+        if len(root_tree.documents) == 0:
             return data
-        data.append(buildDicts(rootTree))
+        data.append(build_dicts(root_tree))
         return data
     except doorstop.DoorstopError:
         raise api.error.DoorstopException(f"Could not build document tree.")
 
 
-def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
+def serialize_doc_reqs(reqs: list[doorstop.Item]) -> list[dict]:
     """
     Function containing the logic for building the requirements dictionaries included in the requirements representation returned to the customer. It uses the Doorstop API to manage this process by calling the
     relevant Doorstop functions.
@@ -231,46 +231,48 @@ def serializeDocReqs(reqs: list[doorstop.Item]) -> list[dict]:
     return data
 
 
-def getAllReqs(userFolder: str):
+def get_all_reqs(user_folder: str):
     """
     Function containing the logic for building the requirements representation returned to the client. It uses the Doorstop API to manage this process by calling the
     relevant Doorstop functions.
     """
     try:
-        rootTree = doorstop.build(userFolder)
-        if len(rootTree.documents) == 0:
+        root_tree = doorstop.build(user_folder)
+        if len(root_tree.documents) == 0:
             return []
-        doc = buildDicts(rootTree)
-        reqs = getAllReqsWithChildren(userFolder, doc)
+        doc = build_dicts(root_tree)
+        reqs = get_all_reqs_with_children(user_folder, doc)
         return reqs
     except doorstop.DoorstopError:
         raise api.error.DoorstopException(f"Could not build document tree.")
 
-def getAllReqsWithChildren(userFolder: str, doc):
+
+def get_all_reqs_with_children(user_folder: str, doc):
     """
     Function containing the logic for building the requirements representation returned to the client. It uses the Doorstop API to manage this process by calling the
     relevant Doorstop functions.
     """
     reqs = []
-    req = getDocReqs(doc["prefix"], userFolder)
+    req = get_doc_reqs(doc["prefix"], user_folder)
     reqs.extend([(r, doc["prefix"]) for r in req])
     for child in doc["children"]:
-        reqs.extend(getAllReqsWithChildren(userFolder, child))
+        reqs.extend(get_all_reqs_with_children(user_folder, child))
     return reqs
 
-def serializeAllReqs(reqs):
+
+def serialize_all_reqs(reqs):
     """
     Function containing the logic for building the requirements dictionaries included in the requirements representation returned to the customer. It uses the Doorstop API to manage this process by calling the
     relevant Doorstop functions.
     """
     data = []
-    for reqlist in reqs:
-        req = reqlist[0]
+    for req_list in reqs:
+        req = req_list[0]
         data.append({})
         data[-1]["id"] = str(req.uid)
         data[-1]["text"] = req.text
         data[-1]["reviewed"] = req.reviewed
-        data[-1]["docPrefix"] = reqlist[1]
+        data[-1]["docPrefix"] = req_list[1]
         links = []
         for link in req.links:
             links.append(str(link))

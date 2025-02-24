@@ -26,9 +26,9 @@ from oauthlib.oauth2 import AccessDeniedError
 
 
 class TestViews(SimpleTestCase):
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.restHandlersHelpers.deleteUserRequirement")
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.restHandlersHelpers.delete_user_requirement")
     def test_ReqView_DELETE(self, mock_delete_user_requirement, mock_repo_info, mock_get_repos_from_file):
         mock_delete_user_requirement.return_value = True
         url = reverse("req")
@@ -46,8 +46,8 @@ class TestViews(SimpleTestCase):
         mock_repo_info.assert_called_once()
         mock_get_repos_from_file.assert_called_once()
 
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
     def test_ReqView_DELETE_ServerProblem(self, mock_get_repo_info, mock_get_repos_from_file):
         url = reverse("req")
         data = {
@@ -61,9 +61,9 @@ class TestViews(SimpleTestCase):
         mock_get_repo_info.assert_called_once()
         mock_get_repos_from_file.assert_called_once()
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.editUserRequirement")
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.edit_user_requirement")
     def test_ReqView_PUT(self, mock_edit_user_requirement, mock_get_repos_from_file, mock_repo_info):
         mock_edit_user_requirement.return_value = True
         url = reverse("req")
@@ -81,9 +81,9 @@ class TestViews(SimpleTestCase):
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.addUserRequirement")
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.add_user_requirement")
     def test_ReqView_POST(self, mock_add_user_requirement, mock_get_repos_from_file, mock_repo_info):
         mock_add_user_requirement.return_value = True
         url = reverse("req")
@@ -101,10 +101,10 @@ class TestViews(SimpleTestCase):
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.serializeDocReqs")
-    @patch("api.restHandlersHelpers.getDocReqs")
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.serialize_doc_reqs")
+    @patch("api.restHandlersHelpers.get_doc_reqs")
     def test_ReqView_GET(self, mock_get_user_requirement, mock_serialize_doc_reqs, mock_get_repos_from_file, mock_repo_info):
         mock_get_user_requirement.return_value = ["req1", "req2"]
         mock_serialize_doc_reqs.return_value = [{"id": "1", "text": "Req 1", "reviewed": True, "links": ["link1", "link2"]}]
@@ -120,7 +120,7 @@ class TestViews(SimpleTestCase):
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
 
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
     def test_ReqView_GET_ServerProblem(self, mock_get_repos_from_file):
         url = reverse("req")
         response = self.client.get(url)
@@ -128,7 +128,7 @@ class TestViews(SimpleTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         mock_get_repos_from_file.assert_called_once()
 
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
     def test_ReqView_GET_noDocId(self, mock_get_repos_from_file):
         url = reverse("req")
         response = self.client.get(url)
@@ -136,9 +136,9 @@ class TestViews(SimpleTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         mock_get_repos_from_file.assert_called_once()
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.getDocReqs")
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.get_doc_reqs")
     def test_ReqView_GET_noReqs(self, mock_get_user_requirement, mock_get_repos_from_file, mock_repo_info):
         mock_get_user_requirement.return_value = None
         data = {"docId": "your_doc_id"}
@@ -152,9 +152,9 @@ class TestViews(SimpleTestCase):
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.serializeDocuments")
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.serialize_documents")
     def test_DocView_GET(self, mock_get_doc_reqs, mock_get_repos_from_file, mock_repo_info):
         mock_get_doc_reqs.return_value = ["doc1", "doc2"]
         url = reverse("doc")
@@ -167,9 +167,9 @@ class TestViews(SimpleTestCase):
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.addUserDocument", return_value=True)
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.add_user_document", return_value=True)
     def test_DocView_POST(self, mock_add_user_document, mock_get_repos_from_file, mock_repo_info):
         url = reverse("doc")
         data = {
@@ -185,9 +185,9 @@ class TestViews(SimpleTestCase):
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.deleteUserDocument", return_value=True)
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.delete_user_document", return_value=True)
     def test_DocView_DELETE(self, mock_delete_document, mock_get_repos_from_file, mock_repo_info):
         url = reverse("doc")
         data = {
@@ -202,9 +202,9 @@ class TestViews(SimpleTestCase):
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.addUserLink", return_value=True)
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.add_user_link", return_value=True)
     def test_LinkView_PUT(self, mock_link, mock_get_repos_from_file, mock_repo_info):
         url = reverse("linkView")
         data = {
@@ -219,9 +219,9 @@ class TestViews(SimpleTestCase):
         mock_get_repos_from_file.assert_called_once()
         mock_repo_info.assert_called_once()
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.deleteUserLink", return_value=True)
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.delete_user_link", return_value=True)
     def test_UnlinkView_PUT(self, mock_unlink, mock_get_repos_from_file, mock_repo_info):
         url = reverse("unlinkView")
         data = {
@@ -265,10 +265,10 @@ class TestViews(SimpleTestCase):
         self.assertEqual(response.url, "http://example.com/authorization")
         mock_generate_auth_url.assert_called_once_with(OAuthProvider["GITLAB"])
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.getAllReqs")
-    @patch("api.restHandlersHelpers.serializeAllReqs")
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.get_all_reqs")
+    @patch("api.restHandlersHelpers.serialize_all_reqs")
     def test_allReqsView_GET(self, mock_serial, mock_get_reqs, mock_get_repos_from_file, mock_repo_info):
         mock_get_reqs.return_value = ["req1", "req2"]
         url = reverse("allReqsView")
@@ -282,9 +282,9 @@ class TestViews(SimpleTestCase):
         mock_get_reqs.assert_called_once_with("repo_folder/req")
         mock_serial.assert_called_once_with(["req1", "req2"])
 
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.restHandlersHelpers.getAllReqs")
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.restHandlersHelpers.get_all_reqs")
     def test_allReqsView_GET_noReqs(self, mock_get_reqs, mock_get_repos_from_file, mock_repo_info):
         mock_get_reqs.return_value = []
         url = reverse("allReqsView")
@@ -296,10 +296,10 @@ class TestViews(SimpleTestCase):
         mock_repo_info.assert_called_once()
         mock_get_reqs.assert_called_once_with("repo_folder/req")
 
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
     @patch("api.authHelpers.AuthProviderAPI.get_identity")
-    @patch("api.repoHelpers.stageChanges", return_value=True)
+    @patch("api.repoHelpers.stage_changes", return_value=True)
     def test_GitCommitView_POST(self, mock_stage, mock_get_identity, mock_get_repos_from_file, mock_repo_info):
         url = reverse("commitInRepo")
         data = {"commitText": "Test commit"}
@@ -314,11 +314,11 @@ class TestViews(SimpleTestCase):
         mock_get_identity.assert_called_once_with(request.auth.token)
         mock_stage.assert_called_once_with("repo_folder", data["commitText"], "test_username", "test_email")
 
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
     @patch("api.authHelpers.AuthProviderAPI.get_identity")
-    @patch("api.repoHelpers.stageChanges", return_value=True)
-    @patch("api.authHelpers.AuthProviderAPI.getUserMail")
+    @patch("api.repoHelpers.stage_changes", return_value=True)
+    @patch("api.authHelpers.AuthProviderAPI.get_user_mail")
     def test_GitCommitView_POST_noMail(self, mock_mail, mock_stage, mock_get_identity, mock_get_repos_from_file, mock_repo_info):
         url = reverse("commitInRepo")
         data = {"commitText": "Test commit"}
@@ -334,10 +334,10 @@ class TestViews(SimpleTestCase):
         mock_get_identity.assert_called_once_with(request.auth.token)
         mock_stage.assert_called_once_with("repo_folder", data["commitText"], "test_username", "test_email")
 
-    @patch("api.repoHelpers.getReposFromFile", return_value={"repo_name": "repo_url"})
-    @patch("api.repoHelpers.getRepoInfo", return_value=("repo_folder", "repo_name"))
+    @patch("api.repoHelpers.get_repos_from_file", return_value={"repo_name": "repo_url"})
+    @patch("api.repoHelpers.get_repo_info", return_value=("repo_folder", "repo_name"))
     @patch("api.authHelpers.AuthProviderAPI.get_identity")
-    @patch("api.repoHelpers.stageChanges", return_value=False)
+    @patch("api.repoHelpers.stage_changes", return_value=False)
     def test_GitCommitView_POST_cantStage(self, mock_stage, mock_get_identity, mock_get_repos_from_file, mock_repo_info):
         url = reverse("commitInRepo")
         data = {"commitText": "Test commit"}

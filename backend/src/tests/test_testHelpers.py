@@ -10,6 +10,6 @@ class TestTestHelpers(unittest.TestCase):
         self.assertEqual(auth_info.uid, testHelpers.TEST_UID)
         self.assertEqual(auth_info.token, testHelpers.TEST_TOKEN)
 
-    def test_serwer_mode(self):
+    def test_server_mode(self):
         result = testHelpers.server_test_mode()
         self.assertFalse(result)

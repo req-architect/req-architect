@@ -9,8 +9,8 @@ from decouple import config
 import api.error
 
 
-def getReposFromFile() -> dict:
-    """Load server repositories from conig file.\n
+def get_repos_from_file() -> dict:
+    """Load server repositories from config file.\n
     Returns: dict[repo_name: repo_url]"""
     if server_test_mode():
         return TEST_SERVER_REPOS
@@ -23,28 +23,28 @@ def getReposFromFile() -> dict:
         return repos
 
 
-def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> bool:
+def stage_changes(repo_folder_path: str, message: str, user_name: str, user_mail) -> bool:
     """Commit changes in given repo whith given message and push it to remote.\n"""
     if server_test_mode():
         return True
 
     try:
-        repo = git.Repo(repoFolderPath)
-        repo.git.config('user.name', userName)
-        repo.git.config('user.email', userMail)
-        repo.git.add(repoFolderPath)
+        repo = git.Repo(repo_folder_path)
+        repo.git.config('user.name', user_name)
+        repo.git.config('user.email', user_mail)
+        repo.git.add(repo_folder_path)
         repo.index.commit(message)
-        fetchInfo = repo.remote().fetch()
-        for info in fetchInfo:
+        fetch_info = repo.remote().fetch()
+        for info in fetch_info:
             if info.flags == info.REJECTED:
                 raise api.error.FetchRejectedException()
         try:
             repo.git.merge(f'origin/{repo.active_branch.name}')
         except git.GitCommandError:
             raise api.error.MergeRejectedException(f"Merge was rejected after fetching results from remote repo.")
-        pushInfo = repo.remote().push()
+        push_info = repo.remote().push()
         try:
-            pushInfo.raise_if_error()
+            push_info.raise_if_error()
         except Exception:
             raise api.error.PushRejectedException(f"Push operation resulted in conflicts.")
         return True
@@ -56,25 +56,25 @@ def stageChanges(repoFolderPath: str, message: str, userName: str, userMail) -> 
         return False
 
 
-def repoName2DirName(repoName: str) -> str:
-    """Get name of repository direcory on server from repo's name."""
-    return repoName.replace('/', '-')
+def repo_name_to_dir_name(repo_name: str) -> str:
+    """Get name of repository directory on server from repo's name."""
+    return repo_name.replace('/', '-')
 
 
-def getRepoInfo(request) -> tuple[str, str]:
+def get_repo_info(request) -> tuple[str, str]:
     """Get repo's directory and name.\n
     Returns: tuple[repo directory name, repo name]"""
-    authInfo: AuthInfo = request.auth
-    repoName = request.GET.get('repositoryName')
-    userId = authInfo.uid
-    repoFolder = repoName2DirName(repoName)
-    provider_prefix = authInfo.provider.name.lower()
-    return f"{config('REPOS_FOLDER')}/{provider_prefix}/{userId}/{repoFolder}", repoName
+    auth_info: AuthInfo = request.auth
+    repo_name = request.GET.get('repositoryName')
+    user_id = auth_info.uid
+    repo_folder = repo_name_to_dir_name(repo_name)
+    provider_prefix = auth_info.provider.name.lower()
+    return f"{config('REPOS_FOLDER')}/{provider_prefix}/{user_id}/{repo_folder}", repo_name
 
 
-def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
+def clone_repo(repo_folder: str, repo_url, token, provider: OAuthProvider):
     """Clone repo from given url"""
-    destination = f"{repoFolder}"
+    destination = f"{repo_folder}"
     os.makedirs(destination)
 
     if server_test_mode():
@@ -82,9 +82,9 @@ def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
         return repo
 
     if provider == OAuthProvider.GITHUB:
-        url = f"https://{token}:@{repoUrl}"
+        url = f"https://{token}:@{repo_url}"
     else:
-        url = f"https://oauth2:{token}@{repoUrl}.git"
+        url = f"https://oauth2:{token}@{repo_url}.git"
     try:
         repo = git.Repo.clone_from(url, destination)
     except git.GitCommandError:
@@ -94,27 +94,27 @@ def cloneRepo(repoFolder: str, repoUrl, token, provider: OAuthProvider):
     return repo
 
 
-def pullRepo(repoFolder: str, token):
+def pull_repo(repo_folder: str, token):
     """Pull repo from give url"""
     if server_test_mode():
         return
 
-    repo = git.Repo(repoFolder)
+    repo = git.Repo(repo_folder)
     repo.git.update_environment(GIT_TERMINAL_PROMPT='0', GIT_USERNAME='x-access-token', GIT_PASSWORD=token)
     origin = repo.remote()
-    pullInfo = origin.pull()
-    for info in pullInfo:
+    pull_info = origin.pull()
+    for info in pull_info:
         if info.flags == info.REJECTED:
             raise api.error.PullRejectedException("Pull was rejected.")
 
 
-def checkIfExists(repoFolder: str) -> bool:
+def check_if_exists(repo_folder: str) -> bool:
     """Check if repo folder exists on server."""
-    return os.path.exists(repoFolder)
+    return os.path.exists(repo_folder)
 
 
-def getUserServerRepos(userRepos: list, serverRepos: dict):
+def get_user_server_repos(user_repos: list, server_repos: dict):
     """Get user's repos list and return list of those which are also in server's config file."""
-    if not userRepos:
+    if not user_repos:
         return []
-    return [repoName for repoName in userRepos if repoName in serverRepos.keys()]
+    return [repoName for repoName in user_repos if repoName in server_repos.keys()]
